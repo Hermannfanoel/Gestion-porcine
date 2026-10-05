@@ -1,0 +1,3194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gestion Porcine</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#b5651d">
+<link rel="icon" href="icon-192.png">
+<style>
+:root {
+  --bg: #f5f3ef;
+  --card: #ffffff;
+  --ink: #2b2420;
+  --muted: #7a7067;
+  --accent: #b5651d;
+  --accent-ink: #ffffff;
+  --border: #e4ddd3;
+  --danger: #a4342a;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #211d19; --card: #2c2621; --ink: #f1ece4; --muted: #b0a79b;
+    --accent: #d98c3f; --accent-ink: #211d19; --border: #413a33; --danger: #e07a6d;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #211d19; --card: #2c2621; --ink: #f1ece4; --muted: #b0a79b;
+  --accent: #d98c3f; --accent-ink: #211d19; --border: #413a33; --danger: #e07a6d;
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
+* { box-sizing: border-box; }
+body {
+  margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+  font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+header {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+  background: var(--accent); color: var(--accent-ink);
+  padding: 14px 16px; font-size: 20px; font-weight: 700;
+}
+.tabs {
+  display: flex; gap: 14px; padding: 12px 14px 0; background: var(--bg);
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 52px); z-index: 9;
+  overflow-x: auto;
+}
+.tab {
+  flex: 1; min-width: 100px; text-align: center; padding: 10px 10px;
+  border-radius: 10px; background: var(--card); color: var(--muted);
+  font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid var(--border);
+}
+.tab.active { color: var(--accent); }
+main { padding: 14px; max-width: 700px; margin: 0 auto; }
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px; margin-bottom: 12px;
+}
+h2 { font-size: 16px; margin: 0 0 10px; }
+label { display: block; font-size: 12px; color: var(--muted); margin: 8px 0 4px; }
+input, select, textarea {
+  width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--ink); font-size: 15px;
+}
+button {
+  background: var(--accent); color: var(--accent-ink); border: none; border-radius: 8px;
+  padding: 11px 16px; font-size: 15px; font-weight: 700; margin-top: 12px; cursor: pointer; width: 100%;
+}
+input:disabled { color: var(--accent); font-weight: 700; opacity: 1; background: var(--bg); }
+input#a-prixU, input#a-prixTotal { border-color: var(--accent); }
+.item {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 10px 0; border-bottom: 1px solid var(--border); gap: 8px;
+}
+.item:last-child { border-bottom: none; }
+.item .meta { font-size: 13px; color: var(--muted); }
+.item .name { font-weight: 700; }
+.del { background: none; color: var(--danger); width: auto; padding: 4px 8px; margin: 0; font-size: 13px; }
+.empty { color: var(--muted); font-size: 14px; text-align: center; padding: 14px 0; }
+.hidden { display: none; }
+.pill { display:inline-block; font-size:11px; padding:2px 8px; border-radius:20px; background:var(--bg); border:1px solid var(--border); color:var(--muted); margin-left:6px; }
+.drawer { margin-bottom: 12px; }
+.drawer-head {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px; font-weight: 700; display: flex; justify-content: space-between; cursor: pointer;
+}
+.drawer-head .chevron { transition: transform 0.15s; color: var(--accent); }
+.drawer-head.open .chevron { transform: rotate(180deg); }
+.drawer-body { margin-top: 8px; }
+.modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px;
+}
+.modal.hidden { display: none; }
+.modal-box {
+  background: var(--card); border-radius: 14px; padding: 20px; max-width: 320px; width: 100%;
+  text-align: center;
+}
+.modal-box p { margin: 0 0 16px; font-size: 15px; }
+.modal-actions { display: flex; gap: 10px; }
+.modal-actions button { margin-top: 0; }
+.btn-secondary { background: var(--border) !important; color: var(--ink) !important; }
+.fullscreen {
+  position: fixed; inset: 0; background: var(--bg); z-index: 200; overflow-y: auto;
+  padding: 16px; padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+}
+.fullscreen.hidden { display: none; }
+.fullscreen-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.fullscreen-header button { width: auto; margin: 0; padding: 10px 16px; }
+.fullscreen-header h2 { margin: 0; font-size: 18px; }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-row { display: flex; gap: 8px; }
+.btn-row button { margin-top: 12px; flex: 1; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 16px; }
+th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+th { color: var(--muted); font-weight: 700; font-size: 14px; }
+td { font-weight: 600; }
+</style>
+</head>
+<body>
+<header>🐖 Gestion Porcine <span id="syncStatus" style="float:right; font-size:12px; font-weight:400; margin-top:5px;"></span></header>
+<div class="tabs">
+  <div class="tab active" data-tab="dashboard">TABLEAU DE BORD</div>
+  <div class="tab" data-tab="animaux">INSCRIPTION</div>
+  <div class="tab" data-tab="parametre">PARAMÈTRE</div>
+  <div class="tab" data-tab="mouvement">MOUVEMENT</div>
+  <div class="tab" data-tab="suivi">SUIVI</div>
+</div>
+<main>
+
+<section id="dashboard">
+  <div class="card">
+    <h2>Résumé</h2>
+    <div id="dash-resume"></div>
+  </div>
+  <div class="card">
+    <h2>⚠️ Alertes stock</h2>
+    <div id="dash-alertes"></div>
+  </div>
+  <div class="card">
+    <h2>💉 Alertes Prophylaxie</h2>
+    <div id="dash-alertes-prophylaxie"></div>
+  </div>
+  <div class="card">
+    <h2>Bombonnes — État de stock</h2>
+    <div id="dash-bombonnes"></div>
+  </div>
+  <div class="card">
+    <h2>Dernières consommations</h2>
+    <div id="dash-conso"></div>
+  </div>
+  <div class="card">
+    <h2>Productions récentes</h2>
+    <div id="dash-production"></div>
+  </div>
+  <div class="card">
+    <h2>Derniers achats — Matières premières</h2>
+    <div id="dash-achats-matieres"></div>
+  </div>
+  <div class="card">
+    <h2>Derniers achats — Produit fini</h2>
+    <div id="dash-achats-produits"></div>
+  </div>
+  <div class="card">
+    <h2>Ventes récentes</h2>
+    <div id="dash-ventes"></div>
+  </div>
+  <div class="card">
+    <h2>Solde financier</h2>
+    <div id="dash-solde"></div>
+  </div>
+</section>
+
+<section id="animaux" class="hidden">
+  <div class="card">
+    <label>Date d'entrée</label>
+    <input id="a-entree" type="date">
+    <label>GROUP</label>
+    <input id="a-id" placeholder="Ex: T-012">
+    <label>Type</label>
+    <select id="a-type"><option>Truie</option><option>Verrat</option><option>Porcelet</option></select>
+    <label>CLASSE</label>
+    <input id="a-classe" placeholder="Nom de l'emplacement" oninput="updateBox()">
+    <label>BOX</label>
+    <input id="a-box" placeholder="Emplacement">
+    <label>Poids total (kg)</label>
+    <input id="a-poids" type="text" inputmode="decimal" oninput="updateMoyen()" onblur="liveFormat(this)">
+    <label>Effectif</label>
+    <input id="a-effectif" type="text" inputmode="numeric" placeholder="Ex: 1, ou 8 pour un lot de porcelets" oninput="updateMoyen(); calcPrix('effectif')" onblur="liveFormat(this)">
+    <label>Age</label>
+    <input id="a-age" type="text" inputmode="numeric" placeholder="Ex: 8 semaines">
+    <label>Poids moyen</label>
+    <input id="a-moyen" readonly disabled>
+    <label>Prix unitaire</label>
+    <input id="a-prixU" type="text" inputmode="decimal" oninput="calcPrix('unitaire')" onblur="liveFormat(this)">
+    <label>Prix Total</label>
+    <input id="a-prixTotal" type="text" inputmode="decimal" oninput="calcPrix('total')" onblur="liveFormat(this)">
+    <button onclick="ajouterAnimalDraft()">Ajouter</button>
+    <div id="animalDraftList" style="margin-top:10px;"></div>
+    <button onclick="validerAnimalDraft()" style="margin-top:12px;">VALIDER</button>
+  </div>
+</section>
+
+<section id="parametre" class="hidden">
+
+  <div class="drawer">
+    <div class="drawer-head" onclick="toggleDrawer('d-produit')">PRODUIT <span class="chevron">▾</span></div>
+    <div id="d-produit" class="drawer-body hidden">
+      <div class="card">
+        <label>Référence</label>
+        <input id="param-produit" placeholder="Ex: Maïs, Tourteau de soja...">
+        <button onclick="ajouterParamProduitDraft()">Ajouter</button>
+        <div id="paramProduitDraftList" style="margin-top:10px;"></div>
+        <button onclick="validerParamProduitDraft()" style="margin-top:12px;">VALIDER</button>
+        <label style="margin-top:16px;">Référence (Produit fini)</label>
+        <input id="param-ref-produit" placeholder="Ex: PF-001">
+        <button onclick="ajouterParamRefProduitDraft()">Ajouter</button>
+        <div id="paramRefProduitDraftList" style="margin-top:10px;"></div>
+        <button onclick="validerParamRefProduitDraft()" style="margin-top:12px;">VALIDER</button>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="toggleDrawer('d-produit-liste')">LISTE <span class="chevron">▾</span></div>
+        <div id="d-produit-liste" class="drawer-body hidden">
+          <div class="card">
+            <h2>Référence</h2>
+            <div id="paramProduitsList"></div>
+            <h2 style="margin-top:16px;">Référence (Produit fini)</h2>
+            <div id="paramRefProduitList"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="drawer">
+    <div class="drawer-head" onclick="toggleDrawer('d-bombonne')">BOMBONNE <span class="chevron">▾</span></div>
+    <div id="d-bombonne" class="drawer-body hidden">
+      <div class="card">
+        <label>Nom</label>
+        <input id="param-bombonne-nom" placeholder="Ex: Bombonne 1">
+        <label>Tare (kg)</label>
+        <input id="param-bombonne-tare" type="text" inputmode="decimal" onblur="liveFormat(this)">
+        <button onclick="ajouterParamBombonneDraft()">Ajouter</button>
+        <div id="paramBombonneDraftList" style="margin-top:10px;"></div>
+        <button onclick="validerParamBombonneDraft()" style="margin-top:12px;">VALIDER</button>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openBombonneFullscreen()">LISTE DES BOMBONNE <span class="chevron">▾</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="drawer">
+    <div class="drawer-head" onclick="toggleDrawer('d-norme')">NORME DE CONSOMMATION <span class="chevron">▾</span></div>
+    <div id="d-norme" class="drawer-body hidden">
+      <div class="card">
+        <div id="normeFormContainer"></div>
+        <div class="btn-row">
+          <button onclick="ajouterNorme()">Ajouter</button>
+          <button id="btn-valider-norme" onclick="validerNorme()" disabled>VALIDER</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer">
+    <div class="drawer-head" onclick="toggleDrawer('d-sauvegarde')">SAUVEGARDE <span class="chevron">▾</span></div>
+    <div id="d-sauvegarde" class="drawer-body hidden">
+      <div class="card">
+        <p class="meta">Toutes vos données sont stockées uniquement sur cet appareil. Exportez régulièrement une sauvegarde pour ne rien perdre en cas de problème.</p>
+        <button onclick="exporterDonnees()">Exporter une sauvegarde</button>
+        <label style="margin-top:16px;">Importer une sauvegarde</label>
+        <input id="sv-fichier" type="file" accept=".json">
+        <button onclick="importerDonnees()" style="margin-top:12px;">Importer</button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section id="mouvement" class="hidden">
+
+  <div class="drawer">
+    <div class="drawer-head" onclick="toggleDrawer('d-achat')">ACHAT <span class="chevron">▾</span></div>
+    <div id="d-achat" class="drawer-body hidden">
+      <div class="card">
+        <h2>MATIÈRES PREMIÈRES</h2>
+        <label>Date</label>
+        <input id="m-date" type="date">
+        <label>RÉFÉRENCE</label>
+        <select id="m-reference" onchange="updateMatiereStockActuel()"><option value="">— Choisir —</option></select>
+        <label>Stock actuel</label>
+        <input id="m-stock-actuel" readonly disabled>
+        <label>QUANTITÉ (kg)</label>
+        <input id="m-quantite" type="text" inputmode="decimal" oninput="calcAchat('m','quantite')" onblur="liveFormat(this)">
+        <label>PRIX UNITAIRE</label>
+        <input id="m-prixU" type="text" inputmode="decimal" oninput="calcAchat('m','unitaire')" onblur="liveFormat(this)">
+        <label>PRIX TOTAL</label>
+        <input id="m-prixTotal" type="text" inputmode="decimal" oninput="calcAchat('m','total')" onblur="liveFormat(this)">
+        <button onclick="ajouterMatiereDraft()">Ajouter</button>
+        <div id="matiereDraftList" style="margin-top:10px;"></div>
+        <button onclick="validerMatiereDraft()" style="margin-top:12px;">VALIDER</button>
+      </div>
+      <div class="drawer">
+        <div class="drawer-head" onclick="openMatieresListFullscreen()">LISTE DES ACHATS MATIÈRES PREMIÈRES <span class="chevron">▾</span></div>
+      </div>
+      <div class="card">
+        <h2>PRODUIT FINI</h2>
+        <label>Date</label>
+        <input id="f-date" type="date">
+        <label>RÉFÉRENCE</label>
+        <select id="f-reference"><option value="">— Choisir —</option></select>
+        <label>QUANTITÉ (kg)</label>
+        <input id="f-quantite" type="text" inputmode="decimal" oninput="calcAchat('f','quantite')" onblur="liveFormat(this)">
+        <label>PRIX UNITAIRE</label>
+        <input id="f-prixU" type="text" inputmode="decimal" oninput="calcAchat('f','unitaire')" onblur="liveFormat(this)">
+        <label>PRIX TOTAL</label>
+        <input id="f-prixTotal" type="text" inputmode="decimal" oninput="calcAchat('f','total')" onblur="liveFormat(this)">
+        <button onclick="ajouterProduitDraft()">Ajouter</button>
+        <div id="produitDraftList" style="margin-top:10px;"></div>
+        <button onclick="validerProduitDraft()" style="margin-top:12px;">VALIDER</button>
+      </div>
+      <div class="drawer">
+        <div class="drawer-head" onclick="openProduitsAchatsListFullscreen()">LISTE DES ACHATS PRODUIT FINI <span class="chevron">▾</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer">
+    <div class="drawer-head" onclick="toggleDrawer('d-vente')">VENTE <span class="chevron">▾</span></div>
+    <div id="d-vente" class="drawer-body hidden">
+      <div class="card">
+        <label>Date</label>
+        <input id="ve-date" type="date">
+        <label>Référence (produit fini)</label>
+        <select id="ve-reference" onchange="updateVenteStockDisponible()"><option value="">— Choisir —</option></select>
+        <label>Stock disponible</label>
+        <input id="ve-stock-disponible" readonly disabled>
+        <label>Client</label>
+        <input id="ve-client" placeholder="Ex: Nom du client (optionnel)">
+        <label>Quantité vendue</label>
+        <input id="ve-quantite" type="text" inputmode="decimal" oninput="calcVente('quantite')" onblur="liveFormat(this)">
+        <label>Prix unitaire</label>
+        <input id="ve-prixU" type="text" inputmode="decimal" oninput="calcVente('unitaire')" onblur="liveFormat(this)">
+        <label>Prix Total</label>
+        <input id="ve-prixTotal" type="text" inputmode="decimal" oninput="calcVente('total')" onblur="liveFormat(this)">
+        <button onclick="ajouterVenteDraft()">Ajouter</button>
+        <div id="venteDraftList" style="margin-top:10px;"></div>
+        <button onclick="validerVenteDraft()" style="margin-top:12px;">VALIDER</button>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openVentesListFullscreen()">LISTE DES VENTES <span class="chevron">▾</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer">
+    <div class="drawer-head" onclick="toggleDrawer('d-formulation')">FORMULATION <span class="chevron">▾</span></div>
+    <div id="d-formulation" class="drawer-body hidden">
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openFormulationCreationFullscreen()">CRÉATION <span class="chevron">▾</span></div>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openFormulesFullscreen()">LISTE DES FORMULES <span class="chevron">▾</span></div>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openProductionFullscreen()">PRODUCTION <span class="chevron">▾</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer">
+    <div class="drawer-head" onclick="toggleDrawer('d-transfert')">TRANSFERT <span class="chevron">▾</span></div>
+    <div id="d-transfert" class="drawer-body hidden">
+      <div class="card">
+        <label>Date</label>
+        <input id="tr-date" type="date">
+        <label>Référence (Produit fini)</label>
+        <select id="tr-reference" onchange="updateTransfertQuantiteInitiale()"><option value="">— Choisir —</option></select>
+        <label>Quantité initiale disponible</label>
+        <input id="tr-quantite-initiale" readonly disabled>
+        <label>Bombonne (destination)</label>
+        <select id="tr-bombonne"><option value="">— Choisir —</option></select>
+        <label>Quantité</label>
+        <input id="tr-quantite" type="text" inputmode="decimal" onblur="liveFormat(this)">
+        <button onclick="ajouterTransfertDraft()">Ajouter</button>
+        <div id="transfertDraftList" style="margin-top:10px;"></div>
+        <button onclick="validerTransfertDraft()" style="margin-top:12px;">VALIDER</button>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openTransfertListFullscreen()">LISTE DES TRANSFERT <span class="chevron">▾</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="drawer">
+    <div class="drawer-head" onclick="toggleDrawer('d-animaux')">ANIMAUX <span class="chevron">▾</span></div>
+    <div id="d-animaux" class="drawer-body hidden">
+      <div class="card">
+        <div id="animauxList"></div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section id="suivi" class="hidden">
+
+  <div class="drawer" id="top-compte">
+    <div class="drawer-head" onclick="toggleDrawer('d-compte')">COMPTE <span class="chevron">▾</span></div>
+    <div id="d-compte" class="drawer-body hidden">
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openCompteFullscreen()">TABLEAU <span class="chevron">▾</span></div>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="toggleDrawer('d-charges')">CHARGES <span class="chevron">▾</span></div>
+        <div id="d-charges" class="drawer-body hidden">
+          <div class="card">
+            <label>Date</label>
+            <input id="ch-date" type="date">
+            <label>Libellé</label>
+            <input id="ch-libelle" placeholder="Ex: Électricité, Transport, Salaire...">
+            <label>Montant</label>
+            <input id="ch-montant" type="text" inputmode="decimal" onblur="liveFormat(this)">
+            <button onclick="ajouterChargeDraft()">Ajouter</button>
+            <div id="chargeDraftList" style="margin-top:10px;"></div>
+            <button onclick="validerChargeDraft()" style="margin-top:12px;">VALIDER</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="toggleDrawer('d-apports')">APPORTS <span class="chevron">▾</span></div>
+        <div id="d-apports" class="drawer-body hidden">
+          <div class="card">
+            <label>Date</label>
+            <input id="ap-date" type="date">
+            <label>Libellé</label>
+            <input id="ap-libelle" placeholder="Ex: Apport initial, Fonds propre...">
+            <label>Montant</label>
+            <input id="ap-montant" type="text" inputmode="decimal" onblur="liveFormat(this)">
+            <button onclick="ajouterApportDraft()">Ajouter</button>
+            <div id="apportDraftList" style="margin-top:10px;"></div>
+            <button onclick="validerApportDraft()" style="margin-top:12px;">VALIDER</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="drawer" id="top-prix-revient">
+    <div class="drawer-head" onclick="toggleDrawer('d-prix-revient')">PRIX DE REVIENT <span class="chevron">▾</span></div>
+    <div id="d-prix-revient" class="drawer-body hidden">
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openPRMatieresFullscreen()">PR MATIÈRES PREMIÈRES <span class="chevron">▾</span></div>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openPRProduitsFullscreen()">PR PRODUIT FINI <span class="chevron">▾</span></div>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openPRPorcFullscreen()">PR des PORC <span class="chevron">▾</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="drawer" id="top-stock">
+    <div class="drawer-head" onclick="toggleDrawer('d-stock')">STOCK <span class="chevron">▾</span></div>
+    <div id="d-stock" class="drawer-body hidden">
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="toggleDrawer('d-stock-matieres')">MATIÈRES PREMIÈRES <span class="chevron">▾</span></div>
+        <div id="d-stock-matieres" class="drawer-body hidden">
+          <div class="drawer">
+            <div class="drawer-head" onclick="openMatieresEtatFullscreen()">ÉTAT DE STOCK <span class="chevron">▾</span></div>
+          </div>
+          <div class="drawer">
+            <div class="drawer-head" onclick="openStockFullscreen('matieres')">MOUVEMENT <span class="chevron">▾</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="toggleDrawer('d-stock-produits')">PRODUIT FINI <span class="chevron">▾</span></div>
+        <div id="d-stock-produits" class="drawer-body hidden">
+          <div class="drawer">
+            <div class="drawer-head" onclick="openProduitsEtatFullscreen()">ÉTAT DE STOCK <span class="chevron">▾</span></div>
+          </div>
+          <div class="drawer">
+            <div class="drawer-head" onclick="openStockFullscreen('produits')">MOUVEMENT <span class="chevron">▾</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="toggleDrawer('d-stock-bombonne')">BOMBONNE <span class="chevron">▾</span></div>
+        <div id="d-stock-bombonne" class="drawer-body hidden">
+
+          <div class="drawer">
+            <div class="drawer-head" onclick="openBombonneEtatFullscreen()">ÉTAT DE STOCK <span class="chevron">▾</span></div>
+          </div>
+
+          <div class="drawer">
+            <div class="drawer-head" onclick="openBombonneStockFullscreen()">MOUVEMENT <span class="chevron">▾</span></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="drawer" id="top-consommation">
+    <div class="drawer-head" onclick="toggleDrawer('d-consommation')">CONSOMMATION <span class="chevron">▾</span></div>
+    <div id="d-consommation" class="drawer-body hidden">
+      <div class="card">
+        <label>Date</label>
+        <input id="c-date" type="date">
+        <label>GROUPE</label>
+        <select id="c-groupe" onchange="autofillConsommation()"><option value="">— Choisir —</option></select>
+        <label>Poids existant (kg)</label>
+        <input id="c-poids" readonly disabled>
+        <label>CLASSE</label>
+        <input id="c-classe" readonly disabled>
+        <label>BOX</label>
+        <input id="c-box" readonly disabled>
+        <label>EFFECTIF</label>
+        <input id="c-effectif" readonly disabled>
+        <label>Consommation Matin</label>
+        <input id="c-matin" readonly disabled>
+        <label>Consommation Soir</label>
+        <input id="c-soir" readonly disabled>
+        <label>Consommation Totale</label>
+        <input id="c-total" readonly disabled>
+        <label>BOMBONNE</label>
+        <select id="c-bombonne" onchange="updateConsommationBombonneStock()"><option value="">— Choisir —</option></select>
+        <label>Stock actuel (poids brut)</label>
+        <input id="c-bombonne-stock" readonly disabled>
+        <button onclick="ajouterConsommationDraft()">Ajouter</button>
+        <div id="consommationDraftList" style="margin-top:10px;"></div>
+        <button onclick="validerConsommationDraft()" style="margin-top:12px;">VALIDER</button>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openConsommationListFullscreen()">LISTE DES CONSOMMATIONS <span class="chevron">▾</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="drawer" id="top-poids">
+    <div class="drawer-head" onclick="toggleDrawer('d-poids')">POIDS <span class="chevron">▾</span></div>
+    <div id="d-poids" class="drawer-body hidden">
+      <div class="card">
+        <label>Date</label>
+        <input id="pd-date" type="date" onchange="calcGMH()">
+        <label>Groupe</label>
+        <select id="pd-groupe" onchange="updatePeseeAnciens()"><option value="">— Choisir —</option></select>
+        <label>Effectif</label>
+        <input id="pd-effectif" readonly disabled>
+        <label>Ancien Poids Total</label>
+        <input id="pd-ancien-poids-total" readonly disabled>
+        <label>Poids moyen (ancien)</label>
+        <input id="pd-poids-moyen-ancien" readonly disabled>
+        <label>Nouveau Poids Total (kg)</label>
+        <input id="pd-poids-total" type="text" inputmode="decimal" oninput="calcGMH()" onblur="liveFormat(this)">
+        <label>Poids moyen (nouveau)</label>
+        <input id="pd-poids-moyen-nouveau" readonly disabled>
+        <label>GMH (Gain Moyen Hebdomadaire)</label>
+        <input id="pd-gmh" readonly disabled>
+        <button onclick="ajouterPeseeDraft()">Ajouter</button>
+        <div id="peseeDraftList" style="margin-top:10px;"></div>
+        <button onclick="validerPeseeDraft()" style="margin-top:12px;">VALIDER</button>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openPeseesListFullscreen()">LISTE DES PESÉES <span class="chevron">▾</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer" id="top-prophylaxie">
+    <div class="drawer-head" onclick="toggleDrawer('d-prophylaxie')">PROPHYLAXIE <span class="chevron">▾</span></div>
+    <div id="d-prophylaxie" class="drawer-body hidden">
+      <div class="card">
+        <label>Date</label>
+        <input id="px-date" type="date">
+        <label>Groupe</label>
+        <select id="px-groupe"><option value="">— Choisir —</option></select>
+        <label>Type</label>
+        <select id="px-type"><option>Vaccin</option><option>Traitement</option><option>Vermifuge</option><option>Visite vétérinaire</option><option>Autre</option></select>
+        <label>Produit / Description</label>
+        <input id="px-produit" placeholder="Ex: Circovirus, Ivermectine...">
+        <button onclick="ajouterProphylaxieDraft()">Ajouter</button>
+        <div id="prophylaxieDraftList" style="margin-top:10px;"></div>
+        <button onclick="validerProphylaxieDraft()" style="margin-top:12px;">VALIDER</button>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openProphylaxieListFullscreen()">LISTE PROPHYLAXIE <span class="chevron">▾</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer" id="top-consommation-manuelle">
+    <div class="drawer-head" onclick="toggleDrawer('d-consommation-manuelle')">CONSOMMATION MANUELLE <span class="chevron">▾</span></div>
+    <div id="d-consommation-manuelle" class="drawer-body hidden">
+      <div class="card">
+        <p style="font-size:13px; color: var(--muted); margin: 0 0 10px;">Pour saisir les quantités exactes notées dans vos cahiers, différentes du calcul automatique.</p>
+        <label>Date</label>
+        <input id="cm-date" type="date">
+        <label>GROUPE</label>
+        <select id="cm-groupe" onchange="autofillConsommationManuelle()"><option value="">— Choisir —</option></select>
+        <label>Poids existant (kg)</label>
+        <input id="cm-poids" readonly disabled>
+        <label>CLASSE</label>
+        <input id="cm-classe" readonly disabled>
+        <label>BOX</label>
+        <input id="cm-box" readonly disabled>
+        <label>EFFECTIF</label>
+        <input id="cm-effectif" readonly disabled>
+        <label>Consommation Totale</label>
+        <input id="cm-total" type="text" inputmode="decimal" placeholder="Ex: 27" onblur="liveFormat(this)">
+        <label>BOMBONNE</label>
+        <select id="cm-bombonne" onchange="updateConsommationManuelleBombonneStock()"><option value="">— Choisir —</option></select>
+        <label>Stock actuel (poids brut)</label>
+        <input id="cm-bombonne-stock" readonly disabled>
+        <button onclick="ajouterConsommationManuelleDraft()">Ajouter</button>
+        <div id="consommationManuelleDraftList" style="margin-top:10px;"></div>
+        <button onclick="validerConsommationManuelleDraft()" style="margin-top:12px;">VALIDER</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer">
+    <div class="drawer-head" onclick="reinitialiserDonnees()">RÉINITIALISER <span class="chevron">▾</span></div>
+  </div>
+
+</section>
+</main>
+
+<div id="fullscreenTable" class="fullscreen hidden">
+  <div class="fullscreen-header">
+    <button onclick="closeFullscreenTable()">← Retour</button>
+    <h2 id="fullscreenTitle"></h2>
+  </div>
+  <div id="fullscreenTableBody"></div>
+</div>
+
+<div id="alertModal" class="modal hidden">
+  <div class="modal-box">
+    <p id="alertMsg"></p>
+    <div class="modal-actions">
+      <button onclick="closeAlertModal()">OK</button>
+    </div>
+  </div>
+</div>
+
+<div id="confirmModal" class="modal hidden">
+  <div class="modal-box">
+    <p id="confirmMsg">Êtes-vous sûr ?</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="confirmNo()">Annuler</button>
+      <button onclick="confirmYes()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showAlert(msg){
+  document.getElementById('alertMsg').textContent = msg;
+  document.getElementById('alertModal').classList.remove('hidden');
+}
+function closeAlertModal(){
+  document.getElementById('alertModal').classList.add('hidden');
+}
+
+let confirmCallback = null;
+let confirmCallbackNo = null;
+function showConfirm(msg, cb, cbNo){
+  document.getElementById('confirmMsg').textContent = msg;
+  confirmCallback = cb;
+  confirmCallbackNo = cbNo || null;
+  document.getElementById('confirmModal').classList.remove('hidden');
+}
+function confirmYes(){
+  document.getElementById('confirmModal').classList.add('hidden');
+  const cb = confirmCallback;
+  confirmCallback = null;
+  confirmCallbackNo = null;
+  if(cb) cb();
+}
+function confirmNo(){
+  document.getElementById('confirmModal').classList.add('hidden');
+  const cbNo = confirmCallbackNo;
+  confirmCallback = null;
+  confirmCallbackNo = null;
+  if(cbNo) cbNo();
+}
+
+let cloudReady = false;
+let cloudMemCache = {};
+function cloudClone(v){ return JSON.parse(JSON.stringify(v)); }
+function load(key){
+  if(cloudReady){ return cloudClone(cloudMemCache[key] || []); }
+  try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e){ return []; }
+}
+
+// Sauvegarde (export/import de toutes les données)
+const CLES_SAUVEGARDE = [
+  'pig_animaux','pig_matieres','pig_produits','pig_param_produits',
+  'pig_param_ref_produit','pig_param_bombonne','pig_norme_consommation','pig_consommation',
+  'pig_mouvement_matieres','pig_mouvement_produits','pig_mouvement_bombonne','pig_transfert',
+  'pig_formulation','pig_production','pig_ventes','pig_pesees','pig_prophylaxie','pig_charges','pig_apports'
+];
+function reinitialiserDonnees(){
+  showConfirm("⚠️ Ceci va EFFACER DÉFINITIVEMENT toutes les données de l'application (animaux, achats, stock, formules, consommations, finances...). Voulez-vous continuer ?", function(){
+    showConfirm("Dernière confirmation : êtes-vous VRAIMENT sûr de vouloir tout réinitialiser ? Cette action est irréversible.", function(){
+      CLES_SAUVEGARDE.forEach(k => save(k, []));
+      showAlert("Toutes les données ont été réinitialisées. L'application va se recharger.");
+      attendreEcritures().then(() => setTimeout(() => location.reload(), 1200));
+    });
+  });
+}
+function exporterDonnees(){
+  const data = {};
+  CLES_SAUVEGARDE.forEach(k => { data[k] = load(k); });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'gestion-porcine-sauvegarde-' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function importerDonnees(){
+  const fileInput = document.getElementById('sv-fichier');
+  const file = fileInput.files[0];
+  if(!file){ showAlert("Merci de choisir un fichier de sauvegarde."); return; }
+  showConfirm("Importer cette sauvegarde va remplacer toutes les données actuelles de l'application. Continuer ?", function(){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      try {
+        const data = JSON.parse(e.target.result);
+        CLES_SAUVEGARDE.forEach(k => {
+          if(data[k] !== undefined && data[k] !== null){ save(k, data[k]); }
+        });
+        showAlert("Sauvegarde importée avec succès. L'application va se recharger.");
+        attendreEcritures().then(() => setTimeout(() => location.reload(), 1200));
+      } catch(err){
+        showAlert("Le fichier choisi n'est pas une sauvegarde valide.");
+      }
+    };
+    reader.readAsText(file);
+  });
+}
+
+function getAlertesProphylaxie(){
+  const alertes = [];
+  const animaux = load('pig_animaux');
+  const prophylaxie = load('pig_prophylaxie');
+  const today = new Date();
+  animaux.forEach(a => {
+    if(!a.entree) return;
+    const entreeDate = new Date(a.entree);
+    const joursDepuisEntree = (today - entreeDate) / (1000 * 60 * 60 * 24);
+    const antiparasitaire = prophylaxie.find(p => p.groupe === a.id && normRef(p.produit).includes('antiparasit'));
+    if(joursDepuisEntree >= 30 && !antiparasitaire){
+      alertes.push(`Groupe ${a.id} : Vaccin Antiparasitaire à faire (inscrit le ${fmtDate(a.entree)})`);
+    }
+    if(antiparasitaire && antiparasitaire.date){
+      const dateAntipar = new Date(antiparasitaire.date);
+      const joursDepuisAntipar = (today - dateAntipar) / (1000 * 60 * 60 * 24);
+      const vitamineB = prophylaxie.find(p => p.groupe === a.id && normRef(p.produit).includes('vitamine b'));
+      if(joursDepuisAntipar >= 3 && !vitamineB){
+        alertes.push(`Groupe ${a.id} : Vitamine B Complex à faire (suite au traitement antiparasitaire du ${fmtDate(antiparasitaire.date)})`);
+      }
+    }
+  });
+  return alertes;
+}
+function renderDashboard(){
+  // Résumé
+  const animaux = load('pig_animaux');
+  const totalEffectif = animaux.reduce((acc,a) => acc + (parseFloat(a.effectif) || 0), 0);
+  document.getElementById('dash-resume').innerHTML = `
+    <div class="meta">Groupes enregistrés : ${animaux.length}</div>
+    <div class="meta">Effectif total : ${fmtNum(totalEffectif.toFixed(0))}</div>
+  `;
+
+  // Alertes stock (toutes catégories, seuil < 10)
+  const alertes = [];
+  const refsVues = {};
+  [...load('pig_param_produits'), ...load('pig_matieres').map(m => m.reference), ...load('pig_mouvement_matieres').map(m => m.reference)]
+    .forEach(r => { const n = normRef(r); if(n && !(n in refsVues)) refsVues[n] = r; });
+  Object.values(refsVues).forEach(ref => {
+    const s = getMatiereStock(ref);
+    if(s < 10) alertes.push(`Matière première — ${ref} : ${fmtNum(s.toFixed(1))}`);
+  });
+  const refsPFVues = {};
+  [...load('pig_param_ref_produit'), ...load('pig_produits').map(p => p.reference), ...load('pig_mouvement_produits').map(m => m.reference)]
+    .forEach(r => { const n = normRef(r); if(n && !(n in refsPFVues)) refsPFVues[n] = r; });
+  Object.values(refsPFVues).forEach(ref => {
+    const s = getProduitStockByReference(ref);
+    if(s < 10) alertes.push(`Produit fini — ${ref} : ${fmtNum(s.toFixed(1))}`);
+  });
+  load('pig_param_bombonne').forEach(b => {
+    const items = load('pig_mouvement_bombonne').filter(m => m.bombonne === b.nom);
+    const brut = items.reduce((acc,m) => acc + (m.type === 'Entrée' ? (m.quantite || 0) : 0) - (m.type === 'Sortie' ? (m.quantite || 0) : 0), 0);
+    const net = brut + (parseFloat(b.tare) || 0);
+    if(net < 10) alertes.push(`Bombonne — ${b.nom} : ${fmtNum(net.toFixed(1))}`);
+  });
+  const alertesEl = document.getElementById('dash-alertes');
+  alertesEl.innerHTML = alertes.length
+    ? alertes.map(a => `<div class="meta" style="color:var(--danger); font-weight:700;">⚠ ${a}</div>`).join('')
+    : '<div class="empty">Aucune alerte, tout est en stock suffisant.</div>';
+
+  // Alertes Prophylaxie
+  const alertesProphylaxie = getAlertesProphylaxie();
+  document.getElementById('dash-alertes-prophylaxie').innerHTML = alertesProphylaxie.length
+    ? alertesProphylaxie.map(a => `<div class="meta" style="color:#d9a62e; font-weight:700;">💉 ${a}</div>`).join('')
+    : '<div class="empty">Aucune alerte de prophylaxie.</div>';
+
+  // Bombonnes — état de stock
+  document.getElementById('dash-bombonnes').innerHTML = buildBombonneEtatHTML();
+
+  // Dernières consommations (5 plus récentes)
+  const conso = load('pig_consommation').slice(0, 5);
+  document.getElementById('dash-conso').innerHTML = conso.length
+    ? conso.map(c => `<div class="item"><div><div class="name">${c.groupe}</div><div class="meta">${fmtDate(c.date)} · Total: ${c.total}${c.bombonne ? ' · Bombonne: ' + c.bombonne : ''}</div></div></div>`).join('')
+    : '<div class="empty">Aucune consommation enregistrée.</div>';
+
+  // Productions récentes (5 plus récentes)
+  const productions = load('pig_production').slice(0, 5);
+  document.getElementById('dash-production').innerHTML = productions.length
+    ? productions.map(p => `<div class="item"><div><div class="name">${p.formule}</div><div class="meta">${fmtDate(p.date)} · Quantité: ${fmtNum(p.quantite)}</div></div></div>`).join('')
+    : '<div class="empty">Aucune production enregistrée.</div>';
+
+  // Derniers achats - Matières premières (5 plus récents)
+  const achatsMatieres = load('pig_matieres').slice(0, 5);
+  document.getElementById('dash-achats-matieres').innerHTML = achatsMatieres.length
+    ? achatsMatieres.map(m => `<div class="item"><div><div class="name">${m.reference}</div><div class="meta">${fmtDate(m.date)}${m.quantite ? ' · Qté: ' + fmtNum(m.quantite) : ''}</div></div></div>`).join('')
+    : '<div class="empty">Aucun achat enregistré.</div>';
+
+  // Derniers achats - Produit fini (5 plus récents)
+  const achatsProduits = load('pig_produits').slice(0, 5);
+  document.getElementById('dash-achats-produits').innerHTML = achatsProduits.length
+    ? achatsProduits.map(f => `<div class="item"><div><div class="name">${f.reference}</div><div class="meta">${fmtDate(f.date)}${f.quantite ? ' · Qté: ' + fmtNum(f.quantite) : ''}</div></div></div>`).join('')
+    : '<div class="empty">Aucun achat enregistré.</div>';
+
+  // Ventes récentes (5 plus récentes)
+  const ventes = load('pig_ventes').slice(0, 5);
+  document.getElementById('dash-ventes').innerHTML = ventes.length
+    ? ventes.map(v => `<div class="item"><div><div class="name">${v.reference}${v.client ? ' — ' + v.client : ''}</div><div class="meta">${fmtDate(v.date)} · Qté: ${fmtNum(v.quantite)} · Total: ${fmtNum(v.prixTotal)}</div></div></div>`).join('')
+    : '<div class="empty">Aucune vente enregistrée.</div>';
+
+  // Solde financier
+  const achatsMatieresTotal = load('pig_matieres').reduce((acc,m) => acc + (parseFloat(m.prixTotal) || 0), 0);
+  const achatsProduitsTotal = load('pig_produits').reduce((acc,p) => acc + (parseFloat(p.prixTotal) || 0), 0);
+  const ventesTotal = load('pig_ventes').reduce((acc,v) => acc + (parseFloat(v.prixTotal) || 0), 0);
+  const solde = ventesTotal - (achatsMatieresTotal + achatsProduitsTotal);
+  document.getElementById('dash-solde').innerHTML = `<div class="meta" style="color:${solde >= 0 ? '#3a9d5d' : 'var(--danger)'}; font-weight:700; font-size:18px;">${fmtNum(solde.toFixed(2))}</div>`;
+}
+let cloudDb = null;
+let cloudWriteChain = {};
+let cloudPending = {};
+let cloudEchec = {};
+let cloudErreurAffichee = false;
+
+function hashStr(str){ let h = 5381; for(let i = 0; i < str.length; i++){ h = ((h << 5) + h + str.charCodeAt(i)) | 0; } return h; }
+function hashVal(v){ return hashStr(JSON.stringify(v)); }
+function lireObjLocal(nom){ try { return JSON.parse(localStorage.getItem(nom) || '{}'); } catch(e){ return {}; } }
+function getDirty(){ return lireObjLocal('pig_dirty'); }
+function getSynced(){ return lireObjLocal('pig_synced'); }
+function setDirty(key, val){
+  const d = getDirty();
+  if(val){ d[key] = true; } else { delete d[key]; }
+  try { localStorage.setItem('pig_dirty', JSON.stringify(d)); } catch(e){}
+  majStatutSync();
+}
+function setSynced(key, valeur){
+  const sy = getSynced();
+  sy[key] = hashVal(valeur);
+  try { localStorage.setItem('pig_synced', JSON.stringify(sy)); } catch(e){}
+}
+function majStatutSync(){
+  const el = document.getElementById('syncStatus');
+  if(!el) return;
+  if(!cloudDb){ el.textContent = ''; return; }
+  const nbDirty = Object.keys(getDirty()).length;
+  const enCours = Object.values(cloudPending).some(n => n > 0);
+  if(!cloudReady){ el.textContent = '⏳ Connexion…'; }
+  else if(enCours){ el.textContent = '⏳ Synchronisation…'; }
+  else if(nbDirty > 0){ el.textContent = '⚠ Non synchronisé'; }
+  else { el.textContent = '☁ Synchronisé'; }
+}
+function ecrireCloud(key){
+  cloudPending[key] = (cloudPending[key] || 0) + 1;
+  majStatutSync();
+  const prev = cloudWriteChain[key] || Promise.resolve();
+  cloudWriteChain[key] = prev
+    .then(() => {
+      const valeur = cloudClone(cloudMemCache[key] || []);
+      return cloudDb.doc('data/' + key).set({ value: valeur }).then(() => valeur);
+    })
+    .then(valeur => { cloudEchec[key] = false; cloudErreurAffichee = false; setSynced(key, valeur); })
+    .catch(e => {
+      cloudEchec[key] = true;
+      console.log('Écriture cloud échouée pour', key, e);
+      if(!cloudErreurAffichee){
+        cloudErreurAffichee = true;
+        showAlert("Synchronisation impossible pour le moment : vos données sont gardées sur cet appareil et seront envoyées dès que possible.");
+      }
+    })
+    .then(() => {
+      cloudPending[key] = Math.max(0, (cloudPending[key] || 1) - 1);
+      if(cloudPending[key] === 0){ setDirty(key, !!cloudEchec[key]); } else { majStatutSync(); }
+    });
+}
+function attendreEcritures(){ return Promise.all(Object.values(cloudWriteChain)).catch(() => {}); }
+function reessayerEnAttente(){
+  if(!cloudReady || !cloudDb) return;
+  Object.keys(getDirty()).forEach(key => { if(!(cloudPending[key] > 0)) ecrireCloud(key); });
+}
+window.addEventListener('online', reessayerEnAttente);
+setInterval(reessayerEnAttente, 30000);
+
+function save(key, data){
+  try { localStorage.setItem(key, JSON.stringify(data)); } catch(e){}
+  setDirty(key, true);
+  if(cloudReady && cloudDb){
+    cloudMemCache[key] = cloudClone(data);
+    ecrireCloud(key);
+  }
+}
+
+function toggleDrawer(id){
+  const body = document.getElementById(id);
+  body.classList.toggle('hidden');
+  body.previousElementSibling.classList.toggle('open');
+}
+
+const ORDRE_ONGLETS = ['dashboard', 'animaux', 'parametre', 'mouvement', 'suivi'];
+function switchToTab(tabName){
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === tabName));
+  document.querySelectorAll('main > section').forEach(x => x.classList.add('hidden'));
+  document.getElementById(tabName).classList.remove('hidden');
+  if(tabName === 'dashboard') renderDashboard();
+}
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  switchToTab(t.dataset.tab);
+}));
+
+// Navigation par glissement (swipe) entre les onglets
+let swipeStartX = 0, swipeStartY = 0;
+document.addEventListener('touchstart', (e) => {
+  swipeStartX = e.touches[0].clientX;
+  swipeStartY = e.touches[0].clientY;
+}, { passive: true });
+document.addEventListener('touchend', (e) => {
+  if(!document.getElementById('fullscreenTable').classList.contains('hidden')) return;
+  if(!document.getElementById('alertModal').classList.contains('hidden')) return;
+  if(!document.getElementById('confirmModal').classList.contains('hidden')) return;
+  const dx = e.changedTouches[0].clientX - swipeStartX;
+  const dy = e.changedTouches[0].clientY - swipeStartY;
+  if(Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+  const current = document.querySelector('.tab.active').dataset.tab;
+  const idx = ORDRE_ONGLETS.indexOf(current);
+  if(dx < 0 && idx < ORDRE_ONGLETS.length - 1){
+    switchToTab(ORDRE_ONGLETS[idx + 1]);
+  } else if(dx > 0 && idx > 0){
+    switchToTab(ORDRE_ONGLETS[idx - 1]);
+  }
+}, { passive: true });
+
+function fmtDate(d){ if(!d) return '—'; const [y,m,day]=d.split('-'); return day && m && y ? `${day}/${m}/${y}` : d; }
+function fmtNum(n){ const v = parseFloat(n); if(isNaN(v)) return n; return v.toLocaleString('fr-FR', {maximumFractionDigits: 2}); }
+function normRef(s){ return (s || '').replace(/\s+/g, ' ').trim().toLowerCase(); }
+function stockColor(val){ return val < 10 ? 'var(--danger)' : (val < 60 ? '#d9a62e' : '#3a9d5d'); }
+function parseNum(str){ if(!str) return NaN; return parseFloat(String(str).replace(/[\s\u00A0]/g,'').replace(',', '.')); }
+function liveFormat(el){
+  const raw = parseNum(el.value);
+  if(!isNaN(raw)){ el.value = raw.toLocaleString('fr-FR', {maximumFractionDigits: 2}); }
+}
+
+function updateBox(){
+  const classe = document.getElementById('a-classe').value.trim();
+  const match = classe.match(/[A-Za-z]/);
+  document.getElementById('a-box').value = match ? match[0].toUpperCase() : '';
+}
+
+function updateMoyen(){
+  const poids = parseNum(document.getElementById('a-poids').value);
+  const eff = parseNum(document.getElementById('a-effectif').value);
+  const el = document.getElementById('a-moyen');
+  el.value = (poids > 0 && eff > 0) ? `${fmtNum((poids/eff).toFixed(1))} kg` : '';
+}
+
+function calcPrix(source){
+  const effEl = document.getElementById('a-effectif');
+  const prixUEl = document.getElementById('a-prixU');
+  const prixTotalEl = document.getElementById('a-prixTotal');
+  const eff = parseNum(effEl.value);
+  if(!(eff > 0)) return;
+
+  if(source === 'unitaire'){
+    const u = parseNum(prixUEl.value);
+    if(!isNaN(u)) prixTotalEl.value = fmtNum((u * eff).toFixed(2));
+  } else if(source === 'total'){
+    const t = parseNum(prixTotalEl.value);
+    if(!isNaN(t)) prixUEl.value = fmtNum((t / eff).toFixed(2));
+  } else if(source === 'effectif'){
+    if(prixUEl.value !== ''){
+      const u = parseNum(prixUEl.value);
+      if(!isNaN(u)) prixTotalEl.value = fmtNum((u * eff).toFixed(2));
+    } else if(prixTotalEl.value !== ''){
+      const t = parseNum(prixTotalEl.value);
+      if(!isNaN(t)) prixUEl.value = fmtNum((t / eff).toFixed(2));
+    }
+  }
+}
+
+// Animaux
+let animalDrafts = [];
+function ajouterAnimalDraft(){
+  const id = document.getElementById('a-id').value.trim();
+  if(!id){ showAlert("Merci d'indiquer un ID animal."); return; }
+  const dejaExistant = load('pig_animaux').some(a => a.id === id) || animalDrafts.some(a => a.id === id);
+  if(dejaExistant){ showAlert("Ce GROUP (" + id + ") existe déjà. Supprimez-le d'abord de la liste des animaux pour réutiliser ce nom, ou choisissez un autre GROUP."); return; }
+  const animal = {
+    id, type: document.getElementById('a-type').value,
+    classe: document.getElementById('a-classe').value.trim(),
+    box: document.getElementById('a-box').value.trim(),
+    entree: document.getElementById('a-entree').value,
+    age: document.getElementById('a-age').value.trim(),
+    poids: parseNum(document.getElementById('a-poids').value) || '',
+    effectif: parseNum(document.getElementById('a-effectif').value) || '',
+    prixU: parseNum(document.getElementById('a-prixU').value) || '',
+    prixTotal: parseNum(document.getElementById('a-prixTotal').value) || ''
+  };
+  animalDrafts.push(animal);
+  ['a-id','a-classe','a-box','a-entree','a-age','a-poids','a-effectif','a-prixU','a-prixTotal'].forEach(f => document.getElementById(f).value = '');
+  updateMoyen();
+  renderAnimalDraft();
+}
+function delAnimalDraft(i){ animalDrafts.splice(i,1); renderAnimalDraft(); }
+function renderAnimalDraft(){
+  const el = document.getElementById('animalDraftList');
+  if(!animalDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = animalDrafts.map((a,i) => `
+    <div class="item">
+      <div class="name">${a.id} <span class="pill">${a.type}</span></div>
+      <button class="del" onclick="delAnimalDraft(${i})">Suppr.</button>
+    </div>`).join('');
+}
+function validerAnimalDraft(){
+  if(!animalDrafts.length){ showAlert("Aucun animal à valider."); return; }
+  const list = load('pig_animaux');
+  animalDrafts.forEach(a => list.unshift(a));
+  save('pig_animaux', list);
+  animalDrafts = [];
+  renderAnimalDraft();
+  renderAnimaux();
+  renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions(); renderPeseeGroupeOptions(); renderProphylaxieGroupeOptions();
+}
+function delAnimal(i){ const list = load('pig_animaux'); list.splice(i,1); save('pig_animaux', list); renderAnimaux(); }
+let editAnimalIndex = -1;
+function startEditAnimal(i){ editAnimalIndex = i; renderAnimaux(); }
+function cancelEditAnimal(){ editAnimalIndex = -1; renderAnimaux(); }
+function saveEditAnimal(i){
+  const list = load('pig_animaux');
+  list[i] = {
+    ...list[i],
+    classe: document.getElementById('ea-classe-' + i).value.trim(),
+    box: document.getElementById('ea-box-' + i).value.trim(),
+    age: document.getElementById('ea-age-' + i).value.trim(),
+    poids: parseNum(document.getElementById('ea-poids-' + i).value) || '',
+    effectif: parseNum(document.getElementById('ea-effectif-' + i).value) || ''
+  };
+  save('pig_animaux', list);
+  editAnimalIndex = -1;
+  renderAnimaux();
+  renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions();
+}
+function renderAnimaux(){
+  const list = load('pig_animaux');
+  const el = document.getElementById('animauxList');
+  if(!list.length){ el.innerHTML = '<div class="empty">Aucun animal enregistré pour le moment.</div>'; return; }
+  el.innerHTML = list.map((a,i) => {
+    if(i === editAnimalIndex){
+      return `
+        <div class="item">
+          <div style="flex:1;">
+            <label>CLASSE</label>
+            <input id="ea-classe-${i}" value="${a.classe || ''}">
+            <label>BOX</label>
+            <input id="ea-box-${i}" value="${a.box || ''}">
+            <label>Age</label>
+            <input id="ea-age-${i}" value="${a.age || ''}">
+            <label>Poids total</label>
+            <input id="ea-poids-${i}" type="text" inputmode="decimal" value="${a.poids || ''}" onblur="liveFormat(this)">
+            <label>Effectif</label>
+            <input id="ea-effectif-${i}" type="text" inputmode="numeric" value="${a.effectif || ''}" onblur="liveFormat(this)">
+            <div class="btn-row">
+              <button onclick="saveEditAnimal(${i})">Enregistrer</button>
+              <button class="btn-secondary" onclick="cancelEditAnimal()">Annuler</button>
+            </div>
+          </div>
+        </div>`;
+    }
+    return `
+    <div class="item">
+      <div>
+        <div class="name">${a.id} <span class="pill">${a.type}</span></div>
+        <div class="meta">${a.classe ? 'Classe: ' + a.classe : ''}${a.box ? ' · Box: ' + a.box : ''}${a.entree ? ' · Entrée: ' + fmtDate(a.entree) : ''}${a.age ? ' · Âge: ' + a.age : ''}${a.poids ? ' · Poids total: ' + fmtNum(a.poids) + ' kg' : ''}${a.effectif ? ' · Effectif: ' + fmtNum(a.effectif) : ''}${(a.poids && a.effectif) ? ' · Poids moyen: ' + fmtNum((a.poids / a.effectif).toFixed(1)) + ' kg' : ''}${a.prixU ? ' · Prix unitaire: ' + fmtNum(a.prixU) : ''}${a.prixTotal ? ' · Prix total: ' + fmtNum(a.prixTotal) : ''}</div>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button class="del" onclick="startEditAnimal(${i})">Modif</button>
+        <button class="del" onclick="delAnimal(${i})">Suppr.</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Paramètre : liste des produits (références)
+let paramProduitDrafts = [];
+function ajouterParamProduitDraft(){
+  const val = document.getElementById('param-produit').value.trim();
+  if(!val){ showAlert("Merci d'indiquer une référence."); return; }
+  paramProduitDrafts.push(val);
+  document.getElementById('param-produit').value = '';
+  renderParamProduitDraft();
+}
+function delParamProduitDraft(i){ paramProduitDrafts.splice(i,1); renderParamProduitDraft(); }
+function renderParamProduitDraft(){
+  const el = document.getElementById('paramProduitDraftList');
+  if(!paramProduitDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = paramProduitDrafts.map((v,i) => `
+    <div class="item"><div class="name">${v}</div><button class="del" onclick="delParamProduitDraft(${i})">Suppr.</button></div>`).join('');
+}
+function validerParamProduitDraft(){
+  if(!paramProduitDrafts.length){ showAlert("Aucune référence à valider."); return; }
+  const list = load('pig_param_produits');
+  paramProduitDrafts.forEach(v => list.push(v));
+  save('pig_param_produits', list);
+  paramProduitDrafts = [];
+  renderParamProduitDraft();
+  renderParamProduits();
+  renderMatiereReferenceOptions();
+  renderTransfertOptions(); renderConsommationBombonneOptions(); renderConsommationManuelleBombonneOptions(); renderFormulationOptions();
+}
+function delParamProduit(i){
+  const list = load('pig_param_produits');
+  list.splice(i,1);
+  save('pig_param_produits', list);
+  renderParamProduits();
+  renderMatiereReferenceOptions();
+}
+function renderParamProduits(){
+  const list = load('pig_param_produits');
+  const el = document.getElementById('paramProduitsList');
+  if(!list.length){ el.innerHTML = '<div class="empty">Aucune référence ajoutée.</div>'; return; }
+  el.innerHTML = list.map((p,i) => `
+    <div class="item">
+      <div class="name">${p}</div>
+      <button class="del" onclick="delParamProduit(${i})">Suppr.</button>
+    </div>`).join('');
+}
+function renderMatiereReferenceOptions(){
+  const list = load('pig_param_produits');
+  const sel = document.getElementById('m-reference');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Choisir —</option>' + list.map(p => `<option>${p}</option>`).join('');
+  if(list.includes(current)) sel.value = current;
+}
+
+// Paramètre : liste des références produit fini
+let paramRefProduitDrafts = [];
+function ajouterParamRefProduitDraft(){
+  const val = document.getElementById('param-ref-produit').value.trim();
+  if(!val){ showAlert("Merci d'indiquer une référence."); return; }
+  paramRefProduitDrafts.push(val);
+  document.getElementById('param-ref-produit').value = '';
+  renderParamRefProduitDraft();
+}
+function delParamRefProduitDraft(i){ paramRefProduitDrafts.splice(i,1); renderParamRefProduitDraft(); }
+function renderParamRefProduitDraft(){
+  const el = document.getElementById('paramRefProduitDraftList');
+  if(!paramRefProduitDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = paramRefProduitDrafts.map((v,i) => `
+    <div class="item"><div class="name">${v}</div><button class="del" onclick="delParamRefProduitDraft(${i})">Suppr.</button></div>`).join('');
+}
+function validerParamRefProduitDraft(){
+  if(!paramRefProduitDrafts.length){ showAlert("Aucune référence à valider."); return; }
+  const list = load('pig_param_ref_produit');
+  paramRefProduitDrafts.forEach(v => list.push(v));
+  save('pig_param_ref_produit', list);
+  paramRefProduitDrafts = [];
+  renderParamRefProduitDraft();
+  renderParamRefProduit();
+  renderProduitReferenceOptions();
+}
+function delParamRefProduit(i){
+  const list = load('pig_param_ref_produit');
+  list.splice(i,1);
+  save('pig_param_ref_produit', list);
+  renderParamRefProduit();
+  renderProduitReferenceOptions();
+}
+function renderParamRefProduit(){
+  const list = load('pig_param_ref_produit');
+  const el = document.getElementById('paramRefProduitList');
+  if(!list.length){ el.innerHTML = '<div class="empty">Aucune référence ajoutée.</div>'; return; }
+  el.innerHTML = list.map((p,i) => `
+    <div class="item">
+      <div class="name">${p}</div>
+      <button class="del" onclick="delParamRefProduit(${i})">Suppr.</button>
+    </div>`).join('');
+}
+function renderProduitReferenceOptions(){
+  const list = load('pig_param_ref_produit');
+  const sel = document.getElementById('f-reference');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Choisir —</option>' + list.map(p => `<option>${p}</option>`).join('');
+  if(list.includes(current)) sel.value = current;
+}
+
+// Norme de consommation
+const normeRanges = [
+  "5 à 15 KG", "15 à 18 KG", "18 à 24 KG", "21 à 30 KG", "30 à 38 KG",
+  "38 à 46 KG", "46 à 54 KG", "54 à 60 KG", "60 à 73 KG", "73 à 83 KG",
+  "83 à 93 KG", "93 à 100 KG", "100 KG et +"
+];
+function renderNormeForm(){
+  const saved = load('pig_norme_consommation');
+  const el = document.getElementById('normeFormContainer');
+  el.innerHTML = normeRanges.map((r,i) => `
+    <label>${r}</label>
+    <input id="norme-${i}" type="text" inputmode="decimal" value="${saved[i] || ''}" onblur="liveFormat(this)">
+  `).join('');
+}
+function ajouterNorme(){
+  document.getElementById('btn-valider-norme').disabled = false;
+}
+function validerNorme(){
+  const values = normeRanges.map((r,i) => parseNum(document.getElementById('norme-' + i).value) || '');
+  save('pig_norme_consommation', values);
+  renderNormeForm();
+  document.getElementById('btn-valider-norme').disabled = true;
+}
+
+// Consommation (Suivi)
+const normeBounds = [[5,15],[15,18],[18,24],[21,30],[30,38],[38,46],[46,54],[54,60],[60,73],[73,83],[83,93],[93,100],[100,Infinity]];
+function findNormeIndex(poids){
+  for(let i=0;i<normeBounds.length;i++){
+    if(poids >= normeBounds[i][0] && poids <= normeBounds[i][1]) return i;
+  }
+  return -1;
+}
+function renderConsommationGroupeOptions(){
+  const animaux = load('pig_animaux');
+  const groupes = [...new Set(animaux.map(a => a.id))];
+  const sel = document.getElementById('c-groupe');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Choisir —</option>' + groupes.map(g => `<option>${g}</option>`).join('');
+  if(groupes.includes(current)) sel.value = current;
+}
+function autofillConsommation(){
+  const groupe = document.getElementById('c-groupe').value;
+  const champs = ['c-poids','c-classe','c-box','c-effectif','c-matin','c-soir','c-total'];
+  if(!groupe){ champs.forEach(f => document.getElementById(f).value = ''); return; }
+  const animaux = load('pig_animaux');
+  const animal = animaux.find(a => a.id === groupe);
+  if(!animal){ champs.forEach(f => document.getElementById(f).value = ''); return; }
+
+  const effectif = animal.effectif || 0;
+  const poidsMoyen = (animal.poids && animal.effectif) ? (animal.poids / animal.effectif) : (animal.poids || '');
+  document.getElementById('c-poids').value = poidsMoyen ? fmtNum(poidsMoyen.toFixed(1)) + ' kg' : '—';
+  document.getElementById('c-classe').value = animal.classe || '—';
+  document.getElementById('c-box').value = animal.box || '—';
+  document.getElementById('c-effectif').value = effectif ? fmtNum(effectif) : '—';
+
+  const idx = poidsMoyen ? findNormeIndex(poidsMoyen) : -1;
+  const normes = load('pig_norme_consommation');
+  const norme = (idx !== -1) ? normes[idx] : '';
+  if(norme === undefined || norme === '' || idx === -1 || !effectif){
+    document.getElementById('c-matin').value = '—';
+    document.getElementById('c-soir').value = '—';
+    document.getElementById('c-total').value = idx === -1 ? '—' : (!effectif ? "Effectif manquant" : "Norme non définie (" + normeRanges[idx] + ")");
+    return;
+  }
+  const totalReel = norme * effectif;
+  const matinReel = totalReel / 2;
+  const soirReel = totalReel / 2;
+  document.getElementById('c-matin').value = fmtNum(matinReel.toFixed(2));
+  document.getElementById('c-soir').value = fmtNum(soirReel.toFixed(2));
+  document.getElementById('c-total').value = fmtNum(totalReel.toFixed(2));
+}
+
+let consommationDrafts = [];
+function renderConsommationBombonneOptions(){
+  const list = load('pig_param_bombonne');
+  const sel = document.getElementById('c-bombonne');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Choisir —</option>' + list.map(b => `<option>${b.nom}</option>`).join('');
+  if(list.some(b => b.nom === current)) sel.value = current;
+}
+function getBombonneBrutStock(nom){
+  const mouvements = load('pig_mouvement_bombonne').filter(m => m.bombonne === nom);
+  return mouvements.reduce((acc,m) => acc + (m.type === 'Entrée' ? (m.quantite || 0) : 0) - (m.type === 'Sortie' ? (m.quantite || 0) : 0), 0);
+}
+function updateConsommationBombonneStock(){
+  const nom = document.getElementById('c-bombonne').value;
+  const el = document.getElementById('c-bombonne-stock');
+  if(!nom){ el.value = ''; return; }
+  el.value = fmtNum(getBombonneBrutStock(nom).toFixed(2));
+}
+function ajouterConsommationDraft(){
+  const groupe = document.getElementById('c-groupe').value;
+  if(!groupe){ showAlert("Merci de choisir un groupe."); return; }
+  const total = document.getElementById('c-total').value;
+  if(!total || total === '—' || total.indexOf('Norme non définie') === 0){ showAlert("Aucune consommation calculable pour ce groupe."); return; }
+  const bombonne = document.getElementById('c-bombonne').value;
+  if(!bombonne){ showAlert("Merci de choisir une bombonne."); return; }
+  consommationDrafts.push({
+    date: document.getElementById('c-date').value || new Date().toISOString().slice(0,10),
+    groupe,
+    poids: document.getElementById('c-poids').value,
+    classe: document.getElementById('c-classe').value,
+    box: document.getElementById('c-box').value,
+    effectif: document.getElementById('c-effectif').value,
+    matin: document.getElementById('c-matin').value,
+    soir: document.getElementById('c-soir').value,
+    total: total,
+    bombonne: bombonne
+  });
+  document.getElementById('c-bombonne').value = '';
+  document.getElementById('c-bombonne-stock').value = '';
+  renderConsommationDraft();
+}
+function delConsommationDraft(i){ consommationDrafts.splice(i,1); renderConsommationDraft(); }
+function renderConsommationDraft(){
+  const el = document.getElementById('consommationDraftList');
+  if(!consommationDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = consommationDrafts.map((c,i) => `
+    <div class="item">
+      <div><div class="name">${c.groupe}</div><div class="meta">${fmtDate(c.date)} · Total: ${c.total} · Bombonne: ${c.bombonne}</div></div>
+      <button class="del" onclick="delConsommationDraft(${i})">Suppr.</button>
+    </div>`).join('');
+}
+function validerConsommationDraft(){
+  if(!consommationDrafts.length){ showAlert("Aucune consommation à valider."); return; }
+  const list = load('pig_consommation');
+  const mouvementsBombonne = load('pig_mouvement_bombonne');
+  consommationDrafts.forEach(item => {
+    list.unshift(item);
+    mouvementsBombonne.push({ date: item.date, bombonne: item.bombonne, produit: 'Consommation ' + item.groupe, type: 'Sortie', quantite: parseNum(item.total) || 0 });
+  });
+  save('pig_consommation', list);
+  save('pig_mouvement_bombonne', mouvementsBombonne);
+  consommationDrafts = [];
+  renderConsommationDraft();
+}
+function renderConsommationManuelleGroupeOptions(){
+  const animaux = load('pig_animaux');
+  const groupes = [...new Set(animaux.map(a => a.id))];
+  const sel = document.getElementById('cm-groupe');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Choisir —</option>' + groupes.map(g => `<option>${g}</option>`).join('');
+  if(groupes.includes(current)) sel.value = current;
+}
+function autofillConsommationManuelle(){
+  const groupe = document.getElementById('cm-groupe').value;
+  const champs = ['cm-poids','cm-classe','cm-box','cm-effectif'];
+  if(!groupe){ champs.forEach(f => document.getElementById(f).value = ''); return; }
+  const animaux = load('pig_animaux');
+  const animal = animaux.find(a => a.id === groupe);
+  if(!animal){ champs.forEach(f => document.getElementById(f).value = ''); return; }
+  const effectif = animal.effectif || 0;
+  const poidsMoyen = (animal.poids && animal.effectif) ? (animal.poids / animal.effectif) : (animal.poids || '');
+  document.getElementById('cm-poids').value = poidsMoyen ? fmtNum(poidsMoyen.toFixed(1)) + ' kg' : '—';
+  document.getElementById('cm-classe').value = animal.classe || '—';
+  document.getElementById('cm-box').value = animal.box || '—';
+  document.getElementById('cm-effectif').value = effectif ? fmtNum(effectif) : '—';
+}
+function renderConsommationManuelleBombonneOptions(){
+  const list = load('pig_param_bombonne');
+  const sel = document.getElementById('cm-bombonne');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Choisir —</option>' + list.map(b => `<option>${b.nom}</option>`).join('');
+  if(list.some(b => b.nom === current)) sel.value = current;
+}
+function updateConsommationManuelleBombonneStock(){
+  const nom = document.getElementById('cm-bombonne').value;
+  const el = document.getElementById('cm-bombonne-stock');
+  if(!nom){ el.value = ''; return; }
+  el.value = fmtNum(getBombonneBrutStock(nom).toFixed(2));
+}
+let consommationManuelleDrafts = [];
+function ajouterConsommationManuelleDraft(){
+  const groupe = document.getElementById('cm-groupe').value;
+  if(!groupe){ showAlert("Merci de choisir un groupe."); return; }
+  const total = document.getElementById('cm-total').value;
+  if(!total || parseNum(total) <= 0){ showAlert("Merci de saisir la consommation totale."); return; }
+  const bombonne = document.getElementById('cm-bombonne').value;
+  if(!bombonne){ showAlert("Merci de choisir une bombonne."); return; }
+  const quantiteTotal = parseNum(total) || 0;
+  const disponible = getBombonneBrutStock(bombonne);
+  const dejaEnCours = consommationManuelleDrafts.filter(d => d.bombonne === bombonne).reduce((acc,d) => acc + (parseNum(d.total) || 0), 0);
+  if(quantiteTotal + dejaEnCours > disponible){
+    showAlert("Stock insuffisant dans " + bombonne + " (disponible : " + fmtNum(disponible.toFixed(1)) + ", demandé : " + fmtNum((quantiteTotal + dejaEnCours).toFixed(1)) + "). Merci de faire un approvisionnement de bombonne.");
+    return;
+  }
+  consommationManuelleDrafts.push({
+    date: document.getElementById('cm-date').value || new Date().toISOString().slice(0,10),
+    groupe,
+    poids: document.getElementById('cm-poids').value,
+    classe: document.getElementById('cm-classe').value,
+    box: document.getElementById('cm-box').value,
+    effectif: document.getElementById('cm-effectif').value,
+    total: total,
+    bombonne: bombonne
+  });
+  document.getElementById('cm-total').value = '';
+  document.getElementById('cm-bombonne').value = '';
+  document.getElementById('cm-bombonne-stock').value = '';
+  renderConsommationManuelleDraft();
+}
+function delConsommationManuelleDraft(i){ consommationManuelleDrafts.splice(i,1); renderConsommationManuelleDraft(); }
+function renderConsommationManuelleDraft(){
+  const el = document.getElementById('consommationManuelleDraftList');
+  if(!consommationManuelleDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = consommationManuelleDrafts.map((d,i) => `
+    <div class="item">
+      <div style="flex:1;">
+        <div class="name">${d.groupe} — ${fmtDate(d.date)}</div>
+        <div class="meta">Total: ${d.total} · Bombonne: ${d.bombonne}</div>
+      </div>
+      <button class="btn-secondary" onclick="delConsommationManuelleDraft(${i})">Suppr</button>
+    </div>
+  `).join('');
+}
+function validerConsommationManuelleDraft(){
+  if(!consommationManuelleDrafts.length){ showAlert("Aucune consommation à valider."); return; }
+  const list = load('pig_consommation');
+  const mouvementsBombonne = load('pig_mouvement_bombonne');
+  consommationManuelleDrafts.forEach(item => {
+    list.unshift(item);
+    mouvementsBombonne.push({ date: item.date, bombonne: item.bombonne, produit: 'Consommation ' + item.groupe, type: 'Sortie', quantite: parseNum(item.total) || 0 });
+  });
+  save('pig_consommation', list);
+  save('pig_mouvement_bombonne', mouvementsBombonne);
+  consommationManuelleDrafts = [];
+  renderConsommationManuelleDraft();
+}
+function buildConsommationListHTML(filterGroupe, filterDate){
+  let list = load('pig_consommation');
+  if(filterGroupe){ list = list.filter(c => c.groupe === filterGroupe); }
+  if(filterDate){ list = list.filter(c => c.date === filterDate); }
+  if(!list.length){ return '<div class="empty">Aucune consommation pour l\'instant.</div>'; }
+  const rows = list.map(c => `<tr>
+    <td>${fmtDate(c.date)}</td>
+    <td>${c.groupe}</td>
+    <td>${c.classe || ''}</td>
+    <td>${c.box || ''}</td>
+    <td>${c.effectif || ''}</td>
+    <td>${c.matin || ''}</td>
+    <td>${c.soir || ''}</td>
+    <td>${c.total || ''}</td>
+    <td>${c.bombonne || ''}</td>
+  </tr>`).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Groupe</th><th>Classe</th><th>Box</th><th>Effectif</th><th>Matin</th><th>Soir</th><th>Total</th><th>Bombonne</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildConsommationTotauxHTML(){
+  const list = load('pig_consommation');
+  if(!list.length){ return ''; }
+  const animaux = load('pig_animaux');
+  const totaux = {};
+  list.forEach(c => { totaux[c.groupe] = (totaux[c.groupe] || 0) + (parseNum(c.total) || 0); });
+  const rows = Object.keys(totaux).map(g => {
+    const animal = animaux.find(a => a.id === g);
+    const effectif = animal ? parseFloat(animal.effectif) || 0 : 0;
+    const parTete = effectif > 0 ? (totaux[g] / effectif) : null;
+    return `<tr><td>${g}</td><td>${fmtNum(totaux[g].toFixed(2))}</td><td>${parTete !== null ? fmtNum(parTete.toFixed(2)) : '—'}</td></tr>`;
+  }).join('');
+  return `
+    <div class="card">
+      <h2>Consommation totale par groupe (depuis le début)</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Groupe</th><th>Total cumulé</th><th>Par tête</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+    </div>
+  `;
+}
+function buildConsommationListFullscreenHTML(){
+  const groupes = [...new Set(load('pig_consommation').map(c => c.groupe))];
+  const options = groupes.map(g => `<option>${g}</option>`).join('');
+  return `
+    ${buildConsommationTotauxHTML()}
+    <label>Filtrer par groupe</label>
+    <select id="cl-filter-groupe" onchange="refreshConsommationListTable()"><option value="">Tous les groupes</option>${options}</select>
+    <label>Filtrer par date</label>
+    <input id="cl-filter-date" type="date" onchange="refreshConsommationListTable()">
+    <div id="consommationFilteredTable" style="margin-top:10px;">${buildConsommationListHTML()}</div>
+  `;
+}
+function refreshConsommationListTable(){
+  const filterGroupe = document.getElementById('cl-filter-groupe').value;
+  const filterDate = document.getElementById('cl-filter-date').value;
+  document.getElementById('consommationFilteredTable').innerHTML = buildConsommationListHTML(filterGroupe, filterDate);
+}
+function openConsommationListFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Liste des consommations';
+  document.getElementById('fullscreenTableBody').innerHTML = buildConsommationListFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+// Stock (calculé automatiquement à partir des achats, sous forme de tableau avec état cumulé)
+function buildStockTableHTML(list, keyField, keyLabel, filterVal){
+  if(filterVal){ list = list.filter(item => item[keyField] === filterVal); }
+  if(!list.length){ return '<div class="empty">Aucun stock pour l\'instant.</div>'; }
+  const sorted = [...list].sort((a,b) => (a.date || '').localeCompare(b.date || ''));
+  const cumul = {};
+  const rows = sorted.map(item => {
+    const key = item[keyField] || '—';
+    const q = parseFloat(item.quantite) || 0;
+    cumul[key] = (cumul[key] || 0) + q;
+    return `<tr>
+      <td>${fmtDate(item.date)}</td>
+      <td>${key}</td>
+      <td>${fmtNum(q)}</td>
+      <td>${fmtNum(cumul[key])}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>${keyLabel}</th><th>Quantité</th><th>État</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildMatieresCombinedTableHTML(filterRef){
+  let achats = load('pig_matieres').map(m => ({ date: m.date, reference: m.reference, entree: parseFloat(m.quantite) || 0, sortie: 0 }));
+  let mouvements = load('pig_mouvement_matieres').map(m => ({
+    date: m.date, reference: m.reference,
+    entree: m.type === 'Entrée' ? (m.quantite || 0) : 0,
+    sortie: m.type === 'Sortie' ? (m.quantite || 0) : 0
+  }));
+  if(filterRef){
+    achats = achats.filter(a => normRef(a.reference) === normRef(filterRef));
+    mouvements = mouvements.filter(m => normRef(m.reference) === normRef(filterRef));
+  }
+  const all = [...achats, ...mouvements].sort((a,b) => (a.date || '').localeCompare(b.date || ''));
+  if(!all.length){ return '<div class="empty">Aucun mouvement pour l\'instant.</div>'; }
+  const cumul = {};
+  const rows = all.map(item => {
+    const display = item.reference || '—';
+    const key = normRef(item.reference) || '—';
+    cumul[key] = (cumul[key] || 0) + item.entree - item.sortie;
+    return `<tr>
+      <td>${fmtDate(item.date)}</td>
+      <td>${display}</td>
+      <td>${item.entree ? fmtNum(item.entree) : ''}</td>
+      <td>${item.sortie ? fmtNum(item.sortie) : ''}</td>
+      <td style="color:${stockColor(cumul[key])}; font-weight:700;">${fmtNum(cumul[key])}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Référence</th><th>ENTRÉE</th><th>SORTIE</th><th>STOCK</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildMatieresEtatHTML(){
+  const toutesRefs = [
+    ...load('pig_param_produits'),
+    ...load('pig_matieres').map(m => m.reference),
+    ...load('pig_mouvement_matieres').map(m => m.reference)
+  ];
+  const vues = {};
+  toutesRefs.forEach(r => { const n = normRef(r); if(n && !(n in vues)) vues[n] = r; });
+  const uniques = Object.values(vues);
+  if(!uniques.length){ return '<div class="empty">Aucune référence créée pour l\'instant.</div>'; }
+  const rows = uniques.map(ref => {
+    const stock = getMatiereStock(ref);
+    return `<tr><td>${ref}</td><td style="color:${stockColor(stock)}; font-weight:700;">${fmtNum(stock.toFixed(2))}</td></tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Référence</th><th>Stock actuel</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function openMatieresEtatFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'État de stock - Matières premières';
+  document.getElementById('fullscreenTableBody').innerHTML = buildMatieresEtatHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+function buildProduitsEtatHTML(){
+  const refs = load('pig_param_ref_produit');
+  if(!refs.length){ return '<div class="empty">Aucune référence créée pour l\'instant.</div>'; }
+  const rows = refs.map(r => {
+    const stock = getProduitStockByReference(r);
+    return `<tr><td>${r}</td><td style="color:${stockColor(stock)}; font-weight:700;">${fmtNum(stock.toFixed(2))}</td></tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Référence</th><th>Stock actuel</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function openProduitsEtatFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'État de stock - Produit fini';
+  document.getElementById('fullscreenTableBody').innerHTML = buildProduitsEtatHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+function buildMatieresFullscreenHTML(){
+  const refs = load('pig_param_produits');
+  const options = refs.map(r => `<option>${r}</option>`).join('');
+  return `
+    <label>Filtrer par référence</label>
+    <select id="mv-filter-ref" onchange="refreshMatieresTable()"><option value="">Toutes les références</option>${options}</select>
+    <div id="matieresFilteredTable" style="margin-top:10px;">${buildMatieresCombinedTableHTML()}</div>
+  `;
+}
+function refreshMatieresTable(){
+  const filterRef = document.getElementById('mv-filter-ref').value;
+  document.getElementById('matieresFilteredTable').innerHTML = buildMatieresCombinedTableHTML(filterRef);
+}
+function buildProduitsCombinedTableHTML(filterReference){
+  let achats = load('pig_produits').map(p => ({ date: p.date, reference: p.reference, entree: parseFloat(p.quantite) || 0, sortie: 0 }));
+  let mouvements = load('pig_mouvement_produits').map(m => ({
+    date: m.date, reference: m.reference,
+    entree: m.type === 'Entrée' ? (m.quantite || 0) : 0,
+    sortie: m.type === 'Sortie' ? (m.quantite || 0) : 0
+  }));
+  if(filterReference){
+    achats = achats.filter(a => a.reference === filterReference);
+    mouvements = mouvements.filter(m => m.reference === filterReference);
+  }
+  const all = [...achats, ...mouvements].sort((a,b) => (a.date || '').localeCompare(b.date || ''));
+  if(!all.length){ return '<div class="empty">Aucun mouvement pour l\'instant.</div>'; }
+  const cumul = {};
+  const rows = all.map(item => {
+    const key = item.reference || '—';
+    cumul[key] = (cumul[key] || 0) + item.entree - item.sortie;
+    return `<tr>
+      <td>${fmtDate(item.date)}</td>
+      <td>${key}</td>
+      <td>${item.entree ? fmtNum(item.entree) : ''}</td>
+      <td>${item.sortie ? fmtNum(item.sortie) : ''}</td>
+      <td style="color:${stockColor(cumul[key])}; font-weight:700;">${fmtNum(cumul[key])}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Référence</th><th>ENTRÉE</th><th>SORTIE</th><th>STOCK</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildProduitsFullscreenHTML(){
+  const references = load('pig_param_ref_produit');
+  const referenceOptions = references.map(r => `<option>${r}</option>`).join('');
+  return `
+    <label>Filtrer par référence</label>
+    <select id="pf-filter-reference" onchange="refreshProduitsTable()"><option value="">Toutes les références</option>${referenceOptions}</select>
+    <div id="produitsFilteredTable" style="margin-top:10px;">${buildProduitsCombinedTableHTML()}</div>
+  `;
+}
+function refreshProduitsTable(){
+  const filterReference = document.getElementById('pf-filter-reference').value;
+  document.getElementById('produitsFilteredTable').innerHTML = buildProduitsCombinedTableHTML(filterReference);
+}
+function openStockFullscreen(type){
+  let title, html;
+  if(type === 'matieres'){
+    title = 'Mouvement - Matières premières';
+    html = buildMatieresFullscreenHTML();
+  } else {
+    title = 'Mouvement - Produit fini';
+    html = buildProduitsFullscreenHTML();
+  }
+  document.getElementById('fullscreenTitle').textContent = title;
+  document.getElementById('fullscreenTableBody').innerHTML = html;
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+function closeFullscreenTable(){
+  document.getElementById('fullscreenTable').classList.add('hidden');
+}
+
+let paramBombonneDrafts = [];
+function ajouterParamBombonneDraft(){
+  const nom = document.getElementById('param-bombonne-nom').value.trim();
+  if(!nom){ showAlert("Merci d'indiquer un nom."); return; }
+  const tare = parseNum(document.getElementById('param-bombonne-tare').value) || '';
+  paramBombonneDrafts.push({ nom, tare });
+  document.getElementById('param-bombonne-nom').value = '';
+  document.getElementById('param-bombonne-tare').value = '';
+  renderParamBombonneDraft();
+}
+function delParamBombonneDraft(i){ paramBombonneDrafts.splice(i,1); renderParamBombonneDraft(); }
+function renderParamBombonneDraft(){
+  const el = document.getElementById('paramBombonneDraftList');
+  if(!paramBombonneDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = paramBombonneDrafts.map((b,i) => `
+    <div class="item"><div><div class="name">${b.nom}</div><div class="meta">Tare: ${fmtNum(b.tare)}</div></div><button class="del" onclick="delParamBombonneDraft(${i})">Suppr.</button></div>`).join('');
+}
+function validerParamBombonneDraft(){
+  if(!paramBombonneDrafts.length){ showAlert("Aucune bombonne à valider."); return; }
+  const list = load('pig_param_bombonne');
+  paramBombonneDrafts.forEach(b => list.push(b));
+  save('pig_param_bombonne', list);
+  paramBombonneDrafts = [];
+  renderParamBombonneDraft();
+  renderTransfertOptions(); renderConsommationBombonneOptions(); renderConsommationManuelleBombonneOptions(); renderFormulationOptions();
+}
+function buildBombonneListHTML(editIndex){
+  const list = load('pig_param_bombonne');
+  if(!list.length){ return '<div class="empty">Aucune bombonne ajoutée.</div>'; }
+  return list.map((b,i) => {
+    if(i === editIndex){
+      return `
+        <div class="item">
+          <div style="flex:1;">
+            <label>Nom</label>
+            <input id="b-edit-nom-${i}" value="${b.nom}">
+            <label>Tare (kg)</label>
+            <input id="b-edit-tare-${i}" type="text" inputmode="decimal" value="${b.tare}" onblur="liveFormat(this)">
+            <div class="btn-row">
+              <button onclick="saveEditBombonne(${i})">Enregistrer</button>
+              <button class="btn-secondary" onclick="cancelEditBombonne()">Annuler</button>
+            </div>
+          </div>
+        </div>`;
+    }
+    return `
+      <div class="item">
+        <div><div class="name">${b.nom}</div><div class="meta">Tare: ${fmtNum(b.tare)}</div></div>
+        <div style="display:flex; gap:6px;">
+          <button class="del" onclick="startEditBombonne(${i})">Modif</button>
+          <button class="del" onclick="delBombonneFullscreen(${i})">Suppr.</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+function openBombonneFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Liste des bombonnes';
+  document.getElementById('fullscreenTableBody').innerHTML = buildBombonneListHTML(-1);
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+function startEditBombonne(i){
+  document.getElementById('fullscreenTableBody').innerHTML = buildBombonneListHTML(i);
+}
+function cancelEditBombonne(){
+  document.getElementById('fullscreenTableBody').innerHTML = buildBombonneListHTML(-1);
+}
+function saveEditBombonne(i){
+  const nom = document.getElementById('b-edit-nom-' + i).value.trim();
+  if(!nom){ showAlert("Merci d'indiquer un nom."); return; }
+  const tare = parseNum(document.getElementById('b-edit-tare-' + i).value) || '';
+  const list = load('pig_param_bombonne');
+  list[i] = { nom, tare };
+  save('pig_param_bombonne', list);
+  document.getElementById('fullscreenTableBody').innerHTML = buildBombonneListHTML(-1);
+  renderTransfertOptions(); renderConsommationBombonneOptions(); renderConsommationManuelleBombonneOptions(); renderFormulationOptions();
+}
+function delBombonneFullscreen(i){
+  const list = load('pig_param_bombonne');
+  list.splice(i,1);
+  save('pig_param_bombonne', list);
+  document.getElementById('fullscreenTableBody').innerHTML = buildBombonneListHTML(-1);
+  renderTransfertOptions(); renderConsommationBombonneOptions(); renderConsommationManuelleBombonneOptions(); renderFormulationOptions();
+}
+
+// Poids (pesées par groupe)
+function renderPeseeGroupeOptions(){
+  const sel = document.getElementById('pd-groupe');
+  if(!sel) return;
+  const current = sel.value;
+  const groupes = [...new Set(load('pig_animaux').map(a => a.id))];
+  sel.innerHTML = '<option value="">— Choisir —</option>' + groupes.map(g => `<option>${g}</option>`).join('');
+  if(groupes.includes(current)) sel.value = current;
+}
+function getDernierePesee(groupe){
+  const historique = load('pig_pesees').filter(p => p.groupe === groupe && p.date).sort((a,b) => a.date.localeCompare(b.date));
+  return historique.length ? historique[historique.length - 1] : null;
+}
+function getAncienInfo(groupe){
+  const dernier = getDernierePesee(groupe);
+  if(dernier){
+    return { poidsTotal: dernier.poidsTotal, poidsMoyen: dernier.poidsMoyen, date: dernier.date, effectif: dernier.effectif };
+  }
+  const animal = load('pig_animaux').find(a => a.id === groupe);
+  if(animal && animal.poids && animal.effectif){
+    return { poidsTotal: animal.poids, poidsMoyen: animal.poids / animal.effectif, date: animal.entree, effectif: animal.effectif };
+  }
+  return null;
+}
+function updatePeseeAnciens(){
+  const groupe = document.getElementById('pd-groupe').value;
+  const totalEl = document.getElementById('pd-ancien-poids-total');
+  const moyenEl = document.getElementById('pd-poids-moyen-ancien');
+  const effectifEl = document.getElementById('pd-effectif');
+  if(!groupe){ totalEl.value = ''; moyenEl.value = ''; effectifEl.value = ''; document.getElementById('pd-gmh').value = ''; document.getElementById('pd-poids-moyen-nouveau').value = ''; return; }
+  const animal = load('pig_animaux').find(a => a.id === groupe);
+  effectifEl.value = animal && animal.effectif ? fmtNum(animal.effectif) : '—';
+  const ancien = getAncienInfo(groupe);
+  if(ancien && ancien.poidsTotal){
+    totalEl.value = fmtNum(ancien.poidsTotal) + ' kg' + (ancien.date ? ' (' + fmtDate(ancien.date) + ')' : '');
+    moyenEl.value = ancien.poidsMoyen ? fmtNum(ancien.poidsMoyen.toFixed(1)) + ' kg' : '—';
+  } else {
+    totalEl.value = 'Aucune donnée précédente';
+    moyenEl.value = '—';
+  }
+  calcGMH();
+}
+function calcGMH(){
+  const groupe = document.getElementById('pd-groupe').value;
+  const poidsTotal = parseNum(document.getElementById('pd-poids-total').value);
+  const date = document.getElementById('pd-date').value;
+  const moyenNouveauEl = document.getElementById('pd-poids-moyen-nouveau');
+  const gmhEl = document.getElementById('pd-gmh');
+  if(!groupe || isNaN(poidsTotal)){ moyenNouveauEl.value = ''; gmhEl.value = ''; return; }
+  const animal = load('pig_animaux').find(a => a.id === groupe);
+  const effectif = animal ? parseFloat(animal.effectif) || 0 : 0;
+  if(!effectif){ moyenNouveauEl.value = '—'; gmhEl.value = '—'; return; }
+  const poidsMoyenNouveau = poidsTotal / effectif;
+  moyenNouveauEl.value = fmtNum(poidsMoyenNouveau.toFixed(1)) + ' kg';
+  const ancien = getAncienInfo(groupe);
+  if(!ancien){ gmhEl.value = '— (première pesée)'; return; }
+  const gmh = poidsMoyenNouveau - ancien.poidsMoyen;
+  gmhEl.value = fmtNum(gmh.toFixed(2)) + ' kg';
+}
+let peseeDrafts = [];
+function ajouterPeseeDraft(){
+  const groupe = document.getElementById('pd-groupe').value;
+  if(!groupe){ showAlert("Merci de choisir un groupe."); return; }
+  const poidsTotal = parseNum(document.getElementById('pd-poids-total').value);
+  if(isNaN(poidsTotal)){ showAlert("Merci de saisir le nouveau poids total."); return; }
+  const animal = load('pig_animaux').find(a => a.id === groupe);
+  const effectif = animal ? parseFloat(animal.effectif) || 0 : 0;
+  const poidsMoyen = effectif ? poidsTotal / effectif : '';
+  const date = document.getElementById('pd-date').value;
+  const ancien = getAncienInfo(groupe);
+  let gmh = '';
+  if(ancien && poidsMoyen !== ''){
+    gmh = poidsMoyen - ancien.poidsMoyen;
+  }
+  peseeDrafts.push({ date, groupe, poidsTotal, effectif, poidsMoyen, gmh });
+  document.getElementById('pd-poids-total').value = '';
+  document.getElementById('pd-poids-moyen-nouveau').value = '';
+  document.getElementById('pd-gmh').value = '';
+  document.getElementById('pd-ancien-poids-total').value = '';
+  document.getElementById('pd-poids-moyen-ancien').value = '';
+  document.getElementById('pd-effectif').value = '';
+  renderPeseeDraft();
+}
+function delPeseeDraft(i){ peseeDrafts.splice(i,1); renderPeseeDraft(); }
+function renderPeseeDraft(){
+  const el = document.getElementById('peseeDraftList');
+  if(!el) return;
+  if(!peseeDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = peseeDrafts.map((p,i) => `
+    <div class="item"><div><div class="name">${p.groupe}</div><div class="meta">${fmtDate(p.date)} · Total: ${fmtNum(p.poidsTotal)} kg · Moyen: ${p.poidsMoyen !== '' ? fmtNum(p.poidsMoyen.toFixed(1)) + ' kg' : '—'}${p.gmh !== '' ? ' · GMH: ' + fmtNum(p.gmh.toFixed(2)) + ' kg' : ''}</div></div><button class="del" onclick="delPeseeDraft(${i})">Suppr.</button></div>`).join('');
+}
+function validerPeseeDraft(){
+  if(!peseeDrafts.length){ showAlert("Aucune pesée à valider."); return; }
+  const list = load('pig_pesees');
+  peseeDrafts.forEach(p => list.unshift(p));
+  save('pig_pesees', list);
+  peseeDrafts = [];
+  renderPeseeDraft();
+}
+function delPesee(i){ const list = load('pig_pesees'); list.splice(i,1); save('pig_pesees', list); refreshPeseesListTable(); }
+function buildPeseesListHTML(filterGroupe, filterDate){
+  let entries = load('pig_pesees').map((p, idx) => ({ ...p, _idx: idx }));
+  if(filterGroupe){ entries = entries.filter(p => p.groupe === filterGroupe); }
+  if(filterDate){ entries = entries.filter(p => p.date === filterDate); }
+  if(!entries.length){ return '<div class="empty">Aucune pesée pour l\'instant.</div>'; }
+  const rows = entries.map(p => `<tr>
+    <td>${fmtDate(p.date)}</td><td>${p.groupe}</td><td>${fmtNum(p.poidsTotal)} kg</td><td>${p.poidsMoyen !== '' && p.poidsMoyen !== undefined ? fmtNum(p.poidsMoyen.toFixed(1)) + ' kg' : '—'}</td><td>${p.gmh !== '' && p.gmh !== undefined ? fmtNum(p.gmh.toFixed(2)) + ' kg' : '—'}</td>
+    <td><button class="del" onclick="delPesee(${p._idx})">Suppr.</button></td>
+  </tr>`).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Groupe</th><th>Poids Total</th><th>Poids moyen</th><th>GMH</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildPeseesListFullscreenHTML(){
+  const groupes = [...new Set(load('pig_pesees').map(p => p.groupe))];
+  const options = groupes.map(g => `<option>${g}</option>`).join('');
+  return `
+    <label>Filtrer par groupe</label>
+    <select id="pl-filter-groupe" onchange="refreshPeseesListTable()"><option value="">Tous les groupes</option>${options}</select>
+    <label>Filtrer par date</label>
+    <input id="pl-filter-date" type="date" onchange="refreshPeseesListTable()">
+    <div id="peseesFilteredTable" style="margin-top:10px;">${buildPeseesListHTML()}</div>
+  `;
+}
+function refreshPeseesListTable(){
+  const filterGroupe = document.getElementById('pl-filter-groupe').value;
+  const filterDate = document.getElementById('pl-filter-date').value;
+  document.getElementById('peseesFilteredTable').innerHTML = buildPeseesListHTML(filterGroupe, filterDate);
+}
+function openPeseesListFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Liste des pesées';
+  document.getElementById('fullscreenTableBody').innerHTML = buildPeseesListFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+// Prophylaxie (suivi sanitaire par groupe)
+function renderProphylaxieGroupeOptions(){
+  const sel = document.getElementById('px-groupe');
+  if(!sel) return;
+  const current = sel.value;
+  const groupes = [...new Set(load('pig_animaux').map(a => a.id))];
+  sel.innerHTML = '<option value="">— Choisir —</option>' + groupes.map(g => `<option>${g}</option>`).join('');
+  if(groupes.includes(current)) sel.value = current;
+}
+let prophylaxieDrafts = [];
+function ajouterProphylaxieDraft(){
+  const groupe = document.getElementById('px-groupe').value;
+  if(!groupe){ showAlert("Merci de choisir un groupe."); return; }
+  const produit = document.getElementById('px-produit').value.trim();
+  if(!produit){ showAlert("Merci d'indiquer le produit ou la description."); return; }
+  prophylaxieDrafts.push({
+    date: document.getElementById('px-date').value,
+    groupe,
+    type: document.getElementById('px-type').value,
+    produit
+  });
+  document.getElementById('px-produit').value = '';
+  renderProphylaxieDraft();
+}
+function delProphylaxieDraft(i){ prophylaxieDrafts.splice(i,1); renderProphylaxieDraft(); }
+function renderProphylaxieDraft(){
+  const el = document.getElementById('prophylaxieDraftList');
+  if(!el) return;
+  if(!prophylaxieDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = prophylaxieDrafts.map((p,i) => `
+    <div class="item"><div><div class="name">${p.groupe} <span class="pill">${p.type}</span></div><div class="meta">${fmtDate(p.date)} · ${p.produit}</div></div><button class="del" onclick="delProphylaxieDraft(${i})">Suppr.</button></div>`).join('');
+}
+function validerProphylaxieDraft(){
+  if(!prophylaxieDrafts.length){ showAlert("Aucun enregistrement à valider."); return; }
+  const list = load('pig_prophylaxie');
+  prophylaxieDrafts.forEach(p => list.unshift(p));
+  save('pig_prophylaxie', list);
+  prophylaxieDrafts = [];
+  renderProphylaxieDraft();
+}
+function delProphylaxie(i){ const list = load('pig_prophylaxie'); list.splice(i,1); save('pig_prophylaxie', list); refreshProphylaxieListTable(); }
+function buildProphylaxieListHTML(filterGroupe, filterDate){
+  let entries = load('pig_prophylaxie').map((p, idx) => ({ ...p, _idx: idx }));
+  if(filterGroupe){ entries = entries.filter(p => p.groupe === filterGroupe); }
+  if(filterDate){ entries = entries.filter(p => p.date === filterDate); }
+  if(!entries.length){ return '<div class="empty">Aucun enregistrement pour l\'instant.</div>'; }
+  const rows = entries.map(p => `<tr>
+    <td>${fmtDate(p.date)}</td><td>${p.groupe}</td><td>${p.type}</td><td>${p.produit}</td>
+    <td><button class="del" onclick="delProphylaxie(${p._idx})">Suppr.</button></td>
+  </tr>`).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Groupe</th><th>Type</th><th>Produit</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildProphylaxieListFullscreenHTML(){
+  const groupes = [...new Set(load('pig_prophylaxie').map(p => p.groupe))];
+  const options = groupes.map(g => `<option>${g}</option>`).join('');
+  return `
+    <label>Filtrer par groupe</label>
+    <select id="xl-filter-groupe" onchange="refreshProphylaxieListTable()"><option value="">Tous les groupes</option>${options}</select>
+    <label>Filtrer par date</label>
+    <input id="xl-filter-date" type="date" onchange="refreshProphylaxieListTable()">
+    <div id="prophylaxieFilteredTable" style="margin-top:10px;">${buildProphylaxieListHTML()}</div>
+  `;
+}
+function refreshProphylaxieListTable(){
+  const filterGroupe = document.getElementById('xl-filter-groupe').value;
+  const filterDate = document.getElementById('xl-filter-date').value;
+  document.getElementById('prophylaxieFilteredTable').innerHTML = buildProphylaxieListHTML(filterGroupe, filterDate);
+}
+function openProphylaxieListFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Liste - Prophylaxie';
+  document.getElementById('fullscreenTableBody').innerHTML = buildProphylaxieListFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+// Prix de revient
+function buildPRMatieresHTML(filterRef){
+  let toutesRefs = [
+    ...load('pig_param_produits'),
+    ...load('pig_matieres').map(m => m.reference)
+  ];
+  const vues = {};
+  toutesRefs.forEach(r => { const n = normRef(r); if(n && !(n in vues)) vues[n] = r; });
+  let uniques = Object.values(vues);
+  if(filterRef){ uniques = uniques.filter(r => normRef(r) === normRef(filterRef)); }
+  if(!uniques.length){ return '<div class="empty">Aucune référence créée pour l\'instant.</div>'; }
+  const rows = uniques.map(ref => {
+    const prix = getDernierPrixMatiere(ref);
+    return `<tr><td>${ref}</td><td>${fmtNum(prix.toFixed(2))}</td></tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Référence</th><th>CMUP</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildPRMatieresFullscreenHTML(){
+  const refs = load('pig_param_produits');
+  const options = refs.map(r => `<option>${r}</option>`).join('');
+  return `
+    <label>Filtrer par référence</label>
+    <select id="prm-filter-ref" onchange="refreshPRMatieresTable()"><option value="">Toutes les références</option>${options}</select>
+    <div id="prMatieresFilteredTable" style="margin-top:10px;">${buildPRMatieresHTML()}</div>
+  `;
+}
+function refreshPRMatieresTable(){
+  const filterRef = document.getElementById('prm-filter-ref').value;
+  document.getElementById('prMatieresFilteredTable').innerHTML = buildPRMatieresHTML(filterRef);
+}
+function openPRMatieresFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'PR Matières premières';
+  document.getElementById('fullscreenTableBody').innerHTML = buildPRMatieresFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+function getCMUPProduit(reference){
+  const produits = load('pig_produits');
+  const ref = normRef(reference);
+  const achats = produits.filter(p => normRef(p.reference) === ref && p.prixU && p.quantite);
+  if(!achats.length) return 0;
+  const totalValeur = achats.reduce((acc,p) => acc + (parseFloat(p.quantite) || 0) * (parseFloat(p.prixU) || 0), 0);
+  const totalQuantite = achats.reduce((acc,p) => acc + (parseFloat(p.quantite) || 0), 0);
+  return totalQuantite > 0 ? totalValeur / totalQuantite : 0;
+}
+function getPrixRevientProduit(reference){
+  const formule = getFormuleParNom(reference);
+  if(formule){
+    return formule.ingredients.reduce((acc,ing) => acc + ((ing.pourcentage || 0) / 100 * (ing.prix || 0)), 0);
+  }
+  return getCMUPProduit(reference);
+}
+function buildPRProduitsHTML(){
+  const toutesRef = [
+    ...load('pig_param_ref_produit'),
+    ...load('pig_produits').map(p => p.reference)
+  ];
+  const vues = {};
+  toutesRef.forEach(r => { const n = normRef(r); if(n && !(n in vues)) vues[n] = r; });
+  const uniques = Object.values(vues);
+  if(!uniques.length){ return '<div class="empty">Aucune référence créée pour l\'instant.</div>'; }
+  const rows = uniques.map(ref => {
+    const prix = getPrixRevientProduit(ref);
+    const source = getFormuleParNom(ref) ? 'Formule' : 'CMUP';
+    return `<tr><td>${ref}</td><td>${fmtNum(prix.toFixed(2))}</td><td>${source}</td></tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Référence</th><th>Prix de revient / kg</th><th>Source</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function openPRProduitsFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'PR Produit fini';
+  document.getElementById('fullscreenTableBody').innerHTML = buildPRProduitsHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+function getProduitDansBombonneADate(bombonneNom, date){
+  const mouvements = load('pig_mouvement_bombonne')
+    .filter(m => normRef(m.bombonne) === normRef(bombonneNom) && m.type === 'Entrée' && m.date && (!date || m.date <= date))
+    .sort((a,b) => a.date.localeCompare(b.date));
+  return mouvements.length ? mouvements[mouvements.length - 1].produit : null;
+}
+function buildPRPorcHTML(filterGroupe){
+  let groupes = [...new Set(load('pig_animaux').map(a => a.id))];
+  if(filterGroupe){ groupes = groupes.filter(g => normRef(g) === normRef(filterGroupe)); }
+  const consommationToutes = load('pig_consommation');
+  let html = '';
+  let auMoinsUnGroupe = false;
+  groupes.forEach(g => {
+    const consos = consommationToutes.filter(c => normRef(c.groupe) === normRef(g));
+    const animalCheck = load('pig_animaux').find(a => a.id === g);
+    if(!consos.length && !(animalCheck && parseFloat(animalCheck.prixTotal) > 0)) return;
+    auMoinsUnGroupe = true;
+    const parProduit = {};
+    consos.forEach(c => {
+      const qty = parseNum(c.total) || 0;
+      const produit = c.bombonne ? (getProduitDansBombonneADate(c.bombonne, c.date) || 'Inconnu') : 'Inconnu';
+      parProduit[produit] = (parProduit[produit] || 0) + qty;
+    });
+    const animal = load('pig_animaux').find(a => a.id === g);
+    const effectif = animal ? parseFloat(animal.effectif) || 0 : 0;
+    const achatAnimaux = animal ? parseFloat(animal.prixTotal) || 0 : 0;
+    const prixAchatParTete = effectif > 0 ? achatAnimaux / effectif : 0;
+    let totalAliment = 0;
+    const rows = Object.keys(parProduit).map(produit => {
+      const qty = parProduit[produit];
+      const prixKg = getPrixRevientProduit(produit);
+      const cout = qty * prixKg;
+      totalAliment += cout;
+      return `<tr><td>${produit}</td><td>${fmtNum(qty.toFixed(1))} kg</td><td>${fmtNum(prixKg.toFixed(2))} Ar</td><td>${fmtNum(cout.toFixed(2))} Ar</td></tr>`;
+    }).join('');
+    const totalCout = totalAliment + achatAnimaux;
+    const coutParTete = effectif > 0 ? totalCout / effectif : 0;
+    const consommationTotale = Object.values(parProduit).reduce((acc,q) => acc + q, 0);
+    html += `<div class="card">
+      <h2>Groupe ${g}</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Provende</th><th>Quantité</th><th>PR / kg</th><th>Coût</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+      <div class="meta" style="margin-top:8px; color:#fff; font-weight:700;">Effectif : ${fmtNum(effectif)}</div>
+      <div class="meta" style="color:#fff; font-weight:700;">Consommation totale : ${fmtNum(consommationTotale.toFixed(1))} kg</div>
+      <div class="meta" style="color:#fff; font-weight:700;">Coût total aliment : ${fmtNum(totalAliment.toFixed(2))} Ar</div>
+      <div class="meta" style="color:#fff; font-weight:700;">Coût Total des animaux (Groupe) : ${fmtNum(achatAnimaux.toFixed(2))} Ar</div>
+      <div class="meta" style="color:#fff; font-weight:700;">Coût Total des animaux (par tête) : ${fmtNum(prixAchatParTete.toFixed(2))} Ar</div>
+      <div class="meta" style="color:#fff; font-weight:700;">Coût total (animaux + aliment) : ${fmtNum(totalCout.toFixed(2))} Ar</div>
+      <div class="meta" style="color:#fff; font-weight:700;">Coût par tête : ${fmtNum(coutParTete.toFixed(2))} Ar</div>
+    </div>`;
+  });
+  return auMoinsUnGroupe ? html : '<div class="empty">Aucune consommation enregistrée pour l\'instant.</div>';
+}
+function buildPRPorcFullscreenHTML(){
+  const groupes = [...new Set(load('pig_animaux').map(a => a.id))];
+  const options = groupes.map(g => `<option>${g}</option>`).join('');
+  return `
+    <label>Filtrer par groupe</label>
+    <select id="prp-filter-groupe" onchange="refreshPRPorcTable()"><option value="">Tous les groupes</option>${options}</select>
+    <div id="prPorcFilteredTable" style="margin-top:10px;">${buildPRPorcHTML()}</div>
+  `;
+}
+function refreshPRPorcTable(){
+  const filterGroupe = document.getElementById('prp-filter-groupe').value;
+  document.getElementById('prPorcFilteredTable').innerHTML = buildPRPorcHTML(filterGroupe);
+}
+function openPRPorcFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'PR des Porcs';
+  document.getElementById('fullscreenTableBody').innerHTML = buildPRPorcFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+// Charges (dépenses diverses, intégrées au compte caisse en Crédit)
+let chargeDrafts = [];
+function ajouterChargeDraft(){
+  const libelle = document.getElementById('ch-libelle').value.trim();
+  if(!libelle){ showAlert("Merci d'indiquer un libellé."); return; }
+  const montant = parseNum(document.getElementById('ch-montant').value);
+  if(isNaN(montant)){ showAlert("Merci de saisir un montant."); return; }
+  chargeDrafts.push({ date: document.getElementById('ch-date').value, libelle, montant });
+  document.getElementById('ch-libelle').value = '';
+  document.getElementById('ch-montant').value = '';
+  renderChargeDraft();
+}
+function delChargeDraft(i){ chargeDrafts.splice(i,1); renderChargeDraft(); }
+function renderChargeDraft(){
+  const el = document.getElementById('chargeDraftList');
+  if(!el) return;
+  if(!chargeDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = chargeDrafts.map((c,i) => `
+    <div class="item"><div><div class="name">${c.libelle}</div><div class="meta">${fmtDate(c.date)} · ${fmtNum(c.montant)}</div></div><button class="del" onclick="delChargeDraft(${i})">Suppr.</button></div>`).join('');
+}
+function validerChargeDraft(){
+  if(!chargeDrafts.length){ showAlert("Aucune charge à valider."); return; }
+  const list = load('pig_charges');
+  chargeDrafts.forEach(c => list.unshift(c));
+  save('pig_charges', list);
+  chargeDrafts = [];
+  renderChargeDraft();
+}
+
+// Apports (fonds de commerce, capital injecté, intégrés au compte caisse en Débit)
+let apportDrafts = [];
+function ajouterApportDraft(){
+  const libelle = document.getElementById('ap-libelle').value.trim();
+  if(!libelle){ showAlert("Merci d'indiquer un libellé."); return; }
+  const montant = parseNum(document.getElementById('ap-montant').value);
+  if(isNaN(montant)){ showAlert("Merci de saisir un montant."); return; }
+  apportDrafts.push({ date: document.getElementById('ap-date').value, libelle, montant });
+  document.getElementById('ap-libelle').value = '';
+  document.getElementById('ap-montant').value = '';
+  renderApportDraft();
+}
+function delApportDraft(i){ apportDrafts.splice(i,1); renderApportDraft(); }
+function renderApportDraft(){
+  const el = document.getElementById('apportDraftList');
+  if(!el) return;
+  if(!apportDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = apportDrafts.map((a,i) => `
+    <div class="item"><div><div class="name">${a.libelle}</div><div class="meta">${fmtDate(a.date)} · ${fmtNum(a.montant)}</div></div><button class="del" onclick="delApportDraft(${i})">Suppr.</button></div>`).join('');
+}
+function validerApportDraft(){
+  if(!apportDrafts.length){ showAlert("Aucun apport à valider."); return; }
+  const list = load('pig_apports');
+  apportDrafts.forEach(a => list.unshift(a));
+  save('pig_apports', list);
+  apportDrafts = [];
+  renderApportDraft();
+}
+
+// Compte (tableau comptable : Date, Libellé, Débit, Crédit, Solde)
+function delCompteLigne(source, idx){
+  const key = source === 'charge' ? 'pig_charges' : 'pig_apports';
+  const list = load(key);
+  list.splice(idx, 1);
+  save(key, list);
+  document.getElementById('fullscreenTableBody').innerHTML = buildCompteHTML();
+}
+function buildCompteHTML(){
+  const lignes = [];
+  load('pig_animaux').forEach(a => {
+    if(a.prixTotal){ lignes.push({ date: a.entree, libelle: 'Achat Animal — ' + a.id, debit: 0, credit: parseFloat(a.prixTotal) || 0 }); }
+  });
+  load('pig_matieres').forEach(m => {
+    if(m.prixTotal){ lignes.push({ date: m.date, libelle: 'Achat Matière première — ' + m.reference, debit: 0, credit: parseFloat(m.prixTotal) || 0 }); }
+  });
+  load('pig_produits').forEach(p => {
+    if(p.prixTotal){ lignes.push({ date: p.date, libelle: 'Achat Produit fini — ' + p.reference, debit: 0, credit: parseFloat(p.prixTotal) || 0 }); }
+  });
+  load('pig_ventes').forEach(v => {
+    if(v.prixTotal){ lignes.push({ date: v.date, libelle: 'Vente — ' + v.reference + (v.client ? ' à ' + v.client : ''), debit: parseFloat(v.prixTotal) || 0, credit: 0 }); }
+  });
+  load('pig_charges').forEach((c,idx) => {
+    if(c.montant){ lignes.push({ date: c.date, libelle: 'Charge — ' + c.libelle, debit: 0, credit: parseFloat(c.montant) || 0, source: 'charge', idx }); }
+  });
+  load('pig_apports').forEach((a,idx) => {
+    if(a.montant){ lignes.push({ date: a.date, libelle: 'Apport — ' + a.libelle, debit: parseFloat(a.montant) || 0, credit: 0, source: 'apport', idx }); }
+  });
+  if(!lignes.length){ return '<div class="empty">Aucune opération enregistrée pour l\'instant.</div>'; }
+  lignes.sort((a,b) => (a.date || '').localeCompare(b.date || ''));
+  let solde = 0;
+  const rows = lignes.map(l => {
+    solde += l.debit - l.credit;
+    const suppr = l.source ? `<button class="del" onclick="delCompteLigne('${l.source}', ${l.idx})">Suppr.</button>` : '';
+    return `<tr>
+      <td>${fmtDate(l.date)}</td>
+      <td>${l.libelle}</td>
+      <td>${l.debit ? fmtNum(l.debit.toFixed(2)) : ''}</td>
+      <td>${l.credit ? fmtNum(l.credit.toFixed(2)) : ''}</td>
+      <td style="color:${solde >= 0 ? '#3a9d5d' : 'var(--danger)'}; font-weight:700;">${fmtNum(solde.toFixed(2))}</td>
+      <td>${suppr}</td>
+    </tr>`;
+  }).join('');
+  const soldeColor = solde > 0 ? '#3a9d5d' : (solde < 0 ? 'var(--danger)' : '#fff');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Libellé</th><th>Débit</th><th>Crédit</th><th>Solde</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>
+  <div class="meta" style="margin-top:10px; font-size:17px; font-weight:700; color:#fff;">Solde actuel : <span style="color:${soldeColor};">${fmtNum(solde.toFixed(2))}</span></div>`;
+}
+function openCompteFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Compte';
+  document.getElementById('fullscreenTableBody').innerHTML = buildCompteHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+// Vente (Produit fini)
+function renderVenteOptions(){
+  const sel = document.getElementById('ve-reference');
+  if(!sel) return;
+  const current = sel.value;
+  const refs = load('pig_param_ref_produit');
+  sel.innerHTML = '<option value="">— Choisir —</option>' + refs.map(r => `<option>${r}</option>`).join('');
+  if(refs.includes(current)) sel.value = current;
+}
+function updateVenteStockDisponible(){
+  const ref = document.getElementById('ve-reference').value;
+  const el = document.getElementById('ve-stock-disponible');
+  if(!ref){ el.value = ''; return; }
+  el.value = fmtNum(getProduitStockByReference(ref).toFixed(2));
+}
+function calcVente(source){
+  const qEl = document.getElementById('ve-quantite');
+  const uEl = document.getElementById('ve-prixU');
+  const tEl = document.getElementById('ve-prixTotal');
+  const q = parseNum(qEl.value);
+  if(!(q > 0)) return;
+  if(source === 'unitaire'){
+    const u = parseNum(uEl.value);
+    if(!isNaN(u)) tEl.value = fmtNum((u * q).toFixed(2));
+  } else if(source === 'total'){
+    const t = parseNum(tEl.value);
+    if(!isNaN(t)) uEl.value = fmtNum((t / q).toFixed(2));
+  } else if(source === 'quantite'){
+    if(uEl.value !== ''){
+      const u = parseNum(uEl.value);
+      if(!isNaN(u)) tEl.value = fmtNum((u * q).toFixed(2));
+    } else if(tEl.value !== ''){
+      const t = parseNum(tEl.value);
+      if(!isNaN(t)) uEl.value = fmtNum((t / q).toFixed(2));
+    }
+  }
+}
+let venteDrafts = [];
+function ajouterVenteDraft(){
+  const reference = document.getElementById('ve-reference').value;
+  if(!reference){ showAlert("Merci de choisir une référence."); return; }
+  const quantite = parseNum(document.getElementById('ve-quantite').value);
+  if(isNaN(quantite) || quantite <= 0){ showAlert("Merci de saisir une quantité."); return; }
+  const disponible = getProduitStockByReference(reference);
+  const dejaEnCours = venteDrafts.filter(v => v.reference === reference).reduce((acc,v) => acc + v.quantite, 0);
+  if(quantite + dejaEnCours > disponible){
+    showAlert("Stock insuffisant pour " + reference + " (disponible : " + fmtNum(disponible.toFixed(1)) + ", demandé : " + fmtNum((quantite + dejaEnCours).toFixed(1)) + ").");
+    return;
+  }
+  venteDrafts.push({
+    date: document.getElementById('ve-date').value,
+    reference,
+    client: document.getElementById('ve-client').value.trim(),
+    quantite,
+    prixU: parseNum(document.getElementById('ve-prixU').value) || '',
+    prixTotal: parseNum(document.getElementById('ve-prixTotal').value) || ''
+  });
+  ['ve-quantite','ve-prixU','ve-prixTotal'].forEach(f => document.getElementById(f).value = '');
+  renderVenteDraft();
+}
+function delVenteDraft(i){ venteDrafts.splice(i,1); renderVenteDraft(); }
+function renderVenteDraft(){
+  const el = document.getElementById('venteDraftList');
+  if(!el) return;
+  if(!venteDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = venteDrafts.map((v,i) => `
+    <div class="item">
+      <div><div class="name">${v.reference}${v.client ? ' — ' + v.client : ''}</div><div class="meta">${fmtDate(v.date)} · Qté: ${fmtNum(v.quantite)} · Total: ${fmtNum(v.prixTotal)}</div></div>
+      <button class="del" onclick="delVenteDraft(${i})">Suppr.</button>
+    </div>`).join('');
+}
+function validerVenteDraft(){
+  if(!venteDrafts.length){ showAlert("Aucune vente à valider."); return; }
+  const ventes = load('pig_ventes');
+  const mouvementsProduits = load('pig_mouvement_produits');
+  venteDrafts.forEach(v => {
+    ventes.unshift(v);
+    mouvementsProduits.push({ date: v.date, reference: v.reference, type: 'Sortie', quantite: v.quantite });
+  });
+  save('pig_ventes', ventes);
+  save('pig_mouvement_produits', mouvementsProduits);
+  venteDrafts = [];
+  renderVenteDraft();
+}
+function delVente(i){ const list = load('pig_ventes'); list.splice(i,1); save('pig_ventes', list); refreshVentesListTable(); }
+function buildVentesListHTML(filterDate, filterReference){
+  let entries = load('pig_ventes').map((v, idx) => ({ ...v, _idx: idx }));
+  if(filterDate){ entries = entries.filter(v => v.date === filterDate); }
+  if(filterReference){ entries = entries.filter(v => v.reference === filterReference); }
+  if(!entries.length){ return '<div class="empty">Aucune vente pour l\'instant.</div>'; }
+  const rows = entries.map(v => `<tr>
+    <td>${fmtDate(v.date)}</td>
+    <td>${v.reference}</td>
+    <td>${v.client || ''}</td>
+    <td>${fmtNum(v.quantite)}</td>
+    <td>${fmtNum(v.prixU)}</td>
+    <td>${fmtNum(v.prixTotal)}</td>
+    <td><button class="del" onclick="delVente(${v._idx})">Suppr.</button></td>
+  </tr>`).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Référence</th><th>Client</th><th>Quantité</th><th>Prix U.</th><th>Prix Total</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildVentesListFullscreenHTML(){
+  const refs = [...new Set(load('pig_ventes').map(v => v.reference))];
+  const options = refs.map(r => `<option>${r}</option>`).join('');
+  return `
+    <label>Filtrer par référence</label>
+    <select id="vl-filter-reference" onchange="refreshVentesListTable()"><option value="">Toutes les références</option>${options}</select>
+    <label>Filtrer par date</label>
+    <input id="vl-filter-date" type="date" onchange="refreshVentesListTable()">
+    <div id="ventesFilteredTable" style="margin-top:10px;">${buildVentesListHTML()}</div>
+  `;
+}
+function refreshVentesListTable(){
+  const filterDate = document.getElementById('vl-filter-date').value;
+  const filterReference = document.getElementById('vl-filter-reference').value;
+  document.getElementById('ventesFilteredTable').innerHTML = buildVentesListHTML(filterDate, filterReference);
+}
+function openVentesListFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Liste des ventes';
+  document.getElementById('fullscreenTableBody').innerHTML = buildVentesListFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+// Formulation
+function buildFormulationCreationHTML(){
+  const refs = load('pig_param_produits');
+  const options = refs.map(r => `<option>${r}</option>`).join('');
+  return `
+    <div class="card">
+      <label>Nom de la formule</label>
+      <input id="fo-nom" placeholder="Ex: DÉMARRAGE, CROISSANCE, FINITION">
+
+      <label style="margin-top:16px;">Référence (matière première)</label>
+      <select id="fo-ingredient-ref"><option value="">— Choisir —</option>${options}</select>
+      <label>Pourcentage (%)</label>
+      <input id="fo-ingredient-pourcentage" type="text" inputmode="decimal" onblur="liveFormat(this)">
+      <button onclick="ajouterIngredient()">Ajouter l'ingrédient</button>
+      <div id="ingredientList" style="margin-top:10px;"></div>
+      <div id="ingredientTotal" class="meta" style="margin-top:6px;"></div>
+
+      <button onclick="ajouterFormuleDraft()" style="margin-top:16px;">Ajouter</button>
+      <div id="formuleDraftList" style="margin-top:10px;"></div>
+      <button onclick="validerFormuleDraft()" style="margin-top:12px;">VALIDER</button>
+    </div>
+  `;
+}
+function openFormulationCreationFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Création - Formulation';
+  document.getElementById('fullscreenTableBody').innerHTML = buildFormulationCreationHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+  currentIngredients = [];
+  renderIngredientList();
+  formuleDrafts = [];
+}
+function renderFormulationOptions(){
+  const selRef = document.getElementById('fo-ingredient-ref');
+  if(!selRef) return;
+  const refs = load('pig_param_produits');
+  const currentRef = selRef.value;
+  selRef.innerHTML = '<option value="">— Choisir —</option>' + refs.map(r => `<option>${r}</option>`).join('');
+  if(refs.includes(currentRef)) selRef.value = currentRef;
+}
+function getDernierPrixMatiere(ref){
+  const achats = load('pig_matieres').filter(m => normRef(m.reference) === normRef(ref) && m.prixU && m.quantite);
+  if(!achats.length) return 0;
+  const totalValeur = achats.reduce((acc,m) => acc + (parseFloat(m.quantite) || 0) * (parseFloat(m.prixU) || 0), 0);
+  const totalQuantite = achats.reduce((acc,m) => acc + (parseFloat(m.quantite) || 0), 0);
+  return totalQuantite > 0 ? totalValeur / totalQuantite : 0;
+}
+let currentIngredients = [];
+function ajouterIngredient(){
+  const ref = document.getElementById('fo-ingredient-ref').value;
+  if(!ref){ showAlert("Merci de choisir une référence."); return; }
+  const pourcentage = parseNum(document.getElementById('fo-ingredient-pourcentage').value);
+  if(isNaN(pourcentage)){ showAlert("Merci de saisir un pourcentage."); return; }
+  const prix = getDernierPrixMatiere(ref);
+  currentIngredients.push({ reference: ref, pourcentage, prix });
+  document.getElementById('fo-ingredient-ref').value = '';
+  document.getElementById('fo-ingredient-pourcentage').value = '';
+  renderIngredientList();
+}
+function delIngredient(i){ currentIngredients.splice(i,1); renderIngredientList(); }
+let editIngredientIndex = -1;
+function startEditIngredient(i){ editIngredientIndex = i; renderIngredientList(); }
+function cancelEditIngredient(){ editIngredientIndex = -1; renderIngredientList(); }
+function saveEditIngredient(i){
+  const ref = document.getElementById('ing-edit-ref-' + i).value;
+  if(!ref){ showAlert("Merci de choisir une référence."); return; }
+  const pourcentage = parseNum(document.getElementById('ing-edit-pourcentage-' + i).value);
+  if(isNaN(pourcentage)){ showAlert("Merci de saisir un pourcentage."); return; }
+  currentIngredients[i] = { reference: ref, pourcentage, prix: getDernierPrixMatiere(ref) };
+  editIngredientIndex = -1;
+  renderIngredientList();
+}
+function renderIngredientList(){
+  const el = document.getElementById('ingredientList');
+  const totalEl = document.getElementById('ingredientTotal');
+  if(!el) return;
+  if(!currentIngredients.length){
+    el.innerHTML = '';
+    if(totalEl) totalEl.textContent = '';
+    return;
+  }
+  const refs = load('pig_param_produits');
+  el.innerHTML = currentIngredients.map((ing,i) => {
+    if(i === editIngredientIndex){
+      const refOptions = refs.map(r => `<option${r === ing.reference ? ' selected' : ''}>${r}</option>`).join('');
+      return `
+        <div class="item">
+          <div style="flex:1;">
+            <label>Référence</label>
+            <select id="ing-edit-ref-${i}">${refOptions}</select>
+            <label>Pourcentage (%)</label>
+            <input id="ing-edit-pourcentage-${i}" type="text" inputmode="decimal" value="${ing.pourcentage}" onblur="liveFormat(this)">
+            <div class="btn-row">
+              <button onclick="saveEditIngredient(${i})">Enregistrer</button>
+              <button class="btn-secondary" onclick="cancelEditIngredient()">Annuler</button>
+            </div>
+          </div>
+        </div>`;
+    }
+    return `
+      <div class="item">
+        <div class="name">${ing.reference} <span class="pill">${fmtNum(ing.pourcentage)}%</span></div>
+        <div style="display:flex; gap:6px;">
+          <button class="del" onclick="startEditIngredient(${i})">Modif</button>
+          <button class="del" onclick="delIngredient(${i})">Suppr.</button>
+        </div>
+      </div>`;
+  }).join('');
+  if(totalEl){
+    const total = currentIngredients.reduce((acc,ing) => acc + (ing.pourcentage || 0), 0);
+    totalEl.textContent = 'Total ajouté : ' + fmtNum(total.toFixed(1)) + '%' + (Math.abs(total - 100) > 0.01 ? ' (⚠ différent de 100%)' : ' ✓');
+  }
+}
+let formuleDrafts = [];
+function ajouterFormuleDraft(){
+  const nom = document.getElementById('fo-nom').value.trim();
+  if(!nom){ showAlert("Merci d'indiquer un nom de formule."); return; }
+  if(!currentIngredients.length){ showAlert("Merci d'ajouter au moins un ingrédient."); return; }
+  formuleDrafts.push({ nom, ingredients: currentIngredients });
+  currentIngredients = [];
+  renderIngredientList();
+  document.getElementById('fo-nom').value = '';
+  renderFormuleDraft();
+}
+function delFormuleDraft(i){ formuleDrafts.splice(i,1); renderFormuleDraft(); }
+function renderFormuleDraft(){
+  const el = document.getElementById('formuleDraftList');
+  if(!formuleDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = formuleDrafts.map((f,i) => `
+    <div class="item">
+      <div><div class="name">${f.nom}</div><div class="meta">${f.ingredients.map(ing => ing.reference + ': ' + fmtNum(ing.pourcentage) + '%').join(' · ')}</div></div>
+      <button class="del" onclick="delFormuleDraft(${i})">Suppr.</button>
+    </div>`).join('');
+}
+function validerFormuleDraft(){
+  if(!formuleDrafts.length){ showAlert("Aucune formule à valider."); return; }
+  const list = load('pig_formulation');
+  formuleDrafts.forEach(f => list.push(f));
+  save('pig_formulation', list);
+  formuleDrafts = [];
+  renderFormuleDraft();
+}
+function delFormule(i){
+  const list = load('pig_formulation');
+  list.splice(i,1);
+  save('pig_formulation', list);
+  const filterSel = document.getElementById('fl-filter-nom');
+  if(filterSel){ refreshFormulesTable(); } else { document.getElementById('fullscreenTableBody').innerHTML = buildFormulesListHTML(); }
+}
+function buildFormulesListHTML(filterNom){
+  let list = load('pig_formulation').map((f,idx) => ({ ...f, _idx: idx }));
+  if(filterNom){ list = list.filter(f => f.nom === filterNom); }
+  if(!list.length){ return '<div class="empty">Aucune formule enregistrée.</div>'; }
+  return list.map((f) => {
+    const i = f._idx;
+    const totalPourcentage = f.ingredients.reduce((acc,ing) => acc + (ing.pourcentage || 0), 0);
+    const prixRevientKg = f.ingredients.reduce((acc,ing) => acc + ((ing.pourcentage || 0) / 100 * (ing.prix || 0)), 0);
+    return `
+    <div class="card">
+      <h2>${f.nom}</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Référence</th><th>Pourcentage</th></tr></thead>
+        <tbody>${f.ingredients.map(ing => `<tr><td>${ing.reference}</td><td>${fmtNum(ing.pourcentage)}%</td></tr>`).join('')}</tbody>
+      </table></div>
+      <div class="meta" style="margin-top:8px;">Total : ${fmtNum(totalPourcentage.toFixed(1))}%${Math.abs(totalPourcentage - 100) > 0.01 ? ' (⚠ différent de 100%)' : ''}</div>
+      <div class="meta">Prix de revient / kg : ${fmtNum(prixRevientKg.toFixed(2))}</div>
+      <button class="del" onclick="delFormule(${i})" style="margin-top:10px;">Suppr.</button>
+    </div>`;
+  }).join('');
+}
+function buildFormulesFullscreenHTML(){
+  const noms = [...new Set(load('pig_formulation').map(f => f.nom))];
+  const options = noms.map(n => `<option>${n}</option>`).join('');
+  return `
+    <label>Filtrer par nom de formule</label>
+    <select id="fl-filter-nom" onchange="refreshFormulesTable()"><option value="">Toutes les formules</option>${options}</select>
+    <div id="formulesFilteredList" style="margin-top:10px;">${buildFormulesListHTML()}</div>
+  `;
+}
+function refreshFormulesTable(){
+  const filterNom = document.getElementById('fl-filter-nom').value;
+  document.getElementById('formulesFilteredList').innerHTML = buildFormulesListHTML(filterNom);
+}
+function openFormulesFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Liste des formules';
+  document.getElementById('fullscreenTableBody').innerHTML = buildFormulesFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+// Production (à partir d'une formule)
+function getMatiereStock(ref){
+  const refN = normRef(ref);
+  const achats = load('pig_matieres').filter(m => normRef(m.reference) === refN).map(m => ({ date: m.date, entree: parseFloat(m.quantite) || 0, sortie: 0 }));
+  const mouvements = load('pig_mouvement_matieres').filter(m => normRef(m.reference) === refN).map(m => ({
+    date: m.date, entree: m.type === 'Entrée' ? (m.quantite || 0) : 0, sortie: m.type === 'Sortie' ? (m.quantite || 0) : 0
+  }));
+  const all = [...achats, ...mouvements];
+  return all.reduce((acc, item) => acc + item.entree - item.sortie, 0);
+}
+function buildProductionHTML(){
+  const formules = load('pig_formulation');
+  const noms = [...new Set(formules.map(f => f.nom))];
+  const options = noms.map(n => `<option>${n}</option>`).join('');
+  return `
+    <div class="card">
+      <label>Date</label>
+      <input id="pr-date" type="date">
+      <label>Formule</label>
+      <select id="pr-formule" onchange="updateProductionApercu()"><option value="">— Choisir —</option>${options}</select>
+      <label>Quantité de provende à produire (kg)</label>
+      <input id="pr-quantite" type="text" inputmode="decimal" oninput="updateProductionApercu()" onblur="liveFormat(this)">
+      <div id="productionApercu" style="margin-top:10px;"></div>
+      <button onclick="ajouterProductionDraft()" style="margin-top:12px;">Ajouter</button>
+      <div id="productionDraftList" style="margin-top:10px;"></div>
+      <button onclick="validerProductionDraft()" style="margin-top:12px;">VALIDER</button>
+      <div id="productionList" style="margin-top:10px;"></div>
+    </div>
+  `;
+}
+function getFormuleParNom(nom){
+  const formules = load('pig_formulation').filter(f => normRef(f.nom) === normRef(nom));
+  return formules[formules.length - 1];
+}
+function calculerBesoins(formule, quantite){
+  return formule.ingredients.map(ing => {
+    const besoin = (ing.pourcentage / 100) * quantite;
+    const disponible = getMatiereStock(ing.reference);
+    return { reference: ing.reference, pourcentage: ing.pourcentage, besoin, disponible, prix: ing.prix || 0, ok: besoin <= disponible };
+  });
+}
+function updateProductionApercu(){
+  const nom = document.getElementById('pr-formule').value;
+  const quantite = parseNum(document.getElementById('pr-quantite').value);
+  const el = document.getElementById('productionApercu');
+  if(!nom || isNaN(quantite) || quantite <= 0){ el.innerHTML = ''; return; }
+  const formule = getFormuleParNom(nom);
+  if(!formule){ el.innerHTML = ''; return; }
+  const besoins = calculerBesoins(formule, quantite);
+  const rows = besoins.map(b => `<tr style="color: ${b.ok ? '#3a9d5d' : 'var(--danger)'}; font-weight:700;">
+    <td>${b.reference}</td>
+    <td>${fmtNum(b.pourcentage)}%</td>
+    <td>${fmtNum(b.besoin.toFixed(1))}</td>
+    <td>${fmtNum(b.disponible.toFixed(1))}</td>
+  </tr>`).join('');
+  const prixTotal = besoins.reduce((acc,b) => acc + (b.besoin * b.prix), 0);
+  const prixParKg = quantite > 0 ? prixTotal / quantite : 0;
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Référence</th><th>Pourcentage</th><th>Quantité nécessaire</th><th>Disponible</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>
+  <div class="meta" style="margin-top:8px;">Prix Total : ${fmtNum(prixTotal.toFixed(2))}</div>
+  <div class="meta">Prix par kg : ${fmtNum(prixParKg.toFixed(2))}</div>`;
+}
+let productionDrafts = [];
+function ajouterProductionDraft(){
+  const nomFormule = document.getElementById('pr-formule').value;
+  if(!nomFormule){ showAlert("Merci de choisir une formule."); return; }
+  const quantite = parseNum(document.getElementById('pr-quantite').value);
+  if(isNaN(quantite) || quantite <= 0){ showAlert("Merci de saisir une quantité à produire."); return; }
+  const formules = load('pig_formulation').filter(f => f.nom === nomFormule);
+  const formule = formules[formules.length - 1];
+  if(!formule){ showAlert("Formule introuvable."); return; }
+
+  const besoins = formule.ingredients.map(ing => ({
+    reference: ing.reference,
+    besoin: (ing.pourcentage / 100) * quantite,
+    disponible: getMatiereStock(ing.reference)
+  }));
+  const insuffisants = besoins.filter(b => b.besoin > b.disponible);
+  if(insuffisants.length){
+    const detail = insuffisants.map(b => `${b.reference} (besoin: ${fmtNum(b.besoin.toFixed(1))}, disponible: ${fmtNum(b.disponible.toFixed(1))})`).join(' · ');
+    showAlert("Stock insuffisant pour produire cette quantité. Manque sur : " + detail);
+    return;
+  }
+
+  productionDrafts.push({ date: document.getElementById('pr-date').value, formule: nomFormule, quantite, besoins });
+  document.getElementById('pr-quantite').value = '';
+  renderProductionDraft();
+}
+function delProductionDraft(i){ productionDrafts.splice(i,1); renderProductionDraft(); }
+function renderProductionDraft(){
+  const el = document.getElementById('productionDraftList');
+  if(!el) return;
+  if(!productionDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = productionDrafts.map((p,i) => `
+    <div class="item">
+      <div><div class="name">${p.formule}</div><div class="meta">${fmtDate(p.date)} · Quantité: ${fmtNum(p.quantite)} kg</div></div>
+      <button class="del" onclick="delProductionDraft(${i})">Suppr.</button>
+    </div>`).join('');
+}
+function validerProductionDraft(){
+  if(!productionDrafts.length){ showAlert("Aucune production à valider."); return; }
+  const productions = load('pig_production');
+  const mouvementsMatieres = load('pig_mouvement_matieres');
+  const mouvementsProduits = load('pig_mouvement_produits');
+  const refsProduit = load('pig_param_ref_produit');
+  productionDrafts.forEach(p => {
+    productions.unshift({ date: p.date, formule: p.formule, quantite: p.quantite });
+    p.besoins.forEach(b => {
+      mouvementsMatieres.push({ date: p.date, reference: b.reference, type: 'Sortie', quantite: b.besoin });
+    });
+    // Synchronisation avec le stock Produit fini : le nom de la formule devient une référence à part entière
+    mouvementsProduits.push({ date: p.date, reference: p.formule, type: 'Entrée', quantite: p.quantite });
+    if(!refsProduit.includes(p.formule)){ refsProduit.push(p.formule); }
+  });
+  save('pig_production', productions);
+  save('pig_mouvement_matieres', mouvementsMatieres);
+  save('pig_mouvement_produits', mouvementsProduits);
+  save('pig_param_ref_produit', refsProduit);
+  productionDrafts = [];
+  renderProductionDraft();
+  renderProductionList();
+  renderVenteOptions();
+  renderParamRefProduit();
+}
+function delProduction(i){ const list = load('pig_production'); list.splice(i,1); save('pig_production', list); renderProductionList(); }
+function renderProductionList(){
+  const el = document.getElementById('productionList');
+  if(!el) return;
+  const list = load('pig_production');
+  if(!list.length){ el.innerHTML = '<div class="empty">Aucune production enregistrée.</div>'; return; }
+  const rows = list.map((p,i) => `<tr>
+    <td>${fmtDate(p.date)}</td>
+    <td>${p.formule}</td>
+    <td>${fmtNum(p.quantite)}</td>
+    <td><button class="del" onclick="delProduction(${i})">Suppr.</button></td>
+  </tr>`).join('');
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Formule</th><th>Quantité produite</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function openProductionFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Production';
+  document.getElementById('fullscreenTableBody').innerHTML = buildProductionHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+  productionDrafts = [];
+  renderProductionList();
+}
+
+// Transfert (Produit fini -> Bombonne)
+function renderTransfertOptions(){
+  const refs = load('pig_param_ref_produit');
+  const selRef = document.getElementById('tr-reference');
+  const currentRef = selRef.value;
+  selRef.innerHTML = '<option value="">— Choisir —</option>' + refs.map(r => `<option>${r}</option>`).join('');
+  if(refs.includes(currentRef)) selRef.value = currentRef;
+
+  const bombonnes = load('pig_param_bombonne');
+  const selBomb = document.getElementById('tr-bombonne');
+  const currentBomb = selBomb.value;
+  selBomb.innerHTML = '<option value="">— Choisir —</option>' + bombonnes.map(b => `<option>${b.nom}</option>`).join('');
+  if(bombonnes.some(b => b.nom === currentBomb)) selBomb.value = currentBomb;
+}
+function getProduitStockByReference(ref){
+  const refN = normRef(ref);
+  const achats = load('pig_produits').filter(p => normRef(p.reference) === refN).map(p => ({ date: p.date, entree: parseFloat(p.quantite) || 0, sortie: 0 }));
+  const mouvements = load('pig_mouvement_produits').filter(m => normRef(m.reference) === refN).map(m => ({
+    date: m.date, entree: m.type === 'Entrée' ? (m.quantite || 0) : 0, sortie: m.type === 'Sortie' ? (m.quantite || 0) : 0
+  }));
+  const all = [...achats, ...mouvements].sort((a,b) => (a.date || '').localeCompare(b.date || ''));
+  return all.reduce((acc, item) => acc + item.entree - item.sortie, 0);
+}
+function updateTransfertQuantiteInitiale(){
+  const ref = document.getElementById('tr-reference').value;
+  const el = document.getElementById('tr-quantite-initiale');
+  if(!ref){ el.value = ''; return; }
+  el.value = fmtNum(getProduitStockByReference(ref).toFixed(2));
+}
+let transfertDrafts = [];
+function ajouterTransfertDraft(){
+  const reference = document.getElementById('tr-reference').value;
+  if(!reference){ showAlert("Merci de choisir une référence."); return; }
+  const bombonne = document.getElementById('tr-bombonne').value;
+  if(!bombonne){ showAlert("Merci de choisir une bombonne de destination."); return; }
+  const quantite = parseNum(document.getElementById('tr-quantite').value);
+  if(isNaN(quantite)){ showAlert("Merci de saisir une quantité."); return; }
+  transfertDrafts.push({ date: document.getElementById('tr-date').value, reference, bombonne, quantite });
+  document.getElementById('tr-quantite').value = '';
+  document.getElementById('tr-quantite-initiale').value = '';
+  document.getElementById('tr-reference').value = '';
+  renderTransfertDraft();
+}
+function delTransfertDraft(i){ transfertDrafts.splice(i,1); renderTransfertDraft(); }
+function renderTransfertDraft(){
+  const el = document.getElementById('transfertDraftList');
+  if(!transfertDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = transfertDrafts.map((t,i) => `
+    <div class="item">
+      <div><div class="name">${t.reference} → ${t.bombonne}</div><div class="meta">${fmtDate(t.date)} · Qté: ${fmtNum(t.quantite)}</div></div>
+      <button class="del" onclick="delTransfertDraft(${i})">Suppr.</button>
+    </div>`).join('');
+}
+function validerTransfertDraft(){
+  if(!transfertDrafts.length){ showAlert("Aucun transfert à valider."); return; }
+  const transferts = load('pig_transfert');
+  const mouvementsBombonne = load('pig_mouvement_bombonne');
+  const mouvementsProduits = load('pig_mouvement_produits');
+  transfertDrafts.forEach(t => {
+    transferts.unshift(t);
+    mouvementsBombonne.push({ date: t.date, bombonne: t.bombonne, produit: t.reference, type: 'Entrée', quantite: t.quantite });
+    mouvementsProduits.push({ date: t.date, reference: t.reference, type: 'Sortie', quantite: t.quantite });
+  });
+  save('pig_transfert', transferts);
+  save('pig_mouvement_bombonne', mouvementsBombonne);
+  save('pig_mouvement_produits', mouvementsProduits);
+  transfertDrafts = [];
+  renderTransfertDraft();
+}
+function delTransfert(i){ const list = load('pig_transfert'); list.splice(i,1); save('pig_transfert', list); refreshTransfertListTable(); }
+function buildTransfertListHTML(filterDate){
+  let entries = load('pig_transfert').map((t, idx) => ({ ...t, _idx: idx }));
+  if(filterDate){ entries = entries.filter(t => t.date === filterDate); }
+  if(!entries.length){ return '<div class="empty">Aucun transfert pour l\'instant.</div>'; }
+  const rows = entries.map((t) => `<tr>
+      <td>${fmtDate(t.date)}</td>
+      <td>${t.reference}</td>
+      <td>${t.bombonne}</td>
+      <td>${fmtNum(t.quantite)}</td>
+      <td><button class="del" onclick="delTransfert(${t._idx})">Suppr.</button></td>
+    </tr>`).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Expédition (Référence)</th><th>Destination (Bombonne)</th><th>Quantité</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildTransfertListFullscreenHTML(){
+  return `
+    <label>Filtrer par date</label>
+    <input id="tl-filter-date" type="date" onchange="refreshTransfertListTable()">
+    <div id="transfertFilteredTable" style="margin-top:10px;">${buildTransfertListHTML()}</div>
+  `;
+}
+function refreshTransfertListTable(){
+  const filterDate = document.getElementById('tl-filter-date').value;
+  document.getElementById('transfertFilteredTable').innerHTML = buildTransfertListHTML(filterDate);
+}
+function openTransfertListFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Liste des transferts';
+  document.getElementById('fullscreenTableBody').innerHTML = buildTransfertListFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+// État de stock résumé par bombonne
+function buildBombonneEtatHTML(){
+  const bombonnes = load('pig_param_bombonne');
+  if(!bombonnes.length){ return '<div class="empty">Aucune bombonne créée pour l\'instant.</div>'; }
+  const mouvements = load('pig_mouvement_bombonne');
+  const rows = bombonnes.map(b => {
+    const items = mouvements.filter(m => m.bombonne === b.nom);
+    const brut = items.reduce((acc,m) => acc + (m.type === 'Entrée' ? (m.quantite || 0) : 0) - (m.type === 'Sortie' ? (m.quantite || 0) : 0), 0);
+    const tare = parseFloat(b.tare) || 0;
+    const net = brut + tare;
+    return `<tr><td>${b.nom}</td><td>${fmtNum(brut.toFixed(2))}</td><td>${fmtNum(tare)}</td><td style="color:${stockColor(net)}; font-weight:700;">${fmtNum(net.toFixed(2))}</td></tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Bombonne</th><th>Poids brut</th><th>Tare</th><th>Poids net</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function openBombonneEtatFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'État de stock - Bombonne';
+  document.getElementById('fullscreenTableBody').innerHTML = buildBombonneEtatHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+// Stock Bombonne (alimenté par les transferts de produit fini)
+function buildBombonneStockTableHTML(filterRef){
+  let list = load('pig_mouvement_bombonne');
+  if(filterRef){ list = list.filter(m => m.bombonne === filterRef); }
+  if(!list.length){ return '<div class="empty">Aucun mouvement pour l\'instant.</div>'; }
+  const sorted = [...list].sort((a,b) => (a.date || '').localeCompare(b.date || ''));
+  const cumul = {};
+  const rows = sorted.map(m => {
+    const key = m.bombonne || '—';
+    const entree = m.type === 'Entrée' ? (m.quantite || 0) : 0;
+    const sortie = m.type === 'Sortie' ? (m.quantite || 0) : 0;
+    cumul[key] = (cumul[key] || 0) + entree - sortie;
+    return `<tr>
+      <td>${fmtDate(m.date)}</td>
+      <td>${key}</td>
+      <td>${m.produit || ''}</td>
+      <td>${entree ? fmtNum(entree) : ''}</td>
+      <td>${sortie ? fmtNum(sortie) : ''}</td>
+      <td style="color:${stockColor(cumul[key])}; font-weight:700;">${fmtNum(cumul[key])}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Bombonne</th><th>Produit</th><th>ENTRÉE</th><th>SORTIE</th><th>STOCK</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildBombonneStockFullscreenHTML(){
+  const refs = load('pig_param_bombonne');
+  const options = refs.map(b => `<option>${b.nom}</option>`).join('');
+  return `
+    <label>Filtrer par référence</label>
+    <select id="sb-filter-ref" onchange="refreshBombonneStockTable()"><option value="">Toutes les références</option>${options}</select>
+    <div id="bombonneStockFilteredTable" style="margin-top:10px;">${buildBombonneStockTableHTML()}</div>
+  `;
+}
+function refreshBombonneStockTable(){
+  const filterRef = document.getElementById('sb-filter-ref').value;
+  document.getElementById('bombonneStockFilteredTable').innerHTML = buildBombonneStockTableHTML(filterRef);
+}
+function openBombonneStockFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Mouvement - Bombonne';
+  document.getElementById('fullscreenTableBody').innerHTML = buildBombonneStockFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+function calcAchat(prefix, source){
+  const qEl = document.getElementById(prefix + '-quantite');
+  const uEl = document.getElementById(prefix + '-prixU');
+  const tEl = document.getElementById(prefix + '-prixTotal');
+  const q = parseNum(qEl.value);
+  if(!(q > 0)) return;
+
+  if(source === 'unitaire'){
+    const u = parseNum(uEl.value);
+    if(!isNaN(u)) tEl.value = fmtNum((u * q).toFixed(2));
+  } else if(source === 'total'){
+    const t = parseNum(tEl.value);
+    if(!isNaN(t)) uEl.value = fmtNum((t / q).toFixed(2));
+  } else if(source === 'quantite'){
+    if(uEl.value !== ''){
+      const u = parseNum(uEl.value);
+      if(!isNaN(u)) tEl.value = fmtNum((u * q).toFixed(2));
+    } else if(tEl.value !== ''){
+      const t = parseNum(tEl.value);
+      if(!isNaN(t)) uEl.value = fmtNum((t / q).toFixed(2));
+    }
+  }
+}
+
+// Matières premières
+let matiereDrafts = [];
+function updateMatiereStockActuel(){
+  const ref = document.getElementById('m-reference').value;
+  const el = document.getElementById('m-stock-actuel');
+  if(!ref){ el.value = ''; return; }
+  el.value = fmtNum(getMatiereStock(ref).toFixed(2));
+}
+function ajouterMatiereDraft(){
+  const reference = document.getElementById('m-reference').value.trim();
+  if(!reference){ showAlert("Merci d'indiquer la référence."); return; }
+  const item = {
+    date: document.getElementById('m-date').value,
+    reference,
+    quantite: parseNum(document.getElementById('m-quantite').value) || '',
+    prixU: parseNum(document.getElementById('m-prixU').value) || '',
+    prixTotal: parseNum(document.getElementById('m-prixTotal').value) || ''
+  };
+  matiereDrafts.push(item);
+  ['m-date','m-reference','m-quantite','m-prixU','m-prixTotal','m-stock-actuel'].forEach(f => document.getElementById(f).value = '');
+  renderMatiereDraft();
+}
+function delMatiereDraft(i){ matiereDrafts.splice(i,1); renderMatiereDraft(); }
+function renderMatiereDraft(){
+  const el = document.getElementById('matiereDraftList');
+  if(!matiereDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = matiereDrafts.map((m,i) => `
+    <div class="item">
+      <div><div class="name">${m.reference}</div><div class="meta">${fmtDate(m.date)}${m.quantite ? ' · Qté: ' + fmtNum(m.quantite) : ''}</div></div>
+      <button class="del" onclick="delMatiereDraft(${i})">Suppr.</button>
+    </div>`).join('');
+}
+function validerMatiereDraft(){
+  if(!matiereDrafts.length){ showAlert("Aucune matière première à valider."); return; }
+  const list = load('pig_matieres');
+  matiereDrafts.forEach(item => list.unshift(item));
+  save('pig_matieres', list);
+  matiereDrafts = [];
+  renderMatiereDraft();
+}
+function delMatiere(i){ const list = load('pig_matieres'); list.splice(i,1); save('pig_matieres', list); refreshMatieresListTable(); }
+function buildMatieresListHTML(filterDate, filterReference){
+  let entries = load('pig_matieres').map((m, idx) => ({ ...m, _idx: idx }));
+  if(filterDate){ entries = entries.filter(m => m.date === filterDate); }
+  if(filterReference){ entries = entries.filter(m => normRef(m.reference) === normRef(filterReference)); }
+  if(!entries.length){ return '<div class="empty">Aucun achat de matière première pour l\'instant.</div>'; }
+  const rows = entries.map(m => `<tr>
+    <td>${fmtDate(m.date)}</td>
+    <td>${m.reference || ''}</td>
+    <td>${fmtNum(m.quantite)}</td>
+    <td>${fmtNum(m.prixU)}</td>
+    <td>${fmtNum(m.prixTotal)}</td>
+    <td><button class="del" onclick="delMatiere(${m._idx})">Suppr.</button></td>
+  </tr>`).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Référence</th><th>Quantité</th><th>Prix U.</th><th>Prix Total</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildMatieresListFullscreenHTML(){
+  const vues = {};
+  load('pig_matieres').forEach(m => { const n = normRef(m.reference); if(n && !(n in vues)) vues[n] = m.reference; });
+  const options = Object.values(vues).map(r => `<option>${r}</option>`).join('');
+  return `
+    <label>Filtrer par référence</label>
+    <select id="am-filter-reference" onchange="refreshMatieresListTable()"><option value="">Toutes les références</option>${options}</select>
+    <label>Filtrer par date</label>
+    <input id="am-filter-date" type="date" onchange="refreshMatieresListTable()">
+    <div id="achatsMatieresFilteredTable" style="margin-top:10px;">${buildMatieresListHTML()}</div>
+  `;
+}
+function refreshMatieresListTable(){
+  const filterDate = document.getElementById('am-filter-date').value;
+  const filterReference = document.getElementById('am-filter-reference').value;
+  document.getElementById('achatsMatieresFilteredTable').innerHTML = buildMatieresListHTML(filterDate, filterReference);
+}
+function openMatieresListFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Liste des achats — Matières premières';
+  document.getElementById('fullscreenTableBody').innerHTML = buildMatieresListFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+// Produit fini
+let produitDrafts = [];
+function ajouterProduitDraft(){
+  const reference = document.getElementById('f-reference').value.trim();
+  if(!reference){ showAlert("Merci d'indiquer la référence."); return; }
+  const item = {
+    date: document.getElementById('f-date').value,
+    reference,
+    quantite: parseNum(document.getElementById('f-quantite').value) || '',
+    prixU: parseNum(document.getElementById('f-prixU').value) || '',
+    prixTotal: parseNum(document.getElementById('f-prixTotal').value) || ''
+  };
+  produitDrafts.push(item);
+  ['f-date','f-reference','f-quantite','f-prixU','f-prixTotal'].forEach(f => document.getElementById(f).value = '');
+  renderProduitDraft();
+}
+function delProduitDraft(i){ produitDrafts.splice(i,1); renderProduitDraft(); }
+function renderProduitDraft(){
+  const el = document.getElementById('produitDraftList');
+  if(!produitDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = produitDrafts.map((f,i) => `
+    <div class="item">
+      <div><div class="name">${f.reference}</div><div class="meta">${fmtDate(f.date)}${f.quantite ? ' · Qté: ' + fmtNum(f.quantite) : ''}</div></div>
+      <button class="del" onclick="delProduitDraft(${i})">Suppr.</button>
+    </div>`).join('');
+}
+function validerProduitDraft(){
+  if(!produitDrafts.length){ showAlert("Aucun produit fini à valider."); return; }
+  const list = load('pig_produits');
+  produitDrafts.forEach(item => list.unshift(item));
+  save('pig_produits', list);
+  produitDrafts = [];
+  renderProduitDraft();
+}
+function delProduit(i){ const list = load('pig_produits'); list.splice(i,1); save('pig_produits', list); refreshProduitsAchatsListTable(); }
+function buildProduitsAchatsListHTML(filterDate, filterReference){
+  let entries = load('pig_produits').map((p, idx) => ({ ...p, _idx: idx }));
+  if(filterDate){ entries = entries.filter(p => p.date === filterDate); }
+  if(filterReference){ entries = entries.filter(p => normRef(p.reference || p.designation) === normRef(filterReference)); }
+  if(!entries.length){ return '<div class="empty">Aucun achat de produit fini pour l\'instant.</div>'; }
+  const rows = entries.map(p => `<tr>
+    <td>${fmtDate(p.date)}</td>
+    <td>${p.reference || p.designation || ''}</td>
+    <td>${fmtNum(p.quantite)}</td>
+    <td>${fmtNum(p.prixU)}</td>
+    <td>${fmtNum(p.prixTotal)}</td>
+    <td><button class="del" onclick="delProduit(${p._idx})">Suppr.</button></td>
+  </tr>`).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Référence</th><th>Quantité</th><th>Prix U.</th><th>Prix Total</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildProduitsAchatsListFullscreenHTML(){
+  const vues = {};
+  load('pig_produits').forEach(p => { const r = p.reference || p.designation; const n = normRef(r); if(n && !(n in vues)) vues[n] = r; });
+  const options = Object.values(vues).map(r => `<option>${r}</option>`).join('');
+  return `
+    <label>Filtrer par référence</label>
+    <select id="ap-filter-reference" onchange="refreshProduitsAchatsListTable()"><option value="">Toutes les références</option>${options}</select>
+    <label>Filtrer par date</label>
+    <input id="ap-filter-date" type="date" onchange="refreshProduitsAchatsListTable()">
+    <div id="produitsAchatsFilteredTable" style="margin-top:10px;">${buildProduitsAchatsListHTML()}</div>
+  `;
+}
+function refreshProduitsAchatsListTable(){
+  const filterDate = document.getElementById('ap-filter-date').value;
+  const filterReference = document.getElementById('ap-filter-reference').value;
+  document.getElementById('produitsAchatsFilteredTable').innerHTML = buildProduitsAchatsListHTML(filterDate, filterReference);
+}
+function openProduitsAchatsListFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Liste des achats — Produit fini';
+  document.getElementById('fullscreenTableBody').innerHTML = buildProduitsAchatsListFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+function renderAll(){
+  renderAnimaux(); updateMoyen(); renderParamProduits(); renderMatiereReferenceOptions(); renderParamRefProduit(); renderProduitReferenceOptions(); renderNormeForm(); renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions();
+  renderVenteOptions(); renderPeseeGroupeOptions(); renderProphylaxieGroupeOptions();
+  renderTransfertOptions(); renderConsommationBombonneOptions(); renderConsommationManuelleBombonneOptions(); renderFormulationOptions();
+  if(!document.getElementById('c-date').value){ document.getElementById('c-date').value = new Date().toISOString().slice(0,10); }
+  renderDashboard();
+}
+
+// Synchronisation cloud (Administrateur uniquement, connecté à son compte Claude)
+let cloudSnaps = {};
+function lireLocal(key){ try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e){ return []; } }
+function preparerActivationCloud(){
+  const dirty = getDirty(), synced = getSynced();
+  const decisions = {};
+  let nbConflits = 0;
+  CLES_SAUVEGARDE.forEach(key => {
+    const snap = cloudSnaps[key];
+    const cloudVal = snap.exists ? snap.value : [];
+    const localVal = lireLocal(key);
+    const cH = hashVal(cloudVal), lH = hashVal(localVal), base = synced[key];
+    let d;
+    if(cH === lH){ d = 'cloud'; }
+    else if(!snap.exists){ d = localVal.length ? 'local' : 'cloud'; }
+    else if(dirty[key]){ d = (base !== undefined && cH === base) ? 'local' : 'conflit'; }
+    else { d = (base === undefined && localVal.length) ? 'conflit' : 'cloud'; }
+    if(d === 'conflit') nbConflits++;
+    decisions[key] = d;
+  });
+  const finaliser = (choix) => {
+    CLES_SAUVEGARDE.forEach(key => {
+      let d = decisions[key];
+      if(d === 'conflit'){ d = (choix === 'local') ? 'local' : 'cloud'; }
+      decisions[key] = d;
+      if(d === 'local'){
+        cloudMemCache[key] = cloudClone(lireLocal(key));
+      } else {
+        cloudMemCache[key] = cloudClone(cloudSnaps[key].exists ? cloudSnaps[key].value : []);
+        try { localStorage.setItem(key, JSON.stringify(cloudMemCache[key])); } catch(e){}
+        setSynced(key, cloudMemCache[key]);
+        setDirty(key, false);
+      }
+    });
+    cloudReady = true;
+    CLES_SAUVEGARDE.forEach(key => { if(decisions[key] === 'local'){ setDirty(key, true); ecrireCloud(key); } });
+    renderAll();
+    majStatutSync();
+  };
+  if(nbConflits > 0){
+    showConfirm("Les données de cet appareil sont différentes de celles du cloud (" + nbConflits + " rubrique(s)). CONFIRMER = envoyer les données de CET APPAREIL vers le cloud (remplace le cloud). ANNULER = garder les données du CLOUD (remplace celles de cet appareil).",
+      () => finaliser('local'), () => finaliser('cloud'));
+  } else {
+    finaliser(null);
+  }
+}
+async function initCloudSync(){
+  try {
+    if(!window.claude || !window.claude.use){ return; }
+    const userCap = await window.claude.use('user');
+    const amOwner = userCap ? await userCap.isOwner() : false;
+    if(!amOwner){ return; }
+    const db = await window.claude.use('db');
+    if(!db){ return; }
+    cloudDb = db;
+    majStatutSync();
+    let restants = CLES_SAUVEGARDE.length;
+    let preparee = false;
+    CLES_SAUVEGARDE.forEach(key => {
+      db.doc('data/' + key).onSnapshot(snap => {
+        const definitif = !(snap.metadata && snap.metadata.fromCache);
+        if(!cloudReady){
+          if(!definitif) return;
+          const premiere = !(key in cloudSnaps);
+          cloudSnaps[key] = { exists: snap.exists, value: snap.exists ? cloudClone(snap.data().value || []) : [] };
+          if(premiere){ restants--; }
+          if(restants <= 0 && !preparee){ preparee = true; preparerActivationCloud(); }
+          return;
+        }
+        if(!definitif) return;
+        if((cloudPending[key] || 0) > 0) return;
+        if(getDirty()[key]) return;
+        const entrant = cloudClone(snap.exists ? (snap.data().value || []) : []);
+        if(JSON.stringify(entrant) === JSON.stringify(cloudMemCache[key])){ setSynced(key, entrant); return; }
+        cloudMemCache[key] = entrant;
+        try { localStorage.setItem(key, JSON.stringify(entrant)); } catch(e){}
+        setSynced(key, entrant);
+        renderAll();
+      }, err => { console.log('Abonnement cloud interrompu pour', key, err); });
+    });
+  } catch(e){
+    console.log('Synchronisation indisponible', e);
+  }
+}
+renderAll();
+initCloudSync();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('service-worker.js').catch(function(e){ console.log('SW registration failed', e); });
+  });
+}
+
+</script>
+</body>
+</html>
