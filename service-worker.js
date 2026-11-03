@@ -1,18 +1,30 @@
-// Réseau d'abord (pour recevoir les mises à jour), sinon copie en mémoire : l'app s'ouvre même sans aucun réseau.
-const CACHE = 'gestion-porcine-v1';
-const FICHIERS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FICHIERS)));
+// Gestion Porcine — service worker : toujours la dernière version si en ligne, copie en cache si hors ligne
+const CACHE = 'gestion-porcine-v110';
+const FICHIERS = ['./', 'index.html', 'manifest.json'];
+
+self.addEventListener('install', e => {
   self.skipWaiting();
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FICHIERS)).catch(() => {}));
 });
-self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys()
+      .then(cles => Promise.all(cles.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
+  );
 });
-self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
+
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  const url = new URL(e.request.url);
+  if (url.origin !== location.origin) return;
   e.respondWith(
     fetch(e.request)
-      .then((rep) => { const copie = rep.clone(); caches.open(CACHE).then((c) => c.put(e.request, copie)); return rep; })
-      .catch(() => caches.match(e.request).then((r) => r || caches.match('./index.html')))
+      .then(rep => {
+        if (rep && rep.ok) { const copie = rep.clone(); caches.open(CACHE).then(c => c.put(e.request, copie)); }
+        return rep;
+      })
+      .catch(() => caches.match(e.request).then(m => m || caches.match('index.html')))
   );
 });

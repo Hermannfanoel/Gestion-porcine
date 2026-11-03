@@ -1,36 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Gestion Porcine</title>
+<meta name="theme-color" content="#163663">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#b5651d">
-<link rel="icon" href="icon-192.png">
+<title>Gestion Porcine</title>
 <style>
 :root {
-  --bg: #f5f3ef;
-  --card: #ffffff;
-  --ink: #2b2420;
-  --muted: #7a7067;
-  --accent: #b5651d;
-  --accent-ink: #ffffff;
-  --border: #e4ddd3;
-  --danger: #a4342a;
+  --bg: #0b1b33;
+  --card: #132a4d;
+  --ink: #e8eefb;
+  --muted: #9fb1cf;
+  --accent: #e39a45;
+  --accent-ink: #0b1b33;
+  --border: #27446f;
+  --danger: #ff8a7a;
+  --norme: #6db3ff;
+  color-scheme: dark;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #211d19; --card: #2c2621; --ink: #f1ece4; --muted: #b0a79b;
-    --accent: #d98c3f; --accent-ink: #211d19; --border: #413a33; --danger: #e07a6d;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #211d19; --card: #2c2621; --ink: #f1ece4; --muted: #b0a79b;
-  --accent: #d98c3f; --accent-ink: #211d19; --border: #413a33; --danger: #e07a6d;
-}
+/* Toutes les écritures en majuscules (affichage seulement : les données restent telles que saisies) */
+body, input, select, option, textarea, button, label, table, th, td, svg text { text-transform: uppercase; }
+input::placeholder, textarea::placeholder { text-transform: uppercase; }
 html { scroll-padding-top: env(safe-area-inset-top, 0px); height: 100%; }
 * { box-sizing: border-box; }
 body {
@@ -39,12 +33,13 @@ body {
 }
 header {
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
-  background: var(--accent); color: var(--accent-ink);
+  background: linear-gradient(135deg, #1f4a8a, #163663); color: #f2f6ff;
+  border-bottom: 2px solid color-mix(in srgb, var(--accent) 70%, transparent);
   padding: 14px 16px; font-size: 20px; font-weight: 700;
 }
 .tabs {
   display: flex; gap: 14px; padding: 12px 14px 0; background: var(--bg);
-  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 52px); z-index: 9;
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 54px); z-index: 9;
   overflow-x: auto;
 }
 .tab {
@@ -81,14 +76,84 @@ input#a-prixU, input#a-prixTotal { border-color: var(--accent); }
 .empty { color: var(--muted); font-size: 14px; text-align: center; padding: 14px 0; }
 .hidden { display: none; }
 .pill { display:inline-block; font-size:11px; padding:2px 8px; border-radius:20px; background:var(--bg); border:1px solid var(--border); color:var(--muted); margin-left:6px; }
+#dashboard .card { border-radius: 18px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 8px 18px -12px rgba(0,0,0,0.2); }
+#dashboard .card h2 { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.dash-h-ico { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; background: color-mix(in srgb, var(--accent) 16%, var(--card)); letter-spacing: 0; }
+.dash-hero { border-radius: 20px; padding: 20px 18px; margin-bottom: 12px; color: #f2f6ff; background: linear-gradient(135deg, #1f4a8a, #163663); box-shadow: 0 10px 24px -12px rgba(0,0,0,0.55); border-left: 6px solid var(--solde-col, #3ddc84); }
+.dash-hero-label { font-size: 12px; font-weight: 800; letter-spacing: 0.14em; opacity: 0.85; }
+.dash-hero-val { font-size: 34px; font-weight: 800; margin: 4px 0 2px; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.dash-hero-sub { font-size: 12px; opacity: 0.8; }
+.dash-fromage-wrap { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.dash-fromage-wrap svg { flex: none; width: 250px; height: auto; }
+.dash-leg { flex: 1; min-width: 170px; }
+.dash-leg-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; border-bottom: 1px solid var(--border); }
+.dash-leg-row:last-child { border-bottom: none; }
+.dash-leg-dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.dash-leg-row b { margin-left: auto; font-variant-numeric: tabular-nums; }
+.dash-leg-row small { color: var(--muted); min-width: 38px; text-align: right; }
+.dash-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+.dash-kpi { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 12px 10px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.dash-kpi .v { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.dash-kpi .l { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; color: var(--muted); text-transform: uppercase; margin-top: 2px; }
+.dash-kpi .s { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.dash-badge { margin-left: auto; min-width: 24px; padding: 2px 8px; border-radius: 20px; font-size: 12px; font-weight: 800; background: var(--danger); color: #fff; letter-spacing: 0; text-align: center; }
+.dash-badge:empty { display: none; }
+.dash-badge.ok { background: #3a9d5d; }
+.dash-sub { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.dash-chip { display: flex; align-items: flex-start; gap: 8px; padding: 9px 11px; margin-bottom: 6px; border-radius: 12px; font-size: 13px; font-weight: 600; line-height: 1.35; background: color-mix(in srgb, var(--chip, var(--danger)) 12%, var(--card)); border: 1px solid color-mix(in srgb, var(--chip, var(--danger)) 35%, transparent); color: var(--ink); }
+.dash-chip.warn { --chip: #d9a62e; }
+.dash-ok { font-size: 13px; color: #3a9d5d; font-weight: 600; padding: 4px 0; }
+#dashboard .item { padding: 10px 0; }
+@keyframes battementCoeur {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  14% { transform: scale(1.14); opacity: 1; }
+  28% { transform: scale(1); opacity: .75; }
+  42% { transform: scale(1.14); opacity: 1; }
+  70% { transform: scale(1); opacity: .75; }
+}
+.drawer-head small.px-battement { color: #ff3b3b !important; font-weight: 800; display: inline-block; transform-origin: left center; animation: battementCoeur 1.2s ease-in-out infinite; text-shadow: 0 0 8px rgba(255,59,59,.55); }
+.pr-porc .pr-val, .pr-porc td:not(:first-child) { color: #3ddc84; font-weight: 800; }
+.sac-pill { display: inline-block; margin-left: 6px; padding: 2px 9px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
 .drawer { margin-bottom: 12px; }
 .drawer-head {
-  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-  padding: 14px; font-weight: 700; display: flex; justify-content: space-between; cursor: pointer;
+  background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 14px 14px 14px 14px;
+  display: flex; align-items: center; gap: 13px; cursor: pointer; user-select: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 8px 18px -10px rgba(0,0,0,0.22);
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s, border-color 0.15s; -webkit-tap-highlight-color: transparent;
 }
-.drawer-head .chevron { transition: transform 0.15s; color: var(--accent); }
-.drawer-head.open .chevron { transform: rotate(180deg); }
-.drawer-body { margin-top: 8px; }
+.drawer-head:active { transform: scale(0.98); box-shadow: none; }
+.drawer-head .dh-ico {
+  flex: none; width: 46px; height: 46px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 22px; background: color-mix(in srgb, var(--accent) 16%, var(--card)); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.drawer-head .dh-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.drawer-head .dh-txt b { font-size: 15px; font-weight: 800; letter-spacing: 0.03em; line-height: 1.2; }
+.drawer-head .dh-txt small { font-size: 12px; font-weight: 500; color: var(--muted); line-height: 1.3; }
+.drawer-head .chevron {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); font-size: 14px;
+  transition: transform 0.2s, background 0.2s, color 0.2s;
+}
+.drawer-head.open { background: color-mix(in srgb, var(--accent) 8%, var(--card)); border-color: var(--accent); }
+.drawer-head.open .chevron { transform: rotate(180deg); background: var(--accent); color: var(--accent-ink); }
+section > .drawer { display: inline-block; vertical-align: top; width: calc(50% - 8px); margin: 0 4px 12px 0; }
+section > .drawer.drawer-open, section > .drawer:has(> .drawer-head.open) { display: block; width: 100%; margin-right: 0; }
+section > .drawer > .drawer-head { padding: 12px 8px; gap: 8px; }
+section > .drawer > .drawer-head .dh-ico { width: 38px; height: 38px; font-size: 19px; }
+section > .drawer > .drawer-head .dh-txt b { font-size: 11px; letter-spacing: 0; overflow-wrap: break-word; hyphens: manual; }
+section > .drawer > .drawer-head .dh-txt small { font-size: 11px; }
+section > .drawer > .drawer-head .chevron { display: none; }
+section > .drawer > .drawer-head { min-height: 74px; }
+section > .drawer:has(> .drawer-head.open) > .drawer-head .chevron { display: inline-flex; }
+section > .drawer.drawer-open > .drawer-head .dh-ico, section > .drawer:has(> .drawer-head.open) > .drawer-head .dh-ico { width: 46px; height: 46px; font-size: 22px; }
+section > .drawer:has(> .drawer-head.open) > .drawer-head .dh-txt b { font-size: 15px; }
+section > * { transition: filter 0.2s, opacity 0.2s; }
+section.drawer-focus > :not(.drawer-open) { filter: blur(5px); opacity: 0.5; }
+section.drawer-focus > .drawer-open { position: relative; z-index: 2; }
+.drawer-body { margin-top: 10px; }
+.drawer-body .drawer-head { border-radius: 15px; padding: 10px 12px; gap: 11px; }
+.drawer-body .drawer-head .dh-ico { width: 38px; height: 38px; font-size: 18px; }
+.drawer-body .drawer-head .dh-txt b { font-size: 13.5px; }
 .modal {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5);
   display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px;
@@ -115,13 +180,23 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-row { display: flex; gap: 8px; }
 .btn-row button { margin-top: 12px; flex: 1; }
 .table-wrap { overflow-x: auto; }
+#dashboard table { font-size: 14px; }
+#dashboard th, #dashboard td { padding: 10px 8px; }
+#dashboard th { font-size: 12px; }
+#dashboard td:first-child { white-space: normal; }
+@media (max-width: 520px) { #dash-bombonnes th:nth-child(2), #dash-bombonnes td:nth-child(2), #dash-bombonnes th:nth-child(3), #dash-bombonnes td:nth-child(3) { display: none; } }
 table { width: 100%; border-collapse: collapse; font-size: 16px; }
 th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
 th { color: var(--muted); font-weight: 700; font-size: 14px; }
 td { font-weight: 600; }
+body { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0; }
+header { margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px))); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { padding-left: 0; padding-right: 0; }
 </style>
 </head>
 <body>
+
+
 <header>🐖 Gestion Porcine <span id="syncStatus" style="float:right; font-size:12px; font-weight:400; margin-top:5px;"></span></header>
 <div class="tabs">
   <div class="tab active" data-tab="dashboard">TABLEAU DE BORD</div>
@@ -129,49 +204,51 @@ td { font-weight: 600; }
   <div class="tab" data-tab="parametre">PARAMÈTRE</div>
   <div class="tab" data-tab="mouvement">MOUVEMENT</div>
   <div class="tab" data-tab="suivi">SUIVI</div>
+  <div class="tab" data-tab="statistique">STATISTIQUE</div>
 </div>
 <main>
 
 <section id="dashboard">
-  <div class="card">
-    <h2>Résumé</h2>
-    <div id="dash-resume"></div>
+  <div class="dash-hero">
+    <div class="dash-hero-label">SOLDE DE CAISSE</div>
+    <div id="dash-solde" class="dash-hero-val"></div>
+    <div class="dash-hero-sub">Compte de caisse · entrées − sorties (Ar)</div>
   </div>
-  <div class="card">
-    <h2>⚠️ Alertes stock</h2>
+  <div class="card" id="dash-fromage-card">
+    <h2><span class="dash-h-ico">🧀</span>Répartition des mouvements</h2>
+    <div id="dash-fromage"></div>
+  </div>
+  <div id="dash-resume" class="dash-kpis"></div>
+  <div class="card dash-alert-card">
+    <h2><span class="dash-h-ico">🔔</span>Alertes <span id="dash-alert-count" class="dash-badge"></span></h2>
+    <div class="dash-sub">Stock</div>
     <div id="dash-alertes"></div>
-  </div>
-  <div class="card">
-    <h2>💉 Alertes Prophylaxie</h2>
+    <div class="dash-sub" style="margin-top:12px;">Prophylaxie</div>
     <div id="dash-alertes-prophylaxie"></div>
   </div>
   <div class="card">
-    <h2>Bombonnes — État de stock</h2>
+    <h2><span class="dash-h-ico">🛢️</span>Bombonnes — État de stock</h2>
     <div id="dash-bombonnes"></div>
   </div>
   <div class="card">
-    <h2>Dernières consommations</h2>
+    <h2><span class="dash-h-ico">🍽️</span>Dernières consommations</h2>
     <div id="dash-conso"></div>
   </div>
   <div class="card">
-    <h2>Productions récentes</h2>
+    <h2><span class="dash-h-ico">🏭</span>Productions récentes</h2>
     <div id="dash-production"></div>
   </div>
   <div class="card">
-    <h2>Derniers achats — Matières premières</h2>
+    <h2><span class="dash-h-ico">🌾</span>Derniers achats — Matières premières</h2>
     <div id="dash-achats-matieres"></div>
   </div>
   <div class="card">
-    <h2>Derniers achats — Produit fini</h2>
+    <h2><span class="dash-h-ico">📦</span>Derniers achats — Produit fini</h2>
     <div id="dash-achats-produits"></div>
   </div>
   <div class="card">
-    <h2>Ventes récentes</h2>
+    <h2><span class="dash-h-ico">💰</span>Ventes récentes</h2>
     <div id="dash-ventes"></div>
-  </div>
-  <div class="card">
-    <h2>Solde financier</h2>
-    <div id="dash-solde"></div>
   </div>
 </section>
 
@@ -187,12 +264,14 @@ td { font-weight: 600; }
     <input id="a-classe" placeholder="Nom de l'emplacement" oninput="updateBox()">
     <label>BOX</label>
     <input id="a-box" placeholder="Emplacement">
+    <label>BOMBONNE (consommation)</label>
+    <select id="a-bombonne"><option value="">— Choisir —</option></select>
     <label>Poids total (kg)</label>
     <input id="a-poids" type="text" inputmode="decimal" oninput="updateMoyen()" onblur="liveFormat(this)">
     <label>Effectif</label>
     <input id="a-effectif" type="text" inputmode="numeric" placeholder="Ex: 1, ou 8 pour un lot de porcelets" oninput="updateMoyen(); calcPrix('effectif')" onblur="liveFormat(this)">
-    <label>Age</label>
-    <input id="a-age" type="text" inputmode="numeric" placeholder="Ex: 8 semaines">
+    <label>Age (automatique selon le poids moyen)</label>
+    <input id="a-age" type="text" inputmode="numeric" placeholder="Calculé d'après le poids moyen" oninput="ageManuel = this.value.trim() !== ''">
     <label>Poids moyen</label>
     <input id="a-moyen" readonly disabled>
     <label>Prix unitaire</label>
@@ -208,7 +287,7 @@ td { font-weight: 600; }
 <section id="parametre" class="hidden">
 
   <div class="drawer">
-    <div class="drawer-head" onclick="toggleDrawer('d-produit')">PRODUIT <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-produit')"><span class="dh-ico">📦</span><span class="dh-txt"><b>PRODUIT</b><small>Produits finis</small></span><span class="chevron">▾</span></div>
     <div id="d-produit" class="drawer-body hidden">
       <div class="card">
         <label>Référence</label>
@@ -224,7 +303,7 @@ td { font-weight: 600; }
       </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="toggleDrawer('d-produit-liste')">LISTE <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="toggleDrawer('d-produit-liste')"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE</b><small>Voir la liste</small></span><span class="chevron">▾</span></div>
         <div id="d-produit-liste" class="drawer-body hidden">
           <div class="card">
             <h2>Référence</h2>
@@ -239,7 +318,7 @@ td { font-weight: 600; }
   </div>
 
   <div class="drawer">
-    <div class="drawer-head" onclick="toggleDrawer('d-bombonne')">BOMBONNE <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-bombonne')"><span class="dh-ico">🛢️</span><span class="dh-txt"><b>BOMBONNE</b><small>Bombonnes d'aliment</small></span><span class="chevron">▾</span></div>
     <div id="d-bombonne" class="drawer-body hidden">
       <div class="card">
         <label>Nom</label>
@@ -252,14 +331,14 @@ td { font-weight: 600; }
       </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="openBombonneFullscreen()">LISTE DES BOMBONNE <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openBombonneFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES BOMBONNE</b><small>Toutes les bombonnes</small></span><span class="chevron">⤢</span></div>
       </div>
 
     </div>
   </div>
 
   <div class="drawer">
-    <div class="drawer-head" onclick="toggleDrawer('d-norme')">NORME DE CONSOMMATION <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-norme')"><span class="dh-ico">📏</span><span class="dh-txt"><b>NORME DE CONSOMMATION</b><small>Quantité par âge</small></span><span class="chevron">▾</span></div>
     <div id="d-norme" class="drawer-body hidden">
       <div class="card">
         <div id="normeFormContainer"></div>
@@ -272,7 +351,7 @@ td { font-weight: 600; }
   </div>
 
   <div class="drawer">
-    <div class="drawer-head" onclick="toggleDrawer('d-sauvegarde')">SAUVEGARDE <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-sauvegarde')"><span class="dh-ico">💾</span><span class="dh-txt"><b>SAUVEGARDE</b><small>Exporter / restaurer</small></span><span class="chevron">▾</span></div>
     <div id="d-sauvegarde" class="drawer-body hidden">
       <div class="card">
         <p class="meta">Toutes vos données sont stockées uniquement sur cet appareil. Exportez régulièrement une sauvegarde pour ne rien perdre en cas de problème.</p>
@@ -284,105 +363,210 @@ td { font-weight: 600; }
     </div>
   </div>
 
+  <div class="drawer">
+    <div class="drawer-head" onclick="reinitialiserDonnees()"><span class="dh-ico">🗑️</span><span class="dh-txt"><b>RÉINITIALISER</b><small>Effacer les données</small></span><span class="chevron">▾</span></div>
+  </div>
+
 </section>
 
 <section id="mouvement" class="hidden">
 
   <div class="drawer">
-    <div class="drawer-head" onclick="toggleDrawer('d-achat')">ACHAT <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-achat')"><span class="dh-ico">🛒</span><span class="dh-txt"><b>ACHAT</b><small>Matières et produits</small></span><span class="chevron">▾</span></div>
     <div id="d-achat" class="drawer-body hidden">
-      <div class="card">
-        <h2>MATIÈRES PREMIÈRES</h2>
-        <label>Date</label>
-        <input id="m-date" type="date">
-        <label>RÉFÉRENCE</label>
-        <select id="m-reference" onchange="updateMatiereStockActuel()"><option value="">— Choisir —</option></select>
-        <label>Stock actuel</label>
-        <input id="m-stock-actuel" readonly disabled>
-        <label>QUANTITÉ (kg)</label>
-        <input id="m-quantite" type="text" inputmode="decimal" oninput="calcAchat('m','quantite')" onblur="liveFormat(this)">
-        <label>PRIX UNITAIRE</label>
-        <input id="m-prixU" type="text" inputmode="decimal" oninput="calcAchat('m','unitaire')" onblur="liveFormat(this)">
-        <label>PRIX TOTAL</label>
-        <input id="m-prixTotal" type="text" inputmode="decimal" oninput="calcAchat('m','total')" onblur="liveFormat(this)">
-        <button onclick="ajouterMatiereDraft()">Ajouter</button>
-        <div id="matiereDraftList" style="margin-top:10px;"></div>
-        <button onclick="validerMatiereDraft()" style="margin-top:12px;">VALIDER</button>
-      </div>
+
       <div class="drawer">
-        <div class="drawer-head" onclick="openMatieresListFullscreen()">LISTE DES ACHATS MATIÈRES PREMIÈRES <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openVenteFullscreen('d-achat-pf', 'Achat - Produit fini')"><span class="dh-ico">📦</span><span class="dh-txt"><b>PRODUIT FINI</b><small>Acheter un produit fini</small></span><span class="chevron">⤢</span></div>
+        <div id="d-achat-pf" class="drawer-body hidden">
+          <div class="card">
+            <h2>PRODUIT FINI</h2>
+            <label>Date</label>
+            <input id="f-date" type="date">
+            <label>RÉFÉRENCE</label>
+            <select id="f-reference" onchange="prefillPoidsSac('f')"><option value="">— Choisir —</option></select>
+            <label>ACHAT EN</label>
+            <select id="f-unite" onchange="majAchatUnite('f')"><option value="kg">Kg</option><option value="sac">Sac</option></select>
+            <label>POIDS D'UN SAC (kg) <span style="font-weight:400; color:var(--muted); text-transform:none;">— pour afficher le stock en sacs</span></label>
+            <input id="f-poidssac" type="text" inputmode="decimal" placeholder="Ex: 50" oninput="majAchatSacs('f')" onblur="liveFormat(this)">
+            <div id="f-sac-bloc" class="hidden">
+              <label>NOMBRE DE SACS</label>
+              <input id="f-nbsacs" type="text" inputmode="decimal" oninput="majAchatSacs('f')" onblur="liveFormat(this)">
+            </div>
+            <label>QUANTITÉ (kg)</label>
+            <input id="f-quantite" type="text" inputmode="decimal" oninput="calcAchat('f','quantite')" onblur="liveFormat(this)">
+            <label id="f-prixU-label">PRIX UNITAIRE (par kg)</label>
+            <input id="f-prixU" type="text" inputmode="decimal" oninput="calcAchat('f','unitaire')" onblur="liveFormat(this)">
+            <label>PRIX TOTAL</label>
+            <input id="f-prixTotal" type="text" inputmode="decimal" oninput="calcAchat('f','total')" onblur="liveFormat(this)">
+            <button onclick="ajouterProduitDraft()">Ajouter</button>
+            <div id="produitDraftList" style="margin-top:10px;"></div>
+            <button onclick="validerProduitDraft()" style="margin-top:12px;">VALIDER</button>
+          </div>
+          <div class="drawer">
+            <div class="drawer-head" onclick="openProduitsAchatsListFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES ACHATS PRODUIT FINI</b><small>Historique des achats</small></span><span class="chevron">⤢</span></div>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h2>PRODUIT FINI</h2>
-        <label>Date</label>
-        <input id="f-date" type="date">
-        <label>RÉFÉRENCE</label>
-        <select id="f-reference"><option value="">— Choisir —</option></select>
-        <label>QUANTITÉ (kg)</label>
-        <input id="f-quantite" type="text" inputmode="decimal" oninput="calcAchat('f','quantite')" onblur="liveFormat(this)">
-        <label>PRIX UNITAIRE</label>
-        <input id="f-prixU" type="text" inputmode="decimal" oninput="calcAchat('f','unitaire')" onblur="liveFormat(this)">
-        <label>PRIX TOTAL</label>
-        <input id="f-prixTotal" type="text" inputmode="decimal" oninput="calcAchat('f','total')" onblur="liveFormat(this)">
-        <button onclick="ajouterProduitDraft()">Ajouter</button>
-        <div id="produitDraftList" style="margin-top:10px;"></div>
-        <button onclick="validerProduitDraft()" style="margin-top:12px;">VALIDER</button>
-      </div>
+
       <div class="drawer">
-        <div class="drawer-head" onclick="openProduitsAchatsListFullscreen()">LISTE DES ACHATS PRODUIT FINI <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openVenteFullscreen('d-achat-mp', 'Achat - Matières premières')"><span class="dh-ico">🌾</span><span class="dh-txt"><b>MATIÈRES PREMIÈRES</b><small>Acheter une matière première</small></span><span class="chevron">⤢</span></div>
+        <div id="d-achat-mp" class="drawer-body hidden">
+          <div class="card">
+            <h2>MATIÈRES PREMIÈRES</h2>
+            <label>Date</label>
+            <input id="m-date" type="date">
+            <label>RÉFÉRENCE</label>
+            <select id="m-reference" onchange="updateMatiereStockActuel(); prefillPoidsSac('m')"><option value="">— Choisir —</option></select>
+            <label>Stock actuel</label>
+            <input id="m-stock-actuel" readonly disabled>
+            <label>ACHAT EN</label>
+            <select id="m-unite" onchange="majAchatUnite('m')"><option value="kg">Kg</option><option value="sac">Sac</option></select>
+            <label>POIDS D'UN SAC (kg) <span style="font-weight:400; color:var(--muted); text-transform:none;">— pour afficher le stock en sacs</span></label>
+            <input id="m-poidssac" type="text" inputmode="decimal" placeholder="Ex: 50" oninput="majAchatSacs('m')" onblur="liveFormat(this)">
+            <div id="m-sac-bloc" class="hidden">
+              <label>NOMBRE DE SACS</label>
+              <input id="m-nbsacs" type="text" inputmode="decimal" oninput="majAchatSacs('m')" onblur="liveFormat(this)">
+            </div>
+            <label>QUANTITÉ (kg)</label>
+            <input id="m-quantite" type="text" inputmode="decimal" oninput="calcAchat('m','quantite')" onblur="liveFormat(this)">
+            <label id="m-prixU-label">PRIX UNITAIRE (par kg)</label>
+            <input id="m-prixU" type="text" inputmode="decimal" oninput="calcAchat('m','unitaire')" onblur="liveFormat(this)">
+            <label>PRIX TOTAL</label>
+            <input id="m-prixTotal" type="text" inputmode="decimal" oninput="calcAchat('m','total')" onblur="liveFormat(this)">
+            <button onclick="ajouterMatiereDraft()">Ajouter</button>
+            <div id="matiereDraftList" style="margin-top:10px;"></div>
+            <button onclick="validerMatiereDraft()" style="margin-top:12px;">VALIDER</button>
+          </div>
+          <div class="drawer">
+            <div class="drawer-head" onclick="openMatieresListFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES ACHATS MATIÈRES PREMIÈRES</b><small>Historique des achats</small></span><span class="chevron">⤢</span></div>
+          </div>
+        </div>
       </div>
+
     </div>
   </div>
 
   <div class="drawer">
-    <div class="drawer-head" onclick="toggleDrawer('d-vente')">VENTE <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-vente')"><span class="dh-ico">💰</span><span class="dh-txt"><b>VENTE</b><small>Produits, matières, porcs</small></span><span class="chevron">▾</span></div>
     <div id="d-vente" class="drawer-body hidden">
-      <div class="card">
-        <label>Date</label>
-        <input id="ve-date" type="date">
-        <label>Référence (produit fini)</label>
-        <select id="ve-reference" onchange="updateVenteStockDisponible()"><option value="">— Choisir —</option></select>
-        <label>Stock disponible</label>
-        <input id="ve-stock-disponible" readonly disabled>
-        <label>Client</label>
-        <input id="ve-client" placeholder="Ex: Nom du client (optionnel)">
-        <label>Quantité vendue</label>
-        <input id="ve-quantite" type="text" inputmode="decimal" oninput="calcVente('quantite')" onblur="liveFormat(this)">
-        <label>Prix unitaire</label>
-        <input id="ve-prixU" type="text" inputmode="decimal" oninput="calcVente('unitaire')" onblur="liveFormat(this)">
-        <label>Prix Total</label>
-        <input id="ve-prixTotal" type="text" inputmode="decimal" oninput="calcVente('total')" onblur="liveFormat(this)">
-        <button onclick="ajouterVenteDraft()">Ajouter</button>
-        <div id="venteDraftList" style="margin-top:10px;"></div>
-        <button onclick="validerVenteDraft()" style="margin-top:12px;">VALIDER</button>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openVenteFullscreen('d-vente-pf', 'Vente - Produit fini')"><span class="dh-ico">💰</span><span class="dh-txt"><b>VENTE PRODUIT FINI</b><small>Vendre un produit fini</small></span><span class="chevron">⤢</span></div>
+        <div id="d-vente-pf" class="drawer-body hidden">
+          <div class="card">
+            <label>Date</label>
+            <input id="ve-date" type="date">
+            <label>Référence (produit fini)</label>
+            <select id="ve-reference" onchange="updateVenteStockDisponible()"><option value="">— Choisir —</option></select>
+            <label>Stock disponible</label>
+            <input id="ve-stock-disponible" readonly disabled>
+            <label>Client</label>
+            <input id="ve-client" placeholder="Ex: Nom du client (optionnel)">
+            <label>Quantité vendue</label>
+            <input id="ve-quantite" type="text" inputmode="decimal" oninput="calcVente('quantite')" onblur="liveFormat(this)">
+            <label>Prix unitaire</label>
+            <input id="ve-prixU" type="text" inputmode="decimal" oninput="calcVente('unitaire')" onblur="liveFormat(this)">
+            <label>Prix Total</label>
+            <input id="ve-prixTotal" type="text" inputmode="decimal" oninput="calcVente('total')" onblur="liveFormat(this)">
+            <button onclick="ajouterVenteDraft()">Ajouter</button>
+            <div id="venteDraftList" style="margin-top:10px;"></div>
+            <button onclick="validerVenteDraft()" style="margin-top:12px;">VALIDER</button>
+          </div>
+          <div class="drawer">
+            <div class="drawer-head" onclick="openVentesListFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES VENTES PRODUIT FINI</b><small>Historique des ventes</small></span><span class="chevron">⤢</span></div>
+          </div>
+        </div>
       </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="openVentesListFullscreen()">LISTE DES VENTES <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openVenteFullscreen('d-vente-mp', 'Vente - Matière première')"><span class="dh-ico">🌾</span><span class="dh-txt"><b>VENTE MATIÈRE PREMIÈRE</b><small>Vendre une matière</small></span><span class="chevron">⤢</span></div>
+        <div id="d-vente-mp" class="drawer-body hidden">
+          <div class="card">
+            <label>Date</label>
+            <input id="vm-date" type="date">
+            <label>Référence (matière première)</label>
+            <select id="vm-reference" onchange="updateVenteMPStock()"><option value="">— Choisir —</option></select>
+            <label>Stock disponible</label>
+            <input id="vm-stock" readonly disabled>
+            <label>Client</label>
+            <input id="vm-client" placeholder="Ex: Nom du client (optionnel)">
+            <label>Quantité vendue</label>
+            <input id="vm-quantite" type="text" inputmode="decimal" oninput="calcVenteGen('vm','quantite')" onblur="liveFormat(this)">
+            <label>Prix unitaire</label>
+            <input id="vm-prixU" type="text" inputmode="decimal" oninput="calcVenteGen('vm','unitaire')" onblur="liveFormat(this)">
+            <label>Prix Total</label>
+            <input id="vm-prixTotal" type="text" inputmode="decimal" oninput="calcVenteGen('vm','total')" onblur="liveFormat(this)">
+            <button onclick="ajouterVenteMPDraft()">Ajouter</button>
+            <div id="venteMPDraftList" style="margin-top:10px;"></div>
+            <button onclick="validerVenteMPDraft()" style="margin-top:12px;">VALIDER</button>
+          </div>
+          <div class="drawer">
+            <div class="drawer-head" onclick="openVenteTypeListFullscreen('mp')"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES VENTES MATIÈRE PREMIÈRE</b><small>Historique des ventes</small></span><span class="chevron">⤢</span></div>
+          </div>
+        </div>
       </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openVenteFullscreen('d-vente-porc', 'Vente - Porc')"><span class="dh-ico">🐖</span><span class="dh-txt"><b>VENTE PORC</b><small>Vendre des porcs</small></span><span class="chevron">⤢</span></div>
+        <div id="d-vente-porc" class="drawer-body hidden">
+          <div class="card">
+            <label>Date</label>
+            <input id="vp-date" type="date">
+            <label>Groupe</label>
+            <select id="vp-groupe" onchange="updateVentePorcInfo()"><option value="">— Choisir —</option></select>
+            <label>Effectif actuel</label>
+            <input id="vp-effectif" readonly disabled>
+            <label>Poids total actuel</label>
+            <input id="vp-poids-actuel" readonly disabled>
+            <label>Poids moyen</label>
+            <input id="vp-moyen" readonly disabled>
+            <label>Prix de revient (par tête)</label>
+            <input id="vp-pr" readonly disabled>
+            <label>Client</label>
+            <input id="vp-client" placeholder="Ex: Nom du client (optionnel)">
+            <label>Nombre de porcs vendus</label>
+            <input id="vp-quantite" type="text" inputmode="numeric" oninput="majPoidsMoyenVendu()" onblur="liveFormat(this)">
+            <label>Poids total des porcs vendus (kg)</label>
+            <input id="vp-poids" type="text" inputmode="decimal" oninput="majPoidsMoyenVendu(); calcVentePorc('poids')" onblur="liveFormat(this)">
+            <label>Poids moyen par porc vendu</label>
+            <input id="vp-poids-moyen-vendu" readonly disabled>
+            <label>Prix unitaire (PU / kg poids vif)</label>
+            <input id="vp-prixU" type="text" inputmode="decimal" oninput="calcVentePorc('unitaire')" onblur="liveFormat(this)">
+            <label>Prix Total</label>
+            <input id="vp-prixTotal" type="text" inputmode="decimal" oninput="calcVentePorc('total')" onblur="liveFormat(this)">
+            <button onclick="ajouterVentePorcDraft()">Ajouter</button>
+            <div id="ventePorcDraftList" style="margin-top:10px;"></div>
+            <button onclick="validerVentePorcDraft()" style="margin-top:12px;">VALIDER</button>
+          </div>
+          <div class="drawer">
+            <div class="drawer-head" onclick="openVenteTypeListFullscreen('porc')"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES VENTES PORC</b><small>Historique des ventes</small></span><span class="chevron">⤢</span></div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <div class="drawer">
-    <div class="drawer-head" onclick="toggleDrawer('d-formulation')">FORMULATION <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-formulation')"><span class="dh-ico">🧪</span><span class="dh-txt"><b>FORMULATION</b><small>Formules et production</small></span><span class="chevron">▾</span></div>
     <div id="d-formulation" class="drawer-body hidden">
 
       <div class="drawer">
-        <div class="drawer-head" onclick="openFormulationCreationFullscreen()">CRÉATION <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openFormulationCreationFullscreen()"><span class="dh-ico">✏️</span><span class="dh-txt"><b>CRÉATION</b><small>Créer une formule</small></span><span class="chevron">⤢</span></div>
       </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="openFormulesFullscreen()">LISTE DES FORMULES <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openFormulesFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES FORMULES</b><small>Formules enregistrées</small></span><span class="chevron">⤢</span></div>
       </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="openProductionFullscreen()">PRODUCTION <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openProductionFullscreen()"><span class="dh-ico">🏭</span><span class="dh-txt"><b>PRODUCTION</b><small>Fabriquer l'aliment</small></span><span class="chevron">⤢</span></div>
       </div>
     </div>
   </div>
 
   <div class="drawer">
-    <div class="drawer-head" onclick="toggleDrawer('d-transfert')">TRANSFERT <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-transfert')"><span class="dh-ico">🔁</span><span class="dh-txt"><b>TRANSFERT</b><small>Entre bombonnes</small></span><span class="chevron">▾</span></div>
     <div id="d-transfert" class="drawer-body hidden">
       <div class="card">
         <label>Date</label>
@@ -401,14 +585,14 @@ td { font-weight: 600; }
       </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="openTransfertListFullscreen()">LISTE DES TRANSFERT <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openTransfertListFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES TRANSFERT</b><small>Historique</small></span><span class="chevron">⤢</span></div>
       </div>
 
     </div>
   </div>
 
   <div class="drawer">
-    <div class="drawer-head" onclick="toggleDrawer('d-animaux')">ANIMAUX <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-animaux')"><span class="dh-ico">🐷</span><span class="dh-txt"><b>ANIMAUX</b><small>Groupes et inscription</small></span><span class="chevron">▾</span></div>
     <div id="d-animaux" class="drawer-body hidden">
       <div class="card">
         <div id="animauxList"></div>
@@ -421,15 +605,15 @@ td { font-weight: 600; }
 <section id="suivi" class="hidden">
 
   <div class="drawer" id="top-compte">
-    <div class="drawer-head" onclick="toggleDrawer('d-compte')">COMPTE <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-compte')"><span class="dh-ico">🧾</span><span class="dh-txt"><b>COMPTE</b><small>Résultats financiers</small></span><span class="chevron">▾</span></div>
     <div id="d-compte" class="drawer-body hidden">
 
       <div class="drawer">
-        <div class="drawer-head" onclick="openCompteFullscreen()">TABLEAU <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openCompteFullscreen()"><span class="dh-ico">📊</span><span class="dh-txt"><b>TABLEAU</b><small>Voir le tableau</small></span><span class="chevron">⤢</span></div>
       </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="toggleDrawer('d-charges')">CHARGES <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="toggleDrawer('d-charges')"><span class="dh-ico">📉</span><span class="dh-txt"><b>CHARGES</b><small>Dépenses</small></span><span class="chevron">▾</span></div>
         <div id="d-charges" class="drawer-body hidden">
           <div class="card">
             <label>Date</label>
@@ -446,7 +630,7 @@ td { font-weight: 600; }
       </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="toggleDrawer('d-apports')">APPORTS <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="toggleDrawer('d-apports')"><span class="dh-ico">📈</span><span class="dh-txt"><b>APPORTS</b><small>Apports</small></span><span class="chevron">▾</span></div>
         <div id="d-apports" class="drawer-body hidden">
           <div class="card">
             <label>Date</label>
@@ -466,62 +650,66 @@ td { font-weight: 600; }
   </div>
 
   <div class="drawer" id="top-prix-revient">
-    <div class="drawer-head" onclick="toggleDrawer('d-prix-revient')">PRIX DE REVIENT <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-prix-revient')"><span class="dh-ico">🧮</span><span class="dh-txt"><b>PRIX DE REVIENT</b><small>Coût de revient</small></span><span class="chevron">▾</span></div>
     <div id="d-prix-revient" class="drawer-body hidden">
 
       <div class="drawer">
-        <div class="drawer-head" onclick="openPRMatieresFullscreen()">PR MATIÈRES PREMIÈRES <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openPRMatieresFullscreen()"><span class="dh-ico">🌾</span><span class="dh-txt"><b>PR MATIÈRES PREMIÈRES</b><small>Prix de revient</small></span><span class="chevron">⤢</span></div>
       </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="openPRProduitsFullscreen()">PR PRODUIT FINI <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openPRProduitsFullscreen()"><span class="dh-ico">📦</span><span class="dh-txt"><b>PR PRODUIT FINI</b><small>Prix de revient</small></span><span class="chevron">⤢</span></div>
       </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="openPRPorcFullscreen()">PR des PORC <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openPRPorcFullscreen()"><span class="dh-ico">🐖</span><span class="dh-txt"><b>PR des PORC</b><small>Coût par tête</small></span><span class="chevron">⤢</span></div>
       </div>
 
     </div>
   </div>
 
+  <div class="drawer" id="top-resultat">
+    <div class="drawer-head" onclick="openResultatFullscreen()"><span class="dh-ico">🏆</span><span class="dh-txt"><b>RÉSULTAT</b><small>Bénéfice des porcs</small></span><span class="chevron">⤢</span></div>
+  </div>
+
   <div class="drawer" id="top-stock">
-    <div class="drawer-head" onclick="toggleDrawer('d-stock')">STOCK <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-stock')"><span class="dh-ico">🏬</span><span class="dh-txt"><b>STOCK</b><small>État et mouvements</small></span><span class="chevron">▾</span></div>
     <div id="d-stock" class="drawer-body hidden">
 
       <div class="drawer">
-        <div class="drawer-head" onclick="toggleDrawer('d-stock-matieres')">MATIÈRES PREMIÈRES <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="toggleDrawer('d-stock-matieres')"><span class="dh-ico">🌾</span><span class="dh-txt"><b>MATIÈRES PREMIÈRES</b><small>Stock matières</small></span><span class="chevron">▾</span></div>
         <div id="d-stock-matieres" class="drawer-body hidden">
           <div class="drawer">
-            <div class="drawer-head" onclick="openMatieresEtatFullscreen()">ÉTAT DE STOCK <span class="chevron">▾</span></div>
+            <div class="drawer-head" onclick="openMatieresEtatFullscreen()"><span class="dh-ico">📊</span><span class="dh-txt"><b>ÉTAT DE STOCK</b><small>Quantités actuelles</small></span><span class="chevron">⤢</span></div>
           </div>
           <div class="drawer">
-            <div class="drawer-head" onclick="openStockFullscreen('matieres')">MOUVEMENT <span class="chevron">▾</span></div>
+            <div class="drawer-head" onclick="openStockFullscreen('matieres')"><span class="dh-ico">🔄</span><span class="dh-txt"><b>MOUVEMENT</b><small>Entrées et sorties</small></span><span class="chevron">⤢</span></div>
           </div>
         </div>
       </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="toggleDrawer('d-stock-produits')">PRODUIT FINI <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="toggleDrawer('d-stock-produits')"><span class="dh-ico">📦</span><span class="dh-txt"><b>PRODUIT FINI</b><small>Stock produits</small></span><span class="chevron">▾</span></div>
         <div id="d-stock-produits" class="drawer-body hidden">
           <div class="drawer">
-            <div class="drawer-head" onclick="openProduitsEtatFullscreen()">ÉTAT DE STOCK <span class="chevron">▾</span></div>
+            <div class="drawer-head" onclick="openProduitsEtatFullscreen()"><span class="dh-ico">📊</span><span class="dh-txt"><b>ÉTAT DE STOCK</b><small>Quantités actuelles</small></span><span class="chevron">⤢</span></div>
           </div>
           <div class="drawer">
-            <div class="drawer-head" onclick="openStockFullscreen('produits')">MOUVEMENT <span class="chevron">▾</span></div>
+            <div class="drawer-head" onclick="openStockFullscreen('produits')"><span class="dh-ico">🔄</span><span class="dh-txt"><b>MOUVEMENT</b><small>Entrées et sorties</small></span><span class="chevron">⤢</span></div>
           </div>
         </div>
       </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="toggleDrawer('d-stock-bombonne')">BOMBONNE <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="toggleDrawer('d-stock-bombonne')"><span class="dh-ico">🛢️</span><span class="dh-txt"><b>BOMBONNE</b><small>Bombonnes d'aliment</small></span><span class="chevron">▾</span></div>
         <div id="d-stock-bombonne" class="drawer-body hidden">
 
           <div class="drawer">
-            <div class="drawer-head" onclick="openBombonneEtatFullscreen()">ÉTAT DE STOCK <span class="chevron">▾</span></div>
+            <div class="drawer-head" onclick="openBombonneEtatFullscreen()"><span class="dh-ico">📊</span><span class="dh-txt"><b>ÉTAT DE STOCK</b><small>Quantités actuelles</small></span><span class="chevron">⤢</span></div>
           </div>
 
           <div class="drawer">
-            <div class="drawer-head" onclick="openBombonneStockFullscreen()">MOUVEMENT <span class="chevron">▾</span></div>
+            <div class="drawer-head" onclick="openBombonneStockFullscreen()"><span class="dh-ico">🔄</span><span class="dh-txt"><b>MOUVEMENT</b><small>Entrées et sorties</small></span><span class="chevron">⤢</span></div>
           </div>
 
         </div>
@@ -531,51 +719,91 @@ td { font-weight: 600; }
   </div>
 
   <div class="drawer" id="top-consommation">
-    <div class="drawer-head" onclick="toggleDrawer('d-consommation')">CONSOMMATION <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-consommation')"><span class="dh-ico">🍽️</span><span class="dh-txt"><b>CONSOMMATION</b><small>Aliment des porcs</small></span><span class="chevron">▾</span></div>
     <div id="d-consommation" class="drawer-body hidden">
-      <div class="card">
-        <label>Date</label>
-        <input id="c-date" type="date">
-        <label>GROUPE</label>
-        <select id="c-groupe" onchange="autofillConsommation()"><option value="">— Choisir —</option></select>
-        <label>Poids existant (kg)</label>
-        <input id="c-poids" readonly disabled>
-        <label>CLASSE</label>
-        <input id="c-classe" readonly disabled>
-        <label>BOX</label>
-        <input id="c-box" readonly disabled>
-        <label>EFFECTIF</label>
-        <input id="c-effectif" readonly disabled>
-        <label>Consommation Matin</label>
-        <input id="c-matin" readonly disabled>
-        <label>Consommation Soir</label>
-        <input id="c-soir" readonly disabled>
-        <label>Consommation Totale</label>
-        <input id="c-total" readonly disabled>
-        <label>BOMBONNE</label>
-        <select id="c-bombonne" onchange="updateConsommationBombonneStock()"><option value="">— Choisir —</option></select>
-        <label>Stock actuel (poids brut)</label>
-        <input id="c-bombonne-stock" readonly disabled>
-        <button onclick="ajouterConsommationDraft()">Ajouter</button>
-        <div id="consommationDraftList" style="margin-top:10px;"></div>
-        <button onclick="validerConsommationDraft()" style="margin-top:12px;">VALIDER</button>
+      <div class="drawer">
+        <div class="drawer-head" onclick="openVenteFullscreen('d-consommation-date', 'Consommation / Date')"><span class="dh-ico">🗓️</span><span class="dh-txt"><b>CONSOMMATION / DATE</b><small>Saisie automatique</small></span><span class="chevron">⤢</span></div>
+        <div id="d-consommation-date" class="drawer-body hidden">
+          <div class="card">
+            <label>Date</label>
+            <input id="c-date" type="date">
+            <label>GROUPE</label>
+            <select id="c-groupe" onchange="autofillConsommation(); bombonneDuGroupe('c')"><option value="">— Choisir —</option></select>
+            <label>Poids existant (kg)</label>
+            <input id="c-poids" readonly disabled>
+            <label>CLASSE</label>
+            <input id="c-classe" readonly disabled>
+            <label>BOX</label>
+            <input id="c-box" readonly disabled>
+            <label>EFFECTIF</label>
+            <input id="c-effectif" readonly disabled>
+            <label>Consommation Matin</label>
+            <input id="c-matin" readonly disabled>
+            <label>Consommation Soir</label>
+            <input id="c-soir" readonly disabled>
+            <label>Consommation Totale</label>
+            <input id="c-total" readonly disabled>
+            <label>BOMBONNE</label>
+            <select id="c-bombonne" onchange="updateConsommationBombonneStock()"><option value="">— Choisir —</option></select>
+            <label>Stock actuel (poids brut)</label>
+            <input id="c-bombonne-stock" readonly disabled>
+            <button onclick="ajouterConsommationDraft()">Ajouter</button>
+            <div id="consommationDraftList" style="margin-top:10px;"></div>
+            <button onclick="validerConsommationDraft()" style="margin-top:12px;">VALIDER</button>
+          </div>
+        </div>
       </div>
 
+        <div class="drawer">
+          <div class="drawer-head" onclick="openVenteFullscreen('d-consommation-manuelle', 'Consommation manuelle')"><span class="dh-ico">✍️</span><span class="dh-txt"><b>CONSOMMATION MANUELLE</b><small>Saisie manuelle</small></span><span class="chevron">⤢</span></div>
+          <div id="d-consommation-manuelle" class="drawer-body hidden">
+            <div class="card">
+              <p style="font-size:13px; color: var(--muted); margin: 0 0 10px;">Pour saisir les quantités exactes notées dans vos cahiers, différentes du calcul automatique.</p>
+              <label>Date</label>
+              <input id="cm-date" type="date">
+              <label>GROUPE</label>
+              <select id="cm-groupe" onchange="autofillConsommationManuelle(); bombonneDuGroupe('cm')"><option value="">— Choisir —</option></select>
+              <label>Poids existant (kg)</label>
+              <input id="cm-poids" readonly disabled>
+              <label>CLASSE</label>
+              <input id="cm-classe" readonly disabled>
+              <label>BOX</label>
+              <input id="cm-box" readonly disabled>
+              <label>EFFECTIF</label>
+              <input id="cm-effectif" readonly disabled>
+              <label>Consommation Totale</label>
+              <input id="cm-total" type="text" inputmode="decimal" placeholder="Ex: 27" onblur="liveFormat(this)">
+              <label>BOMBONNE</label>
+              <select id="cm-bombonne" onchange="updateConsommationManuelleBombonneStock()"><option value="">— Choisir —</option></select>
+              <label>Stock actuel (poids brut)</label>
+              <input id="cm-bombonne-stock" readonly disabled>
+              <button onclick="ajouterConsommationManuelleDraft()">Ajouter</button>
+              <div id="consommationManuelleDraftList" style="margin-top:10px;"></div>
+              <button onclick="validerConsommationManuelleDraft()" style="margin-top:12px;">VALIDER</button>
+            </div>
+          </div>
+        </div>
+
+
       <div class="drawer">
-        <div class="drawer-head" onclick="openConsommationListFullscreen()">LISTE DES CONSOMMATIONS <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openConsommationListFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES CONSOMMATIONS</b><small>Historique</small></span><span class="chevron">⤢</span></div>
       </div>
 
     </div>
   </div>
 
   <div class="drawer" id="top-poids">
-    <div class="drawer-head" onclick="toggleDrawer('d-poids')">POIDS <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-poids')"><span class="dh-ico">⚖️</span><span class="dh-txt"><b>POIDS</b><small>Pesées et exceptions</small></span><span class="chevron">▾</span></div>
     <div id="d-poids" class="drawer-body hidden">
+      <div class="drawer">
+        <div class="drawer-head" onclick="openVenteFullscreen('d-pesage', 'Poids - Pesage')"><span class="dh-ico">⚖️</span><span class="dh-txt"><b>PESAGE</b><small>Enregistrer une pesée</small></span><span class="chevron">⤢</span></div>
+        <div id="d-pesage" class="drawer-body hidden">
       <div class="card">
         <label>Date</label>
         <input id="pd-date" type="date" onchange="calcGMH()">
         <label>Groupe</label>
         <select id="pd-groupe" onchange="updatePeseeAnciens()"><option value="">— Choisir —</option></select>
+        <div id="pd-ref-msg" class="meta" style="color:var(--accent); font-weight:700; margin-top:6px;"></div>
         <label>Effectif</label>
         <input id="pd-effectif" readonly disabled>
         <label>Ancien Poids Total</label>
@@ -592,16 +820,54 @@ td { font-weight: 600; }
         <div id="peseeDraftList" style="margin-top:10px;"></div>
         <button onclick="validerPeseeDraft()" style="margin-top:12px;">VALIDER</button>
       </div>
+        </div>
+      </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="openPeseesListFullscreen()">LISTE DES PESÉES <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openVenteFullscreen('d-exception', 'Poids - Exception')"><span class="dh-ico">⚠️</span><span class="dh-txt"><b>EXCEPTION</b><small>Après mortalité ou vente</small></span><span class="chevron">⤢</span></div>
+        <div id="d-exception" class="drawer-body hidden">
+          <div class="card">
+            <div class="meta" style="margin-bottom:8px;">À faire après une mortalité : on réinscrit le poids du groupe avec son effectif actuel. Cette pesée sert de nouvelle référence (pas de GMH).</div>
+            <label>Date</label>
+            <input id="ex-date" type="date">
+            <label>Groupe</label>
+            <select id="ex-groupe" onchange="updateException()"><option value="">— Choisir —</option></select>
+            <div id="ex-msg" class="meta" style="color:var(--accent); font-weight:700; margin-top:6px;"></div>
+            <label>Ancien Poids Total</label>
+            <input id="ex-ancien-total" readonly disabled>
+            <label>Poids moyen (ancien)</label>
+            <input id="ex-ancien-moyen" readonly disabled>
+            <label>Ancien effectif</label>
+            <input id="ex-ancien-eff" readonly disabled>
+            <label>Ancien âge (semaines)</label>
+            <input id="ex-ancien-age" readonly disabled>
+            <label>Nouveau Poids Total (kg)</label>
+            <input id="ex-poids" type="text" inputmode="decimal" oninput="updateExceptionNouveau()" onblur="liveFormat(this)">
+            <label>Nouvel effectif</label>
+            <input id="ex-eff" readonly disabled style="color:#3a9d5d; -webkit-text-fill-color:#3a9d5d; font-weight:700; opacity:1;">
+            <label>Poids moyen (actuel)</label>
+            <input id="ex-moyen" readonly disabled style="color:#3a9d5d; -webkit-text-fill-color:#3a9d5d; font-weight:700; opacity:1;">
+            <label>Nouvel âge (semaines)</label>
+            <input id="ex-age" readonly disabled style="color:#3a9d5d; -webkit-text-fill-color:#3a9d5d; font-weight:700; opacity:1;">
+            <button onclick="validerException()" style="margin-top:12px;">VALIDER</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openPeseesListFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES PESÉES</b><small>Historique des pesées</small></span><span class="chevron">⤢</span></div>
       </div>
     </div>
   </div>
 
   <div class="drawer" id="top-prophylaxie">
-    <div class="drawer-head" onclick="toggleDrawer('d-prophylaxie')">PROPHYLAXIE <span class="chevron">▾</span></div>
+    <div class="drawer-head" onclick="toggleDrawer('d-prophylaxie')"><span class="dh-ico">💉</span><span class="dh-txt"><b>PROPHYLAXIE</b><small>Soins et vaccins</small></span><span class="chevron">▾</span></div>
     <div id="d-prophylaxie" class="drawer-body hidden">
+      <div class="card" id="px-alertes-card" style="border-left:5px solid #d9a62e;">
+        <div style="font-weight:800; margin-bottom:6px;">💉 ALERTES PROPHYLAXIE</div>
+        <div id="px-alertes"></div>
+        <div id="px-confirm"></div>
+      </div>
       <div class="card">
         <label>Date</label>
         <input id="px-date" type="date">
@@ -611,51 +877,60 @@ td { font-weight: 600; }
         <select id="px-type"><option>Vaccin</option><option>Traitement</option><option>Vermifuge</option><option>Visite vétérinaire</option><option>Autre</option></select>
         <label>Produit / Description</label>
         <input id="px-produit" placeholder="Ex: Circovirus, Ivermectine...">
+        <label>Coût (Ar)</label>
+        <input id="px-cout" type="text" inputmode="decimal" placeholder="0" onblur="liveFormat(this)">
         <button onclick="ajouterProphylaxieDraft()">Ajouter</button>
         <div id="prophylaxieDraftList" style="margin-top:10px;"></div>
         <button onclick="validerProphylaxieDraft()" style="margin-top:12px;">VALIDER</button>
       </div>
 
       <div class="drawer">
-        <div class="drawer-head" onclick="openProphylaxieListFullscreen()">LISTE PROPHYLAXIE <span class="chevron">▾</span></div>
+        <div class="drawer-head" onclick="openProphylaxieListFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE PROPHYLAXIE</b><small>Historique</small></span><span class="chevron">⤢</span></div>
       </div>
     </div>
   </div>
 
-  <div class="drawer" id="top-consommation-manuelle">
-    <div class="drawer-head" onclick="toggleDrawer('d-consommation-manuelle')">CONSOMMATION MANUELLE <span class="chevron">▾</span></div>
-    <div id="d-consommation-manuelle" class="drawer-body hidden">
+  <div class="drawer" id="top-mortalite">
+    <div class="drawer-head" onclick="toggleDrawer('d-mortalite')"><span class="dh-ico">☠️</span><span class="dh-txt"><b>MORTALITÉ</b><small>Porcs morts</small></span><span class="chevron">▾</span></div>
+    <div id="d-mortalite" class="drawer-body hidden">
       <div class="card">
-        <p style="font-size:13px; color: var(--muted); margin: 0 0 10px;">Pour saisir les quantités exactes notées dans vos cahiers, différentes du calcul automatique.</p>
+        <p style="font-size:13px; color: var(--muted); margin: 0 0 10px;">Quand des porcs meurent, indiquez le groupe et le nombre. L'effectif du groupe est mis à jour automatiquement.</p>
         <label>Date</label>
-        <input id="cm-date" type="date">
-        <label>GROUPE</label>
-        <select id="cm-groupe" onchange="autofillConsommationManuelle()"><option value="">— Choisir —</option></select>
-        <label>Poids existant (kg)</label>
-        <input id="cm-poids" readonly disabled>
-        <label>CLASSE</label>
-        <input id="cm-classe" readonly disabled>
-        <label>BOX</label>
-        <input id="cm-box" readonly disabled>
-        <label>EFFECTIF</label>
-        <input id="cm-effectif" readonly disabled>
-        <label>Consommation Totale</label>
-        <input id="cm-total" type="text" inputmode="decimal" placeholder="Ex: 27" onblur="liveFormat(this)">
-        <label>BOMBONNE</label>
-        <select id="cm-bombonne" onchange="updateConsommationManuelleBombonneStock()"><option value="">— Choisir —</option></select>
-        <label>Stock actuel (poids brut)</label>
-        <input id="cm-bombonne-stock" readonly disabled>
-        <button onclick="ajouterConsommationManuelleDraft()">Ajouter</button>
-        <div id="consommationManuelleDraftList" style="margin-top:10px;"></div>
-        <button onclick="validerConsommationManuelleDraft()" style="margin-top:12px;">VALIDER</button>
+        <input id="mo-date" type="date">
+        <label>Groupe</label>
+        <select id="mo-groupe" onchange="updateMortaliteInfo()"><option value="">— Choisir —</option></select>
+        <label>Effectif actuel</label>
+        <input id="mo-effectif" readonly disabled>
+        <label>Nombre de morts</label>
+        <input id="mo-morts" type="text" inputmode="numeric" placeholder="Ex: 1" oninput="updateMortaliteInfo()">
+        <label>Nouvel effectif</label>
+        <input id="mo-nouveau" readonly disabled>
+        <label>Prix de revient actuel (par tête)</label>
+        <input id="mo-pr" readonly disabled>
+        <label>Nouveau prix de revient (par tête)</label>
+        <input id="mo-pr-nouveau" readonly disabled>
+        <button onclick="ajouterMortaliteDraft()">Ajouter</button>
+        <div id="mortaliteDraftList" style="margin-top:10px;"></div>
+        <button onclick="validerMortaliteDraft()" style="margin-top:12px;">VALIDER</button>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openMortaliteListFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES MORTALITÉS</b><small>Historique</small></span><span class="chevron">⤢</span></div>
       </div>
     </div>
   </div>
 
-  <div class="drawer">
-    <div class="drawer-head" onclick="reinitialiserDonnees()">RÉINITIALISER <span class="chevron">▾</span></div>
-  </div>
 
+
+</section>
+<section id="statistique" class="hidden">
+  <div class="card">
+    <h2>Statistique</h2>
+    <select id="st-groupe" onchange="renderStatistique()" style="display:none;"><option value="">Choisir un groupe</option></select>
+    <div id="stat-info" style="display:none;"></div>
+    <div class="drawer-head" onclick="openStatFullscreen('tableau')"><span class="dh-ico">📊</span><span class="dh-txt"><b>TABLEAU</b><small>Voir le tableau</small></span><span class="chevron">⤢</span></div>
+    <div class="drawer-head" onclick="openStatFullscreen('courbe')"><span class="dh-ico">📈</span><span class="dh-txt"><b>COURBE</b><small>Courbe de croissance</small></span><span class="chevron">⤢</span></div>
+  </div>
 </section>
 </main>
 
@@ -731,7 +1006,7 @@ const CLES_SAUVEGARDE = [
   'pig_animaux','pig_matieres','pig_produits','pig_param_produits',
   'pig_param_ref_produit','pig_param_bombonne','pig_norme_consommation','pig_consommation',
   'pig_mouvement_matieres','pig_mouvement_produits','pig_mouvement_bombonne','pig_transfert',
-  'pig_formulation','pig_production','pig_ventes','pig_pesees','pig_prophylaxie','pig_charges','pig_apports'
+  'pig_formulation','pig_production','pig_ventes','pig_pesees','pig_prophylaxie','pig_charges','pig_apports','pig_mortalite','pig_stat_param','pig_ventes_matieres','pig_ventes_porcs','pig_resultat_estimation'
 ];
 function reinitialiserDonnees(){
   showConfirm("⚠️ Ceci va EFFACER DÉFINITIVEMENT toutes les données de l'application (animaux, achats, stock, formules, consommations, finances...). Voulez-vous continuer ?", function(){
@@ -742,18 +1017,26 @@ function reinitialiserDonnees(){
     });
   });
 }
-function exporterDonnees(){
+async function exporterDonnees(){
   const data = {};
   CLES_SAUVEGARDE.forEach(k => { data[k] = load(k); });
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'gestion-porcine-sauvegarde-' + new Date().toISOString().slice(0,10) + '.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  const contenu = JSON.stringify(data, null, 2);
+  const nom = 'gestion-porcine-sauvegarde-' + new Date().toISOString().slice(0,10) + '.json';
+  let dl = null;
+  try { if(window.claude && window.claude.use) dl = await window.claude.use('downloads'); } catch(e){}
+  if(dl){
+    try { await dl.save({ filename: nom, data: contenu }); }
+    catch(e){ if(!e || e.code !== 'declined'){ showAlert("Export impossible pour le moment."); } }
+    return;
+  }
+  // Hors Claude (ex. GitHub Pages) : téléchargement classique du navigateur
+  try {
+    const url = URL.createObjectURL(new Blob([contenu], {type:'application/json'}));
+    const lien = document.createElement('a');
+    lien.href = url; lien.download = nom;
+    document.body.appendChild(lien); lien.click(); lien.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  } catch(e){ showAlert("Export impossible pour le moment."); }
 }
 function importerDonnees(){
   const fileInput = document.getElementById('sv-fichier');
@@ -777,38 +1060,92 @@ function importerDonnees(){
   });
 }
 
+function majAlertesProphylaxieTiroir(al){
+  const el = document.getElementById('px-alertes'); if(!el) return;
+  al = al || getAlertesProphylaxie();
+  el.innerHTML = al.length
+    ? al.map((a,i) => `<div class="meta" onclick="pxChoisirAlerte(${i})" style="color:#d9a62e; font-weight:700; margin-bottom:6px; padding:10px; border:1px dashed #d9a62e; border-radius:10px; cursor:pointer;">💉 ${a.texte}<div style="font-weight:500; color:var(--muted); font-size:12px;">Touchez pour confirmer</div></div>`).join('')
+    : '<div class="empty">Aucune alerte de prophylaxie.</div>';
+  const sm = document.querySelector('#top-prophylaxie > .drawer-head small');
+  if(sm) sm.textContent = al.length ? `⚠ ${al.length} alerte${al.length>1?'s':''}` : 'Soins et vaccins';
+  if(sm) sm.classList.toggle('px-battement', al.length > 0);
+  if(pxAlerteChoisie && !al.some(x => x.groupe === pxAlerteChoisie.groupe && x.produit === pxAlerteChoisie.produit)) pxAlerteChoisie = null;
+  renderPxConfirm();
+}
+let pxAlerteChoisie = null;
+function pxChoisirAlerte(i){
+  const al = getAlertesProphylaxie();
+  pxAlerteChoisie = al[i] || null;
+  renderPxConfirm();
+  const c = document.getElementById('px-confirm'); if(c && c.scrollIntoView) c.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+function renderPxConfirm(){
+  const el = document.getElementById('px-confirm'); if(!el) return;
+  if(!pxAlerteChoisie){ el.innerHTML = ''; return; }
+  const a = pxAlerteChoisie;
+  const auj = new Date(Date.now() - new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+  el.innerHTML = `<div style="margin-top:10px; padding:12px; border-radius:12px; background:color-mix(in srgb, #d9a62e 14%, var(--card)); border:1px solid #d9a62e;">
+    <div style="font-weight:800; margin-bottom:6px;">Confirmation</div>
+    <div class="meta" style="margin-bottom:8px;">Groupe ${a.groupe} : <b>${a.produit}</b> a bien été fait physiquement (passage du vétérinaire) ?</div>
+    <label>Date de l'intervention</label>
+    <input id="px-confirm-date" type="date" value="${auj}">
+    <label>Coût (Ar) — facultatif</label>
+    <input id="px-confirm-cout" type="text" inputmode="decimal" placeholder="0" onblur="liveFormat(this)">
+    <button onclick="pxValiderAlerte()" style="margin-top:8px;">✅ OUI, VALIDÉ</button>
+    <button onclick="pxAlerteChoisie=null;renderPxConfirm();" style="margin-top:6px; background:none; color:var(--muted); border:1px solid var(--border);">Annuler</button>
+  </div>`;
+}
+function pxValiderAlerte(){
+  const a = pxAlerteChoisie; if(!a) return;
+  const date = document.getElementById('px-confirm-date').value;
+  if(!date){ showAlert("Merci d'indiquer la date."); return; }
+  const list = load('pig_prophylaxie');
+  list.unshift({ date, groupe: a.groupe, type: a.type, produit: a.produit, cout: parseNum(document.getElementById('px-confirm-cout').value) || 0 });
+  save('pig_prophylaxie', list);
+  pxAlerteChoisie = null;
+  renderDashboard();
+}
 function getAlertesProphylaxie(){
   const alertes = [];
   const animaux = load('pig_animaux');
   const prophylaxie = load('pig_prophylaxie');
   const today = new Date();
+  const jours = d => (today - new Date(d)) / 86400000;
+  const recent = arr => arr.filter(p => p.date).sort((x,y) => new Date(y.date) - new Date(x.date))[0];
   animaux.forEach(a => {
     if(!a.entree) return;
-    const entreeDate = new Date(a.entree);
-    const joursDepuisEntree = (today - entreeDate) / (1000 * 60 * 60 * 24);
-    const antiparasitaire = prophylaxie.find(p => p.groupe === a.id && normRef(p.produit).includes('antiparasit'));
-    if(joursDepuisEntree >= 30 && !antiparasitaire){
-      alertes.push(`Groupe ${a.id} : Vaccin Antiparasitaire à faire (inscrit le ${fmtDate(a.entree)})`);
+    const mine = prophylaxie.filter(p => p.groupe === a.id);
+    const antipar = recent(mine.filter(p => normRef(p.produit).includes('antiparasit')));
+    if(!antipar){
+      alertes.push({ groupe: a.id, produit: 'Antiparasitaire', type: 'Traitement', texte: `Groupe ${a.id} : Antiparasitaire à faire (inscrit le ${fmtDate(a.entree)})` });
+      return;
     }
-    if(antiparasitaire && antiparasitaire.date){
-      const dateAntipar = new Date(antiparasitaire.date);
-      const joursDepuisAntipar = (today - dateAntipar) / (1000 * 60 * 60 * 24);
-      const vitamineB = prophylaxie.find(p => p.groupe === a.id && normRef(p.produit).includes('vitamine b'));
-      if(joursDepuisAntipar >= 3 && !vitamineB){
-        alertes.push(`Groupe ${a.id} : Vitamine B Complex à faire (suite au traitement antiparasitaire du ${fmtDate(antiparasitaire.date)})`);
-      }
+    // Cycle mensuel : antiparasitaire -> multivitamine 4 jours après -> antiparasitaire 1 mois après la dernière
+    // Échéance = même jour du mois suivant la date de validation (05/10 -> 05/11 ; validé le 08/11 -> 08/12)
+    const dv = String(antipar.date).slice(0,10).split('-').map(Number);
+    const dernierJour = new Date(dv[0], dv[1] + 1, 0).getDate();
+    const echeance = new Date(dv[0], dv[1], Math.min(dv[2], dernierJour));
+    const auj0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    if(auj0 >= echeance){
+      alertes.push({ groupe: a.id, produit: 'Antiparasitaire', type: 'Traitement', texte: `Groupe ${a.id} : Antiparasitaire mensuel à refaire (dernier le ${fmtDate(antipar.date)})` });
+      return;
     }
+    const vit = recent(mine.filter(p => (normRef(p.produit).includes('multivit') || normRef(p.produit).includes('vitamine b')) && new Date(p.date) >= new Date(antipar.date)));
+    if(!vit && jours(antipar.date) >= 4) alertes.push({ groupe: a.id, produit: 'Multivitamine', type: 'Traitement', texte: `Groupe ${a.id} : Multivitamine à faire (4 jours après l'antiparasitaire du ${fmtDate(antipar.date)})` });
   });
   return alertes;
 }
+
 function renderDashboard(){
   // Résumé
   const animaux = load('pig_animaux');
   const totalEffectif = animaux.reduce((acc,a) => acc + (parseFloat(a.effectif) || 0), 0);
+  const totalMorts = load('pig_mortalite').reduce((acc,m) => acc + (m.morts || 0), 0);
+  const tauxMort = (totalEffectif + totalMorts) > 0 ? (totalMorts / (totalEffectif + totalMorts) * 100) : 0;
   document.getElementById('dash-resume').innerHTML = `
-    <div class="meta">Groupes enregistrés : ${animaux.length}</div>
-    <div class="meta">Effectif total : ${fmtNum(totalEffectif.toFixed(0))}</div>
-  `;
+    <div class="dash-kpi"><div class="v">${fmtNum(totalEffectif.toFixed(0))}</div><div class="l">Porcs</div><div class="s">effectif total</div></div>
+    <div class="dash-kpi"><div class="v">${animaux.length}</div><div class="l">Groupes</div><div class="s">enregistrés</div></div>
+    <div class="dash-kpi"><div class="v" style="color:${totalMorts ? 'var(--danger)' : 'inherit'}">${fmtNum(totalMorts)}</div><div class="l">Morts</div><div class="s">${tauxMort.toFixed(1).replace('.', ',')} %</div></div>`;
 
   // Alertes stock (toutes catégories, seuil < 10)
   const alertes = [];
@@ -834,14 +1171,18 @@ function renderDashboard(){
   });
   const alertesEl = document.getElementById('dash-alertes');
   alertesEl.innerHTML = alertes.length
-    ? alertes.map(a => `<div class="meta" style="color:var(--danger); font-weight:700;">⚠ ${a}</div>`).join('')
-    : '<div class="empty">Aucune alerte, tout est en stock suffisant.</div>';
+    ? alertes.map(a => `<div class="dash-chip">⚠️ <span>${a}</span></div>`).join('')
+    : '<div class="dash-ok">✓ Stock suffisant, aucune alerte.</div>';
 
   // Alertes Prophylaxie
   const alertesProphylaxie = getAlertesProphylaxie();
+  majAlertesProphylaxieTiroir(alertesProphylaxie);
   document.getElementById('dash-alertes-prophylaxie').innerHTML = alertesProphylaxie.length
-    ? alertesProphylaxie.map(a => `<div class="meta" style="color:#d9a62e; font-weight:700;">💉 ${a}</div>`).join('')
-    : '<div class="empty">Aucune alerte de prophylaxie.</div>';
+    ? alertesProphylaxie.map(a => `<div class="dash-chip warn">💉 <span>${a.texte}</span></div>`).join('')
+    : '<div class="dash-ok">✓ Prophylaxie à jour.</div>';
+  const nbAl = alertes.length + alertesProphylaxie.length;
+  const badge = document.getElementById('dash-alert-count');
+  badge.textContent = nbAl || ''; badge.classList.toggle('ok', false);
 
   // Bombonnes — état de stock
   document.getElementById('dash-bombonnes').innerHTML = buildBombonneEtatHTML();
@@ -870,18 +1211,20 @@ function renderDashboard(){
     ? achatsProduits.map(f => `<div class="item"><div><div class="name">${f.reference}</div><div class="meta">${fmtDate(f.date)}${f.quantite ? ' · Qté: ' + fmtNum(f.quantite) : ''}</div></div></div>`).join('')
     : '<div class="empty">Aucun achat enregistré.</div>';
 
-  // Ventes récentes (5 plus récentes)
-  const ventes = load('pig_ventes').slice(0, 5);
-  document.getElementById('dash-ventes').innerHTML = ventes.length
-    ? ventes.map(v => `<div class="item"><div><div class="name">${v.reference}${v.client ? ' — ' + v.client : ''}</div><div class="meta">${fmtDate(v.date)} · Qté: ${fmtNum(v.quantite)} · Total: ${fmtNum(v.prixTotal)}</div></div></div>`).join('')
+  // Ventes récentes (5 plus récentes, tous types confondus)
+  const toutesVentes = [
+    ...load('pig_ventes').map(v => ({ ...v, _type: 'Produit fini', _nom: v.reference })),
+    ...load('pig_ventes_matieres').map(v => ({ ...v, _type: 'Matière première', _nom: v.reference })),
+    ...load('pig_ventes_porcs').map(v => ({ ...v, _type: 'Porc', _nom: 'Groupe ' + v.groupe }))
+  ].sort((x,y) => (y.date || '').localeCompare(x.date || '')).slice(0, 5);
+  document.getElementById('dash-ventes').innerHTML = toutesVentes.length
+    ? toutesVentes.map(v => `<div class="item"><div><div class="name">${v._nom}${v.client ? ' — ' + v.client : ''} <span class="pill">${v._type}</span></div><div class="meta">${fmtDate(v.date)} · ${v._type === 'Porc' ? 'Porcs' : 'Qté'}: ${fmtNum(v.quantite)} · Total: ${fmtNum(v.prixTotal)} Ar</div></div></div>`).join('')
     : '<div class="empty">Aucune vente enregistrée.</div>';
 
   // Solde financier
-  const achatsMatieresTotal = load('pig_matieres').reduce((acc,m) => acc + (parseFloat(m.prixTotal) || 0), 0);
-  const achatsProduitsTotal = load('pig_produits').reduce((acc,p) => acc + (parseFloat(p.prixTotal) || 0), 0);
-  const ventesTotal = load('pig_ventes').reduce((acc,v) => acc + (parseFloat(v.prixTotal) || 0), 0);
-  const solde = ventesTotal - (achatsMatieresTotal + achatsProduitsTotal);
-  document.getElementById('dash-solde').innerHTML = `<div class="meta" style="color:${solde >= 0 ? '#3a9d5d' : 'var(--danger)'}; font-weight:700; font-size:18px;">${fmtNum(solde.toFixed(2))}</div>`;
+  const solde = getSoldeCompte();
+  majFromageSolde(solde);
+  document.getElementById('dash-solde').textContent = (solde < 0 ? '− ' : '') + fmtNum(Math.abs(solde).toFixed(2)) + ' Ar';
 }
 let cloudDb = null;
 let cloudWriteChain = {};
@@ -956,30 +1299,75 @@ function save(key, data){
   }
 }
 
+// Remet les listes déroulantes (références, groupes, bombonnes...) sur « Choisir »
+function resetChoix(root){
+  if(!root || !root.querySelectorAll) return;
+  const sels = root.matches && root.matches('select') ? [root] : Array.from(root.querySelectorAll('select'));
+  sels.forEach(sel => {
+    if(sel.id === 'st-groupe' || sel.value === '') return;
+    if(!Array.from(sel.options).some(o => o.value === '')) return;
+    sel.value = '';
+    try { sel.dispatchEvent(new Event('change', {bubbles:true})); } catch(e){}
+  });
+}
 function toggleDrawer(id){
   const body = document.getElementById(id);
+  if(!body.classList.contains('hidden')) resetChoix(body);
   body.classList.toggle('hidden');
   body.previousElementSibling.classList.toggle('open');
+  if(id === 'd-prophylaxie') majAlertesProphylaxieTiroir();
+  majFocusTiroir(body.parentElement && body.parentElement.parentElement);
 }
+function majFocusTiroir(sec){
+  if(!sec || sec.tagName !== 'SECTION') return;
+  const ouverts = Array.from(sec.children).filter(c => c.classList.contains('drawer') && c.querySelector(':scope > .drawer-head.open'));
+  Array.from(sec.children).forEach(c => c.classList.toggle('drawer-open', ouverts.includes(c)));
+  sec.classList.toggle('drawer-focus', ouverts.length > 0);
+}
+document.addEventListener('click', function(e){
+  const sec = e.target.closest && e.target.closest('section.drawer-focus');
+  if(!sec) return;
+  const enfant = Array.from(sec.children).find(c => c.contains(e.target));
+  if(!enfant || enfant.classList.contains('drawer-open')) return;
+  e.preventDefault(); e.stopPropagation();
+  sec.querySelectorAll(':scope > .drawer.drawer-open > .drawer-head.open').forEach(h => h.click());
+}, true);
 
-const ORDRE_ONGLETS = ['dashboard', 'animaux', 'parametre', 'mouvement', 'suivi'];
+const ORDRE_ONGLETS = ['dashboard', 'animaux', 'parametre', 'mouvement', 'suivi', 'statistique'];
+// Ferme tous les tiroirs ouverts (à chaque changement d'onglet)
+function fermerTousLesTiroirs(){
+  document.querySelectorAll('.drawer-head.open').forEach(h => resetChoix(h.nextElementSibling));
+  document.querySelectorAll('.drawer-head.open').forEach(h => {
+    h.classList.remove('open');
+    const body = h.nextElementSibling;
+    if(body && body.classList.contains('drawer-body')) body.classList.add('hidden');
+  });
+  document.querySelectorAll('main > section').forEach(sec => {
+    sec.classList.remove('drawer-focus');
+    Array.from(sec.children).forEach(c => c.classList.remove('drawer-open'));
+  });
+}
 function switchToTab(tabName){
+  const actuel = document.querySelector('.tab.active');
+  if(!actuel || actuel.dataset.tab !== tabName) fermerTousLesTiroirs();
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.tab === tabName));
   document.querySelectorAll('main > section').forEach(x => x.classList.add('hidden'));
   document.getElementById(tabName).classList.remove('hidden');
   if(tabName === 'dashboard') renderDashboard();
+  if(tabName === 'statistique') renderStatistique();
 }
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
   switchToTab(t.dataset.tab);
 }));
 
-// Navigation par glissement (swipe) entre les onglets
+// Navigation par glissement (swipe) entre les onglets : uniquement sur la barre d'onglets en haut
 let swipeStartX = 0, swipeStartY = 0;
-document.addEventListener('touchstart', (e) => {
+const barreOnglets = document.querySelector('.tabs');
+barreOnglets.addEventListener('touchstart', (e) => {
   swipeStartX = e.touches[0].clientX;
   swipeStartY = e.touches[0].clientY;
 }, { passive: true });
-document.addEventListener('touchend', (e) => {
+barreOnglets.addEventListener('touchend', (e) => {
   if(!document.getElementById('fullscreenTable').classList.contains('hidden')) return;
   if(!document.getElementById('alertModal').classList.contains('hidden')) return;
   if(!document.getElementById('confirmModal').classList.contains('hidden')) return;
@@ -1000,6 +1388,32 @@ function fmtNum(n){ const v = parseFloat(n); if(isNaN(v)) return n; return v.toL
 function normRef(s){ return (s || '').replace(/\s+/g, ' ').trim().toLowerCase(); }
 function stockColor(val){ return val < 10 ? 'var(--danger)' : (val < 60 ? '#d9a62e' : '#3a9d5d'); }
 function parseNum(str){ if(!str) return NaN; return parseFloat(String(str).replace(/[\s\u00A0]/g,'').replace(',', '.')); }
+// Séparateur de milliers pendant la saisie (champs numériques : 30 000 · 300 000 · 1 000 000)
+document.addEventListener('input', function(e){
+  const el = e.target;
+  if(!el || el.tagName !== 'INPUT' || el.readOnly || el.disabled) return;
+  const bl = el.getAttribute('onblur') || '';
+  if(bl.indexOf('liveFormat') === -1) return;
+  const v = el.value;
+  const caret = el.selectionStart;
+  const avant = v.slice(0, caret == null ? v.length : caret);
+  const compte = t => (t.match(/[0-9.,]/g) || []).length;
+  const nbAvant = compte(avant);
+  let neg = v.trim().charAt(0) === '-';
+  let brut = v.replace(/[^0-9.,]/g, '');
+  const m = brut.search(/[.,]/);
+  let ent = m === -1 ? brut : brut.slice(0, m);
+  let dec = m === -1 ? null : brut.slice(m + 1).replace(/[.,]/g, '');
+  ent = ent.replace(/^0+(?=\d)/, '');
+  const grp = ent.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  const nv = (neg ? '-' : '') + grp + (dec === null ? '' : ',' + dec);
+  if(nv === v) return;
+  el.value = nv;
+  // restaurer le curseur après le même nombre de chiffres
+  let pos = 0, vus = 0;
+  while(pos < nv.length && vus < nbAvant){ if(/[0-9.,]/.test(nv.charAt(pos))) vus++; pos++; }
+  try { el.setSelectionRange(pos, pos); } catch(err){}
+}, true);
 function liveFormat(el){
   const raw = parseNum(el.value);
   if(!isNaN(raw)){ el.value = raw.toLocaleString('fr-FR', {maximumFractionDigits: 2}); }
@@ -1011,11 +1425,20 @@ function updateBox(){
   document.getElementById('a-box').value = match ? match[0].toUpperCase() : '';
 }
 
+let ageManuel = false;
 function updateMoyen(){
   const poids = parseNum(document.getElementById('a-poids').value);
   const eff = parseNum(document.getElementById('a-effectif').value);
   const el = document.getElementById('a-moyen');
   el.value = (poids > 0 && eff > 0) ? `${fmtNum((poids/eff).toFixed(1))} kg` : '';
+  // Âge automatique d'après le poids moyen (norme de croissance), sauf si saisi à la main
+  if(!ageManuel){
+    const ageEl = document.getElementById('a-age');
+    if(poids > 0 && eff > 0){
+      const n = normeAge(poids / eff);
+      ageEl.value = n === null ? '' : Math.round(n) + ' semaines';
+    } else { ageEl.value = ''; }
+  }
 }
 
 function calcPrix(source){
@@ -1053,6 +1476,7 @@ function ajouterAnimalDraft(){
     id, type: document.getElementById('a-type').value,
     classe: document.getElementById('a-classe').value.trim(),
     box: document.getElementById('a-box').value.trim(),
+    bombonne: document.getElementById('a-bombonne').value,
     entree: document.getElementById('a-entree').value,
     age: document.getElementById('a-age').value.trim(),
     poids: parseNum(document.getElementById('a-poids').value) || '',
@@ -1061,7 +1485,8 @@ function ajouterAnimalDraft(){
     prixTotal: parseNum(document.getElementById('a-prixTotal').value) || ''
   };
   animalDrafts.push(animal);
-  ['a-id','a-classe','a-box','a-entree','a-age','a-poids','a-effectif','a-prixU','a-prixTotal'].forEach(f => document.getElementById(f).value = '');
+  ['a-id','a-classe','a-box','a-bombonne','a-entree','a-age','a-poids','a-effectif','a-prixU','a-prixTotal'].forEach(f => document.getElementById(f).value = '');
+  ageManuel = false;
   updateMoyen();
   renderAnimalDraft();
 }
@@ -1071,7 +1496,7 @@ function renderAnimalDraft(){
   if(!animalDrafts.length){ el.innerHTML = ''; return; }
   el.innerHTML = animalDrafts.map((a,i) => `
     <div class="item">
-      <div class="name">${a.id} <span class="pill">${a.type}</span></div>
+      <div><div class="name">${a.id} <span class="pill">${a.type}</span></div>${a.bombonne ? `<div class="meta">Bombonne : ${a.bombonne}</div>` : ''}</div>
       <button class="del" onclick="delAnimalDraft(${i})">Suppr.</button>
     </div>`).join('');
 }
@@ -1083,7 +1508,7 @@ function validerAnimalDraft(){
   animalDrafts = [];
   renderAnimalDraft();
   renderAnimaux();
-  renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions(); renderPeseeGroupeOptions(); renderProphylaxieGroupeOptions();
+  renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions(); renderPeseeGroupeOptions(); renderProphylaxieGroupeOptions(); renderMortaliteGroupeOptions();
 }
 function delAnimal(i){ const list = load('pig_animaux'); list.splice(i,1); save('pig_animaux', list); renderAnimaux(); }
 let editAnimalIndex = -1;
@@ -1091,24 +1516,49 @@ function startEditAnimal(i){ editAnimalIndex = i; renderAnimaux(); }
 function cancelEditAnimal(){ editAnimalIndex = -1; renderAnimaux(); }
 function saveEditAnimal(i){
   const list = load('pig_animaux');
+  const avant = list[i];
+  const ancienMoyenModif = (parseFloat(avant.poids) > 0 && parseFloat(avant.effectif) > 0) ? parseFloat(avant.poids) / parseFloat(avant.effectif) : 0;
   list[i] = {
     ...list[i],
     classe: document.getElementById('ea-classe-' + i).value.trim(),
     box: document.getElementById('ea-box-' + i).value.trim(),
+    bombonne: document.getElementById('ea-bombonne-' + i).value,
     age: document.getElementById('ea-age-' + i).value.trim(),
     poids: parseNum(document.getElementById('ea-poids-' + i).value) || '',
     effectif: parseNum(document.getElementById('ea-effectif-' + i).value) || ''
   };
+  const apres = list[i];
+  const nvPoids = parseFloat(apres.poids) || 0, nvEff = parseFloat(apres.effectif) || 0;
+  const nvMoyen = (nvPoids > 0 && nvEff > 0) ? nvPoids / nvEff : 0;
+  if(nvMoyen > 0 && Math.abs(nvMoyen - ancienMoyenModif) > 0.005){
+    const pesees = load('pig_pesees');
+    pesees.unshift({ date: new Date().toISOString().slice(0,10), groupe: apres.id, poidsTotal: nvPoids, effectif: nvEff, poidsMoyen: nvMoyen, gmh: ancienMoyenModif ? nvMoyen - ancienMoyenModif : '', ancienPoidsMoyen: ancienMoyenModif || '', ts: Date.now() });
+    save('pig_pesees', pesees);
+  }
   save('pig_animaux', list);
   editAnimalIndex = -1;
   renderAnimaux();
   renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions();
+  autofillConsommation(); autofillConsommationManuelle(); updatePeseeAnciens();
 }
 function renderAnimaux(){
   const list = load('pig_animaux');
   const el = document.getElementById('animauxList');
   if(!list.length){ el.innerHTML = '<div class="empty">Aucun animal enregistré pour le moment.</div>'; return; }
-  el.innerHTML = list.map((a,i) => {
+  const morts = load('pig_mortalite'), ventes = load('pig_ventes_porcs');
+  const stat = a => {
+    const cur = parseFloat(a.effectif) || 0;
+    const m = morts.filter(x => normRef(x.groupe) === normRef(a.id)).reduce((acc,x) => acc + (parseFloat(x.morts) || 0), 0);
+    const v = ventes.filter(x => normRef(x.groupe) === normRef(a.id)).reduce((acc,x) => acc + (parseFloat(x.quantite) || 0), 0);
+    return { cur, m, v, init: cur + m + v };
+  };
+  const totalActuel = list.reduce((acc,a) => acc + stat(a).cur, 0);
+  const entete = `<div style="display:flex; align-items:center; gap:12px; padding:12px 14px; margin-bottom:10px; border-radius:14px; background:color-mix(in srgb, var(--accent) 14%, var(--card)); border:1px solid color-mix(in srgb, var(--accent) 40%, transparent);">
+      <div style="font-size:28px;">🐖</div>
+      <div><div style="font-size:11px; font-weight:800; letter-spacing:0.08em; color:var(--muted);">EFFECTIF ACTUEL TOTAL</div>
+      <div style="font-size:24px; font-weight:800;">${fmtNum(totalActuel)} <span style="font-size:13px; font-weight:600; color:var(--muted);">porc${totalActuel > 1 ? 's' : ''} · ${list.length} groupe${list.length > 1 ? 's' : ''}</span></div></div>
+    </div>`;
+  el.innerHTML = entete + list.map((a,i) => {
     if(i === editAnimalIndex){
       return `
         <div class="item">
@@ -1117,6 +1567,8 @@ function renderAnimaux(){
             <input id="ea-classe-${i}" value="${a.classe || ''}">
             <label>BOX</label>
             <input id="ea-box-${i}" value="${a.box || ''}">
+            <label>BOMBONNE</label>
+            <select id="ea-bombonne-${i}"><option value="">— Choisir —</option>${load('pig_param_bombonne').map(b => `<option value="${b.nom}"${b.nom === a.bombonne ? ' selected' : ''}>${b.nom}</option>`).join('')}</select>
             <label>Age</label>
             <input id="ea-age-${i}" value="${a.age || ''}">
             <label>Poids total</label>
@@ -1134,7 +1586,8 @@ function renderAnimaux(){
     <div class="item">
       <div>
         <div class="name">${a.id} <span class="pill">${a.type}</span></div>
-        <div class="meta">${a.classe ? 'Classe: ' + a.classe : ''}${a.box ? ' · Box: ' + a.box : ''}${a.entree ? ' · Entrée: ' + fmtDate(a.entree) : ''}${a.age ? ' · Âge: ' + a.age : ''}${a.poids ? ' · Poids total: ' + fmtNum(a.poids) + ' kg' : ''}${a.effectif ? ' · Effectif: ' + fmtNum(a.effectif) : ''}${(a.poids && a.effectif) ? ' · Poids moyen: ' + fmtNum((a.poids / a.effectif).toFixed(1)) + ' kg' : ''}${a.prixU ? ' · Prix unitaire: ' + fmtNum(a.prixU) : ''}${a.prixTotal ? ' · Prix total: ' + fmtNum(a.prixTotal) : ''}</div>
+        <div style="margin:4px 0 2px; font-weight:800; color:var(--accent);">🐖 Effectif actuel : ${fmtNum(stat(a).cur)}${(stat(a).m || stat(a).v) ? ` <span class="meta" style="font-weight:500;">(initial ${fmtNum(stat(a).init)}${stat(a).m ? ' · morts ' + fmtNum(stat(a).m) : ''}${stat(a).v ? ' · vendus ' + fmtNum(stat(a).v) : ''})</span>` : ''}</div>
+        <div class="meta">${a.classe ? 'Classe: ' + a.classe : ''}${a.box ? ' · Box: ' + a.box : ''}${a.bombonne ? ' · Bombonne: ' + a.bombonne : ''}${a.entree ? ' · Entrée: ' + fmtDate(a.entree) : ''}${a.age ? ' · Âge: ' + a.age : ''}${a.poids ? ' · Poids total: ' + fmtNum(a.poids) + ' kg' : ''}${(a.poids && a.effectif) ? ' · Poids moyen: ' + fmtNum((a.poids / a.effectif).toFixed(1)) + ' kg' : ''}${a.prixU ? ' · Prix unitaire: ' + fmtNum(a.prixU) : ''}${a.prixTotal ? ' · Prix total: ' + fmtNum(a.prixTotal) : ''}</div>
       </div>
       <div style="display:flex; gap:6px;">
         <button class="del" onclick="startEditAnimal(${i})">Modif</button>
@@ -1220,14 +1673,14 @@ function validerParamRefProduitDraft(){
   paramRefProduitDrafts = [];
   renderParamRefProduitDraft();
   renderParamRefProduit();
-  renderProduitReferenceOptions();
+  refreshRefsProduitFini();
 }
 function delParamRefProduit(i){
   const list = load('pig_param_ref_produit');
   list.splice(i,1);
   save('pig_param_ref_produit', list);
   renderParamRefProduit();
-  renderProduitReferenceOptions();
+  refreshRefsProduitFini();
 }
 function renderParamRefProduit(){
   const list = load('pig_param_ref_produit');
@@ -1320,11 +1773,31 @@ function autofillConsommation(){
 }
 
 let consommationDrafts = [];
+function renderAnimalBombonneOptions(){
+  const sel = document.getElementById('a-bombonne');
+  if(!sel) return;
+  const current = sel.value;
+  const list = load('pig_param_bombonne');
+  sel.innerHTML = '<option value="">— Choisir —</option>' + list.map(b => `<option value="${b.nom}">${b.nom}</option>`).join('');
+  if(list.some(b => b.nom === current)) sel.value = current;
+}
+// Après le choix du groupe, sa bombonne (définie à l'inscription) est sélectionnée automatiquement
+function bombonneDuGroupe(prefixe){
+  const groupe = document.getElementById(prefixe + '-groupe').value;
+  const sel = document.getElementById(prefixe + '-bombonne');
+  if(!groupe) return;
+  const animal = load('pig_animaux').find(a => a.id === groupe);
+  if(animal && animal.bombonne && Array.from(sel.options).some(o => o.value === animal.bombonne)){
+    sel.value = animal.bombonne;
+    if(prefixe === 'c') updateConsommationBombonneStock(); else updateConsommationManuelleBombonneStock();
+  }
+}
 function renderConsommationBombonneOptions(){
+  renderAnimalBombonneOptions();
   const list = load('pig_param_bombonne');
   const sel = document.getElementById('c-bombonne');
   const current = sel.value;
-  sel.innerHTML = '<option value="">— Choisir —</option>' + list.map(b => `<option>${b.nom}</option>`).join('');
+  sel.innerHTML = '<option value="">— Choisir —</option>' + list.map(b => `<option value="${b.nom}">${labelBombonne(b)}</option>`).join('');
   if(list.some(b => b.nom === current)) sel.value = current;
 }
 function getBombonneBrutStock(nom){
@@ -1409,7 +1882,7 @@ function renderConsommationManuelleBombonneOptions(){
   const list = load('pig_param_bombonne');
   const sel = document.getElementById('cm-bombonne');
   const current = sel.value;
-  sel.innerHTML = '<option value="">— Choisir —</option>' + list.map(b => `<option>${b.nom}</option>`).join('');
+  sel.innerHTML = '<option value="">— Choisir —</option>' + list.map(b => `<option value="${b.nom}">${labelBombonne(b)}</option>`).join('');
   if(list.some(b => b.nom === current)) sel.value = current;
 }
 function updateConsommationManuelleBombonneStock(){
@@ -1541,6 +2014,24 @@ function openConsommationListFullscreen(){
   document.getElementById('fullscreenTable').classList.remove('hidden');
 }
 // Stock (calculé automatiquement à partir des achats, sous forme de tableau avec état cumulé)
+function poidsSacRef(type, ref){
+  const list = load(type === 'produit' ? 'pig_produits' : 'pig_matieres');
+  const r = normRef(ref);
+  const hit = list.find(x => parseFloat(x.poidsSac) > 0 && normRef(x.reference || x.designation) === r);
+  return hit ? parseFloat(hit.poidsSac) : 0;
+}
+function sacTxt(kg, pds){
+  if(!(pds > 0) || !(kg > 0)) return '';
+  const sacs = Math.floor(kg / pds + 1e-9);
+  const reste = Math.round((kg - sacs * pds) * 100) / 100;
+  if(sacs === 0) return `0 sac + ${fmtNum(reste)} kg`;
+  return `${sacs} sac${sacs > 1 ? 's' : ''}${reste > 0 ? ' + ' + fmtNum(reste) + ' kg' : ''}`;
+}
+function kgSacHTML(kg, pds){
+  const base = fmtNum((+kg).toFixed(2)) + ' kg';
+  const t = sacTxt(kg, pds);
+  return t ? `${base} <span class="sac-pill">📦 ${t}</span>` : base;
+}
 function buildStockTableHTML(list, keyField, keyLabel, filterVal){
   if(filterVal){ list = list.filter(item => item[keyField] === filterVal); }
   if(!list.length){ return '<div class="empty">Aucun stock pour l\'instant.</div>'; }
@@ -1583,9 +2074,9 @@ function buildMatieresCombinedTableHTML(filterRef){
     return `<tr>
       <td>${fmtDate(item.date)}</td>
       <td>${display}</td>
-      <td>${item.entree ? fmtNum(item.entree) : ''}</td>
-      <td>${item.sortie ? fmtNum(item.sortie) : ''}</td>
-      <td style="color:${stockColor(cumul[key])}; font-weight:700;">${fmtNum(cumul[key])}</td>
+      <td>${item.entree ? kgSacHTML(item.entree, poidsSacRef('matiere', item.reference)) : ''}</td>
+      <td>${item.sortie ? kgSacHTML(item.sortie, poidsSacRef('matiere', item.reference)) : ''}</td>
+      <td style="color:${stockColor(cumul[key])}; font-weight:700;">${kgSacHTML(cumul[key], poidsSacRef('matiere', item.reference))}</td>
     </tr>`;
   }).join('');
   return `<div class="table-wrap"><table>
@@ -1605,10 +2096,10 @@ function buildMatieresEtatHTML(){
   if(!uniques.length){ return '<div class="empty">Aucune référence créée pour l\'instant.</div>'; }
   const rows = uniques.map(ref => {
     const stock = getMatiereStock(ref);
-    return `<tr><td>${ref}</td><td style="color:${stockColor(stock)}; font-weight:700;">${fmtNum(stock.toFixed(2))}</td></tr>`;
+    return `<tr><td>${ref}</td><td style="color:${stockColor(stock)}; font-weight:700;">${fmtNum(stock.toFixed(2))} kg</td><td>${sacTxt(stock, poidsSacRef('matiere', ref)) ? '<span class="sac-pill" style="margin-left:0">📦 ' + sacTxt(stock, poidsSacRef('matiere', ref)) + '</span>' : '—'}</td></tr>`;
   }).join('');
   return `<div class="table-wrap"><table>
-    <thead><tr><th>Référence</th><th>Stock actuel</th></tr></thead>
+    <thead><tr><th>Référence</th><th>Stock actuel</th><th>En sacs</th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
 }
@@ -1622,10 +2113,10 @@ function buildProduitsEtatHTML(){
   if(!refs.length){ return '<div class="empty">Aucune référence créée pour l\'instant.</div>'; }
   const rows = refs.map(r => {
     const stock = getProduitStockByReference(r);
-    return `<tr><td>${r}</td><td style="color:${stockColor(stock)}; font-weight:700;">${fmtNum(stock.toFixed(2))}</td></tr>`;
+    return `<tr><td>${r}</td><td style="color:${stockColor(stock)}; font-weight:700;">${fmtNum(stock.toFixed(2))} kg</td><td>${sacTxt(stock, poidsSacRef('produit', r)) ? '<span class="sac-pill" style="margin-left:0">📦 ' + sacTxt(stock, poidsSacRef('produit', r)) + '</span>' : '—'}</td></tr>`;
   }).join('');
   return `<div class="table-wrap"><table>
-    <thead><tr><th>Référence</th><th>Stock actuel</th></tr></thead>
+    <thead><tr><th>Référence</th><th>Stock actuel</th><th>En sacs</th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
 }
@@ -1667,9 +2158,9 @@ function buildProduitsCombinedTableHTML(filterReference){
     return `<tr>
       <td>${fmtDate(item.date)}</td>
       <td>${key}</td>
-      <td>${item.entree ? fmtNum(item.entree) : ''}</td>
-      <td>${item.sortie ? fmtNum(item.sortie) : ''}</td>
-      <td style="color:${stockColor(cumul[key])}; font-weight:700;">${fmtNum(cumul[key])}</td>
+      <td>${item.entree ? kgSacHTML(item.entree, poidsSacRef('produit', item.reference)) : ''}</td>
+      <td>${item.sortie ? kgSacHTML(item.sortie, poidsSacRef('produit', item.reference)) : ''}</td>
+      <td style="color:${stockColor(cumul[key])}; font-weight:700;">${kgSacHTML(cumul[key], poidsSacRef('produit', item.reference))}</td>
     </tr>`;
   }).join('');
   return `<div class="table-wrap"><table>
@@ -1703,7 +2194,31 @@ function openStockFullscreen(type){
   document.getElementById('fullscreenTableBody').innerHTML = html;
   document.getElementById('fullscreenTable').classList.remove('hidden');
 }
+let fsDeplace = null;
+// Ouvre un tiroir de vente en plein écran en y déplaçant son contenu réel (les champs gardent leur état)
+function openVenteFullscreen(bodyId, titre){
+  const body = document.getElementById(bodyId);
+  if(fsDeplace){ restaurerFsDeplace(); }
+  fsDeplace = { body, nodes: Array.from(body.childNodes) };
+  const fs = document.getElementById('fullscreenTableBody');
+  fs.innerHTML = '';
+  fsDeplace.nodes.forEach(n => fs.appendChild(n));
+  document.getElementById('fullscreenTitle').textContent = titre;
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+  if(bodyId === 'd-vente-pf') updateVenteStockDisponible();
+  if(bodyId === 'd-vente-mp') updateVenteMPStock();
+  if(bodyId === 'd-vente-porc') updateVentePorcInfo();
+  if(bodyId === 'd-pesage') updatePeseeAnciens();
+}
+function restaurerFsDeplace(){
+  if(!fsDeplace) return;
+  fsDeplace.nodes.forEach(n => fsDeplace.body.appendChild(n));
+  fsDeplace = null;
+}
 function closeFullscreenTable(){
+  if(fsDeplace) fsDeplace.nodes.forEach(n => resetChoix(n));
+  restaurerFsDeplace();
+  statMode = null;
   document.getElementById('fullscreenTable').classList.add('hidden');
 }
 
@@ -1722,7 +2237,7 @@ function renderParamBombonneDraft(){
   const el = document.getElementById('paramBombonneDraftList');
   if(!paramBombonneDrafts.length){ el.innerHTML = ''; return; }
   el.innerHTML = paramBombonneDrafts.map((b,i) => `
-    <div class="item"><div><div class="name">${b.nom}</div><div class="meta">Tare: ${fmtNum(b.tare)}</div></div><button class="del" onclick="delParamBombonneDraft(${i})">Suppr.</button></div>`).join('');
+    <div class="item"><div><div class="name">${b.nom}</div><div class="meta">${refActuelleBombonne(b.nom) ? 'Référence actuelle : <b>' + refActuelleBombonne(b.nom) + '</b> · ' : ''}Tare: ${fmtNum(b.tare)}</div></div><button class="del" onclick="delParamBombonneDraft(${i})">Suppr.</button></div>`).join('');
 }
 function validerParamBombonneDraft(){
   if(!paramBombonneDrafts.length){ showAlert("Aucune bombonne à valider."); return; }
@@ -1754,7 +2269,7 @@ function buildBombonneListHTML(editIndex){
     }
     return `
       <div class="item">
-        <div><div class="name">${b.nom}</div><div class="meta">Tare: ${fmtNum(b.tare)}</div></div>
+        <div><div class="name">${b.nom}</div><div class="meta">${refActuelleBombonne(b.nom) ? 'Référence actuelle : <b>' + refActuelleBombonne(b.nom) + '</b> · ' : ''}Tare: ${fmtNum(b.tare)}</div></div>
         <div style="display:flex; gap:6px;">
           <button class="del" onclick="startEditBombonne(${i})">Modif</button>
           <button class="del" onclick="delBombonneFullscreen(${i})">Suppr.</button>
@@ -1799,10 +2314,53 @@ function renderPeseeGroupeOptions(){
   const groupes = [...new Set(load('pig_animaux').map(a => a.id))];
   sel.innerHTML = '<option value="">— Choisir —</option>' + groupes.map(g => `<option>${g}</option>`).join('');
   if(groupes.includes(current)) sel.value = current;
+  const sx = document.getElementById('ex-groupe');
+  if(sx){
+    const cx = sx.value;
+    sx.innerHTML = '<option value="">— Choisir —</option>' + groupes.map(g => `<option>${g}</option>`).join('');
+    if(groupes.includes(cx)) sx.value = cx;
+  }
+}
+function groupeNeedsReference(groupe){
+  const lastMort = Math.max(0, ...load('pig_mortalite').filter(m => m.groupe === groupe).map(m => m.ts || 0), ...load('pig_ventes_porcs').filter(m => m.groupe === groupe).map(m => m.ts || 0));
+  if(!lastMort) return false;
+  const lastPes = Math.max(0, ...load('pig_pesees').filter(p => p.groupe === groupe).map(p => p.ts || 0));
+  return lastMort > lastPes;
+}
+function updatePeseeRefMsg(groupe){
+  const el = document.getElementById('pd-ref-msg');
+  if(!el) return;
+  el.textContent = (groupe && groupeNeedsReference(groupe))
+    ? "⚠ Mortalité ou vente enregistrée : faites d'abord l'EXCEPTION de ce groupe (POIDS > EXCEPTION) avant une nouvelle pesée."
+    : '';
 }
 function getDernierePesee(groupe){
-  const historique = load('pig_pesees').filter(p => p.groupe === groupe && p.date).sort((a,b) => a.date.localeCompare(b.date));
-  return historique.length ? historique[historique.length - 1] : null;
+  const arr = load('pig_pesees').map((p, idx) => ({ p, idx })).filter(x => x.p.groupe === groupe);
+  if(!arr.length) return null;
+  // la dernière pesée = la plus récemment enregistrée (ts), puis la date en cas d'égalité ou pour les anciennes pesées sans ts
+  arr.sort((a,b) => {
+    const ta = a.p.ts || 0, tb = b.p.ts || 0;
+    if(ta !== tb) return tb - ta;
+    const da = a.p.date || '', db = b.p.date || '';
+    if(da !== db) return db.localeCompare(da);
+    return a.idx - b.idx;
+  });
+  return arr[0].p;
+}
+// Le poids du groupe suit toujours sa dernière pesée (rattrape aussi les anciennes pesées)
+function synchroniserPoidsPesees(){
+  const animaux = load('pig_animaux');
+  let change = false;
+  animaux.forEach(a => {
+    const d = getDernierePesee(a.id);
+    const eff = parseFloat(a.effectif) || 0;
+    if(!d || !eff) return;
+    const m = parseFloat(d.poidsMoyen);
+    if(!(m > 0)) return;
+    const cible = Math.round(m * eff * 100) / 100;
+    if(Math.abs((parseFloat(a.poids) || 0) - cible) > 0.01){ a.poids = cible; change = true; }
+  });
+  if(change){ save('pig_animaux', animaux); }
 }
 function getAncienInfo(groupe){
   const dernier = getDernierePesee(groupe);
@@ -1817,6 +2375,7 @@ function getAncienInfo(groupe){
 }
 function updatePeseeAnciens(){
   const groupe = document.getElementById('pd-groupe').value;
+  updatePeseeRefMsg(groupe);
   const totalEl = document.getElementById('pd-ancien-poids-total');
   const moyenEl = document.getElementById('pd-poids-moyen-ancien');
   const effectifEl = document.getElementById('pd-effectif');
@@ -1845,6 +2404,7 @@ function calcGMH(){
   if(!effectif){ moyenNouveauEl.value = '—'; gmhEl.value = '—'; return; }
   const poidsMoyenNouveau = poidsTotal / effectif;
   moyenNouveauEl.value = fmtNum(poidsMoyenNouveau.toFixed(1)) + ' kg';
+  if(groupeNeedsReference(groupe)){ gmhEl.value = '— (faire d\'abord l\'exception)'; return; }
   const ancien = getAncienInfo(groupe);
   if(!ancien){ gmhEl.value = '— (première pesée)'; return; }
   const gmh = poidsMoyenNouveau - ancien.poidsMoyen;
@@ -1854,18 +2414,21 @@ let peseeDrafts = [];
 function ajouterPeseeDraft(){
   const groupe = document.getElementById('pd-groupe').value;
   if(!groupe){ showAlert("Merci de choisir un groupe."); return; }
+  if(groupeNeedsReference(groupe)){ showAlert("Une mortalité ou une vente de porcs a été enregistrée pour " + groupe + ". Faites d'abord l'EXCEPTION (POIDS > EXCEPTION) avant une nouvelle pesée."); return; }
   const poidsTotal = parseNum(document.getElementById('pd-poids-total').value);
   if(isNaN(poidsTotal)){ showAlert("Merci de saisir le nouveau poids total."); return; }
   const animal = load('pig_animaux').find(a => a.id === groupe);
   const effectif = animal ? parseFloat(animal.effectif) || 0 : 0;
   const poidsMoyen = effectif ? poidsTotal / effectif : '';
-  const date = document.getElementById('pd-date').value;
+  const date = document.getElementById('pd-date').value || new Date().toISOString().slice(0,10);
   const ancien = getAncienInfo(groupe);
   let gmh = '';
   if(ancien && poidsMoyen !== ''){
     gmh = poidsMoyen - ancien.poidsMoyen;
   }
-  peseeDrafts.push({ date, groupe, poidsTotal, effectif, poidsMoyen, gmh });
+  const reference = groupeNeedsReference(groupe);
+  if(reference){ gmh = ''; }
+  peseeDrafts.push({ date, groupe, poidsTotal, effectif, poidsMoyen, gmh, reference, ancienPoidsMoyen: ancien ? ancien.poidsMoyen : '' });
   document.getElementById('pd-poids-total').value = '';
   document.getElementById('pd-poids-moyen-nouveau').value = '';
   document.getElementById('pd-gmh').value = '';
@@ -1874,34 +2437,128 @@ function ajouterPeseeDraft(){
   document.getElementById('pd-effectif').value = '';
   renderPeseeDraft();
 }
+// EXCEPTION : réinscription du poids d'un groupe après mortalité (nouvelle référence, pas de GMH)
+function ageSemainesDepuisPoids(moyen){
+  const m = parseFloat(moyen);
+  if(!(m > 0)) return '—';
+  const a = normeAge(m);
+  return a === null ? '—' : fmtNum(Math.round(a)) + ' semaines';
+}
+function updateException(){
+  const groupe = document.getElementById('ex-groupe').value;
+  const ids = ['ex-ancien-total','ex-ancien-moyen','ex-ancien-eff','ex-ancien-age','ex-eff','ex-moyen','ex-age'];
+  document.getElementById('ex-msg').textContent = '';
+  if(!document.getElementById('ex-date').value){ document.getElementById('ex-date').value = new Date().toISOString().slice(0,10); }
+  document.getElementById('ex-poids').value = '';
+  if(!groupe){ ids.forEach(id => document.getElementById(id).value = ''); return; }
+  const animal = load('pig_animaux').find(a => a.id === groupe);
+  const ancien = getAncienInfo(groupe);
+  if(ancien && ancien.poidsTotal){
+    document.getElementById('ex-ancien-total').value = fmtNum(ancien.poidsTotal) + ' kg' + (ancien.date ? ' (' + fmtDate(ancien.date) + ')' : '');
+    document.getElementById('ex-ancien-moyen').value = ancien.poidsMoyen ? fmtNum(parseFloat(ancien.poidsMoyen).toFixed(1)) + ' kg' : '—';
+    document.getElementById('ex-ancien-eff').value = ancien.effectif ? fmtNum(ancien.effectif) : '—';
+    document.getElementById('ex-ancien-age').value = ageSemainesDepuisPoids(ancien.poidsMoyen);
+  } else {
+    ['ex-ancien-total','ex-ancien-moyen','ex-ancien-eff','ex-ancien-age'].forEach(id => document.getElementById(id).value = 'Aucune donnée précédente');
+  }
+  document.getElementById('ex-eff').value = animal && animal.effectif ? fmtNum(animal.effectif) : '—';
+  document.getElementById('ex-moyen').value = '';
+  document.getElementById('ex-age').value = '';
+  if(groupeNeedsReference(groupe)){ document.getElementById('ex-msg').textContent = "⚠ Mortalité ou vente enregistrée : l'exception est obligatoire avant une nouvelle pesée."; }
+}
+function updateExceptionNouveau(){
+  const groupe = document.getElementById('ex-groupe').value;
+  const poids = parseNum(document.getElementById('ex-poids').value);
+  const animal = load('pig_animaux').find(a => a.id === groupe);
+  const eff = animal ? parseFloat(animal.effectif) || 0 : 0;
+  if(!groupe || isNaN(poids) || !eff){ document.getElementById('ex-moyen').value = ''; document.getElementById('ex-age').value = ''; return; }
+  const moyen = poids / eff;
+  document.getElementById('ex-moyen').value = fmtNum(moyen.toFixed(1)) + ' kg';
+  document.getElementById('ex-age').value = ageSemainesDepuisPoids(moyen);
+}
+function validerException(){
+  const groupe = document.getElementById('ex-groupe').value;
+  if(!groupe){ showAlert("Merci de choisir un groupe."); return; }
+  const poidsTotal = parseNum(document.getElementById('ex-poids').value);
+  if(isNaN(poidsTotal) || poidsTotal <= 0){ showAlert("Merci de saisir le nouveau poids total."); return; }
+  const animaux = load('pig_animaux');
+  const a = animaux.find(x => x.id === groupe);
+  const effectif = a ? parseFloat(a.effectif) || 0 : 0;
+  if(!effectif){ showAlert("Ce groupe n'a plus d'effectif."); return; }
+  const ancien = getAncienInfo(groupe);
+  const poidsMoyen = poidsTotal / effectif;
+  const date = document.getElementById('ex-date').value || new Date().toISOString().slice(0,10);
+  const list = load('pig_pesees');
+  list.unshift({ date, groupe, poidsTotal, effectif, poidsMoyen, gmh: '', reference: true, exception: true, ancienPoidsMoyen: ancien ? ancien.poidsMoyen : '', ts: Date.now() });
+  save('pig_pesees', list);
+  a.poids = poidsTotal;
+  save('pig_animaux', animaux);
+  document.getElementById('ex-poids').value = '';
+  renderAnimaux();
+  autofillConsommation(); autofillConsommationManuelle(); updatePeseeAnciens(); updateException();
+  showAlert("Exception enregistrée pour " + groupe + " : " + fmtNum(poidsTotal) + " kg, effectif " + fmtNum(effectif) + ", poids moyen " + fmtNum(poidsMoyen.toFixed(1)) + " kg. Vous pouvez de nouveau faire une pesée.");
+}
 function delPeseeDraft(i){ peseeDrafts.splice(i,1); renderPeseeDraft(); }
 function renderPeseeDraft(){
   const el = document.getElementById('peseeDraftList');
   if(!el) return;
   if(!peseeDrafts.length){ el.innerHTML = ''; return; }
   el.innerHTML = peseeDrafts.map((p,i) => `
-    <div class="item"><div><div class="name">${p.groupe}</div><div class="meta">${fmtDate(p.date)} · Total: ${fmtNum(p.poidsTotal)} kg · Moyen: ${p.poidsMoyen !== '' ? fmtNum(p.poidsMoyen.toFixed(1)) + ' kg' : '—'}${p.gmh !== '' ? ' · GMH: ' + fmtNum(p.gmh.toFixed(2)) + ' kg' : ''}</div></div><button class="del" onclick="delPeseeDraft(${i})">Suppr.</button></div>`).join('');
+    <div class="item"><div><div class="name">${p.groupe}</div><div class="meta">${fmtDate(p.date)} · Total: ${fmtNum(p.poidsTotal)} kg · Moyen: ${p.poidsMoyen !== '' ? fmtNum(p.poidsMoyen.toFixed(1)) + ' kg' : '—'}${p.reference ? ' · Pesée de référence (pas de GMH)' : (p.gmh !== '' ? ' · GMH: ' + fmtNum(p.gmh.toFixed(2)) + ' kg' : '')}</div></div><button class="del" onclick="delPeseeDraft(${i})">Suppr.</button></div>`).join('');
 }
 function validerPeseeDraft(){
   if(!peseeDrafts.length){ showAlert("Aucune pesée à valider."); return; }
+  const bloque = peseeDrafts.find(d => groupeNeedsReference(d.groupe));
+  if(bloque){ showAlert("Une mortalité ou une vente de porcs a été enregistrée pour " + bloque.groupe + ". Faites d'abord l'EXCEPTION (POIDS > EXCEPTION), puis supprimez cette pesée en attente."); return; }
   const list = load('pig_pesees');
-  peseeDrafts.forEach(p => list.unshift(p));
+  const animaux = load('pig_animaux');
+  [...peseeDrafts].sort((a,b) => (a.date || '').localeCompare(b.date || '')).forEach(p => {
+    p.ts = Date.now();
+    list.unshift(p);
+    const a = animaux.find(x => x.id === p.groupe);
+    if(a){ a.poids = p.poidsTotal; }
+  });
   save('pig_pesees', list);
+  save('pig_animaux', animaux);
   peseeDrafts = [];
   renderPeseeDraft();
+  renderAnimaux();
+  autofillConsommation(); autofillConsommationManuelle(); updatePeseeAnciens();
 }
-function delPesee(i){ const list = load('pig_pesees'); list.splice(i,1); save('pig_pesees', list); refreshPeseesListTable(); }
+function delPesee(i){
+  const list = load('pig_pesees');
+  const p = list[i];
+  list.splice(i,1);
+  save('pig_pesees', list);
+  if(p){
+    const animaux = load('pig_animaux');
+    const a = animaux.find(x => x.id === p.groupe);
+    if(a){
+      const eff = parseFloat(a.effectif) || 0;
+      const dernier = getDernierePesee(p.groupe);
+      if(eff > 0 && dernier && dernier.poidsMoyen !== '' && dernier.poidsMoyen !== undefined){
+        a.poids = Math.round(dernier.poidsMoyen * eff * 100) / 100;
+      } else if(eff > 0 && p.ancienPoidsMoyen){
+        a.poids = Math.round(p.ancienPoidsMoyen * eff * 100) / 100;
+      }
+      save('pig_animaux', animaux);
+      renderAnimaux();
+      autofillConsommation(); autofillConsommationManuelle(); updatePeseeAnciens();
+    }
+  }
+  refreshPeseesListTable();
+}
 function buildPeseesListHTML(filterGroupe, filterDate){
   let entries = load('pig_pesees').map((p, idx) => ({ ...p, _idx: idx }));
   if(filterGroupe){ entries = entries.filter(p => p.groupe === filterGroupe); }
   if(filterDate){ entries = entries.filter(p => p.date === filterDate); }
   if(!entries.length){ return '<div class="empty">Aucune pesée pour l\'instant.</div>'; }
   const rows = entries.map(p => `<tr>
-    <td>${fmtDate(p.date)}</td><td>${p.groupe}</td><td>${fmtNum(p.poidsTotal)} kg</td><td>${p.poidsMoyen !== '' && p.poidsMoyen !== undefined ? fmtNum(p.poidsMoyen.toFixed(1)) + ' kg' : '—'}</td><td>${p.gmh !== '' && p.gmh !== undefined ? fmtNum(p.gmh.toFixed(2)) + ' kg' : '—'}</td>
+    <td>${fmtDate(p.date)}</td><td>${p.groupe}</td><td>${p.effectif ? fmtNum(p.effectif) : '—'}</td><td>${fmtNum(p.poidsTotal)} kg</td><td>${p.poidsMoyen !== '' && p.poidsMoyen !== undefined ? fmtNum(p.poidsMoyen.toFixed(1)) + ' kg' : '—'}</td><td>${p.reference ? '<span class="pill">' + (p.exception ? 'Exception' : 'Référence') + '</span>' : (p.gmh !== '' && p.gmh !== undefined ? fmtNum(p.gmh.toFixed(2)) + ' kg' : '—')}</td>
     <td><button class="del" onclick="delPesee(${p._idx})">Suppr.</button></td>
   </tr>`).join('');
   return `<div class="table-wrap"><table>
-    <thead><tr><th>Date</th><th>Groupe</th><th>Poids Total</th><th>Poids moyen</th><th>GMH</th><th></th></tr></thead>
+    <thead><tr><th>Date</th><th>Groupe</th><th>Effectif</th><th>Poids Total</th><th>Poids moyen</th><th>GMH</th><th></th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
 }
@@ -1946,9 +2603,11 @@ function ajouterProphylaxieDraft(){
     date: document.getElementById('px-date').value,
     groupe,
     type: document.getElementById('px-type').value,
-    produit
+    produit,
+    cout: parseNum(document.getElementById('px-cout').value) || 0
   });
   document.getElementById('px-produit').value = '';
+  document.getElementById('px-cout').value = '';
   renderProphylaxieDraft();
 }
 function delProphylaxieDraft(i){ prophylaxieDrafts.splice(i,1); renderProphylaxieDraft(); }
@@ -1957,7 +2616,7 @@ function renderProphylaxieDraft(){
   if(!el) return;
   if(!prophylaxieDrafts.length){ el.innerHTML = ''; return; }
   el.innerHTML = prophylaxieDrafts.map((p,i) => `
-    <div class="item"><div><div class="name">${p.groupe} <span class="pill">${p.type}</span></div><div class="meta">${fmtDate(p.date)} · ${p.produit}</div></div><button class="del" onclick="delProphylaxieDraft(${i})">Suppr.</button></div>`).join('');
+    <div class="item"><div><div class="name">${p.groupe} <span class="pill">${p.type}</span></div><div class="meta">${fmtDate(p.date)} · ${p.produit}${p.cout ? ' · ' + fmtNum(p.cout) + ' Ar' : ''}</div></div><button class="del" onclick="delProphylaxieDraft(${i})">Suppr.</button></div>`).join('');
 }
 function validerProphylaxieDraft(){
   if(!prophylaxieDrafts.length){ showAlert("Aucun enregistrement à valider."); return; }
@@ -1966,6 +2625,7 @@ function validerProphylaxieDraft(){
   save('pig_prophylaxie', list);
   prophylaxieDrafts = [];
   renderProphylaxieDraft();
+  renderDashboard();
 }
 function delProphylaxie(i){ const list = load('pig_prophylaxie'); list.splice(i,1); save('pig_prophylaxie', list); refreshProphylaxieListTable(); }
 function buildProphylaxieListHTML(filterGroupe, filterDate){
@@ -1974,11 +2634,11 @@ function buildProphylaxieListHTML(filterGroupe, filterDate){
   if(filterDate){ entries = entries.filter(p => p.date === filterDate); }
   if(!entries.length){ return '<div class="empty">Aucun enregistrement pour l\'instant.</div>'; }
   const rows = entries.map(p => `<tr>
-    <td>${fmtDate(p.date)}</td><td>${p.groupe}</td><td>${p.type}</td><td>${p.produit}</td>
+    <td>${fmtDate(p.date)}</td><td>${p.groupe}</td><td>${p.type}</td><td>${p.produit}</td><td>${p.cout ? fmtNum(p.cout) + ' Ar' : ''}</td>
     <td><button class="del" onclick="delProphylaxie(${p._idx})">Suppr.</button></td>
   </tr>`).join('');
   return `<div class="table-wrap"><table>
-    <thead><tr><th>Date</th><th>Groupe</th><th>Type</th><th>Produit</th><th></th></tr></thead>
+    <thead><tr><th>Date</th><th>Groupe</th><th>Type</th><th>Produit</th><th>Coût</th><th></th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
 }
@@ -2082,11 +2742,25 @@ function openPRProduitsFullscreen(){
   document.getElementById('fullscreenTableBody').innerHTML = buildPRProduitsHTML();
   document.getElementById('fullscreenTable').classList.remove('hidden');
 }
+function refActuelleBombonne(nom){
+  const brut = getProduitDansBombonneADate(nom);
+  if(!brut) return '';
+  const connues = [...load('pig_param_ref_produit'), ...load('pig_param_produits')];
+  const hit = connues.find(r => normRef(r) === normRef(brut));
+  return hit || brut;
+}
+function labelBombonne(b){
+  const r = refActuelleBombonne(b.nom);
+  return r ? `${b.nom} — ${r}` : b.nom;
+}
 function getProduitDansBombonneADate(bombonneNom, date){
-  const mouvements = load('pig_mouvement_bombonne')
-    .filter(m => normRef(m.bombonne) === normRef(bombonneNom) && m.type === 'Entrée' && m.date && (!date || m.date <= date))
+  const entrees = load('pig_mouvement_bombonne')
+    .filter(m => normRef(m.bombonne) === normRef(bombonneNom) && m.type === 'Entrée' && m.date)
     .sort((a,b) => a.date.localeCompare(b.date));
-  return mouvements.length ? mouvements[mouvements.length - 1].produit : null;
+  const avant = entrees.filter(m => !date || m.date <= date);
+  if(avant.length) return avant[avant.length - 1].produit;
+  // consommation datée avant la première entrée connue : on prend le premier produit chargé dans la bombonne
+  return entrees.length ? entrees[0].produit : null;
 }
 function buildPRPorcHTML(filterGroupe){
   let groupes = [...new Set(load('pig_animaux').map(a => a.id))];
@@ -2108,7 +2782,8 @@ function buildPRPorcHTML(filterGroupe){
     const animal = load('pig_animaux').find(a => a.id === g);
     const effectif = animal ? parseFloat(animal.effectif) || 0 : 0;
     const achatAnimaux = animal ? parseFloat(animal.prixTotal) || 0 : 0;
-    const prixAchatParTete = effectif > 0 ? achatAnimaux / effectif : 0;
+    const nbVendusGroupe = load('pig_ventes_porcs').filter(v => normRef(v.groupe) === normRef(g)).reduce((acc,v) => acc + (parseFloat(v.quantite) || 0), 0);
+    const prixAchatParTete = (effectif + nbVendusGroupe) > 0 ? achatAnimaux / (effectif + nbVendusGroupe) : 0;
     let totalAliment = 0;
     const rows = Object.keys(parProduit).map(produit => {
       const qty = parProduit[produit];
@@ -2117,22 +2792,27 @@ function buildPRPorcHTML(filterGroupe){
       totalAliment += cout;
       return `<tr><td>${produit}</td><td>${fmtNum(qty.toFixed(1))} kg</td><td>${fmtNum(prixKg.toFixed(2))} Ar</td><td>${fmtNum(cout.toFixed(2))} Ar</td></tr>`;
     }).join('');
-    const totalCout = totalAliment + achatAnimaux;
+    const coutVendus = load('pig_ventes_porcs').filter(v => normRef(v.groupe) === normRef(g)).reduce((acc,v) => acc + (parseFloat(v.coutRetire) || 0), 0);
+    const coutProphylaxie = coutProphylaxieGroupe(g);
+    const totalCout = totalAliment + achatAnimaux + coutProphylaxie - coutVendus;
     const coutParTete = effectif > 0 ? totalCout / effectif : 0;
     const consommationTotale = Object.values(parProduit).reduce((acc,q) => acc + q, 0);
-    html += `<div class="card">
+    html += `<div class="card pr-porc">
       <h2>Groupe ${g}</h2>
       <div class="table-wrap"><table>
         <thead><tr><th>Provende</th><th>Quantité</th><th>PR / kg</th><th>Coût</th></tr></thead>
         <tbody>${rows}</tbody>
       </table></div>
       <div class="meta" style="margin-top:8px; color:#fff; font-weight:700;">Effectif : ${fmtNum(effectif)}</div>
-      <div class="meta" style="color:#fff; font-weight:700;">Consommation totale : ${fmtNum(consommationTotale.toFixed(1))} kg</div>
-      <div class="meta" style="color:#fff; font-weight:700;">Coût total aliment : ${fmtNum(totalAliment.toFixed(2))} Ar</div>
-      <div class="meta" style="color:#fff; font-weight:700;">Coût Total des animaux (Groupe) : ${fmtNum(achatAnimaux.toFixed(2))} Ar</div>
-      <div class="meta" style="color:#fff; font-weight:700;">Coût Total des animaux (par tête) : ${fmtNum(prixAchatParTete.toFixed(2))} Ar</div>
-      <div class="meta" style="color:#fff; font-weight:700;">Coût total (animaux + aliment) : ${fmtNum(totalCout.toFixed(2))} Ar</div>
-      <div class="meta" style="color:#fff; font-weight:700;">Coût par tête : ${fmtNum(coutParTete.toFixed(2))} Ar</div>
+      <div class="meta" style="color:#fff; font-weight:700;">Consommation totale : <span class="pr-val">${fmtNum(consommationTotale.toFixed(1))} kg</span></div>
+      <div class="meta" style="color:#fff; font-weight:700;">Consommation cumulée par tête : <span class="pr-val">${effectif > 0 ? fmtNum((consommationTotale / effectif).toFixed(2)) + ' kg' : '—'}</span></div>
+      <div class="meta" style="color:#fff; font-weight:700;">Coût total aliment : <span class="pr-val">${fmtNum(totalAliment.toFixed(2))} Ar</span></div>
+      <div class="meta" style="color:#fff; font-weight:700;">Coût Total des animaux (Groupe) : <span class="pr-val">${fmtNum(achatAnimaux.toFixed(2))} Ar</span></div>
+      <div class="meta" style="color:#fff; font-weight:700;">Coût Total des animaux (par tête) : <span class="pr-val">${fmtNum(prixAchatParTete.toFixed(2))} Ar</span></div>
+      ${coutProphylaxie > 0 ? `<div class="meta" style="color:#fff; font-weight:700;">Coût prophylaxie (soins/vaccins) : <span class="pr-val">${fmtNum(coutProphylaxie.toFixed(2))} Ar</span></div>` : ''}
+      ${coutVendus > 0 ? `<div class="meta" style="color:#fff; font-weight:700;">Coût des porcs vendus (déduit) : <span class="pr-val">${fmtNum(coutVendus.toFixed(2))} Ar</span></div>` : ''}
+      <div class="meta" style="color:#fff; font-weight:700;">Coût total (animaux + aliment + prophylaxie) : <span class="pr-val">${fmtNum(totalCout.toFixed(2))} Ar</span></div>
+      <div class="meta" style="color:#fff; font-weight:700;">Coût par tête : <span class="pr-val">${fmtNum(coutParTete.toFixed(2))} Ar</span></div>
     </div>`;
   });
   return auMoinsUnGroupe ? html : '<div class="empty">Aucune consommation enregistrée pour l\'instant.</div>';
@@ -2222,26 +2902,140 @@ function delCompteLigne(source, idx){
   save(key, list);
   document.getElementById('fullscreenTableBody').innerHTML = buildCompteHTML();
 }
-function buildCompteHTML(){
+function majFromageSolde(solde){
+  const cat = { vente: 0, apport: 0, achat: 0, charge: 0 };
+  getLignesCompte().forEach(l => {
+    const t = l.libelle || '';
+    if(t.startsWith('Vente')) cat.vente += l.debit;
+    else if(t.startsWith('Apport')) cat.apport += l.debit;
+    else if(t.startsWith('Charge')) cat.charge += l.credit;
+    else cat.achat += l.credit;
+  });
+  const colPos = '#3ddc84', colNeg = '#ff6b6b';
+  const col = solde > 0 ? colPos : (solde < 0 ? colNeg : '#9fb1cf');
+  const hero = document.querySelector('.dash-hero'); if(hero) hero.style.setProperty('--solde-col', col);
+  const valEl = document.getElementById('dash-solde'); if(valEl) valEl.style.color = col;
+  const parts = [
+    { l: 'Ventes', v: cat.vente, c: '#2ecc71' },
+    { l: 'Apports', v: cat.apport, c: '#8be9b0' },
+    { l: 'Achats', v: cat.achat, c: '#e74c3c' },
+    { l: 'Charges', v: cat.charge, c: '#ff9f8a' }
+  ];
+  const total = parts.reduce((a,x) => a + x.v, 0);
+  const CX = 100, CY = 82, RX = 88, RY = 50, D = 22;
+  const pt = (ang, dy) => [CX + RX * Math.cos(ang), CY + RY * Math.sin(ang) + (dy || 0)];
+  const f = n => n.toFixed(2);
+  let tops = '', walls = '';
+  if(total > 0){
+    let ang = -Math.PI / 2;
+    parts.forEach(x => {
+      if(x.v <= 0) return;
+      const span = x.v / total * 2 * Math.PI;
+      const a1 = ang + span;
+      // faces dessus (sous-découpées en morceaux de 90° max)
+      const n = Math.max(1, Math.ceil(span / (Math.PI / 2)));
+      for(let k = 0; k < n; k++){
+        const s0 = ang + span * k / n, s1 = ang + span * (k + 1) / n;
+        const P0 = pt(s0), P1 = pt(s1);
+        tops += `<path d="M${CX},${CY} L${f(P0[0])},${f(P0[1])} A${RX},${RY} 0 0 1 ${f(P1[0])},${f(P1[1])} Z" fill="${x.c}" stroke="${x.c}" stroke-width="0.6"/>`;
+      }
+      // parois (partie avant seulement : angles entre 0 et PI, modulo 2PI)
+      const TWO = 2 * Math.PI, norm = t => ((t % TWO) + TWO) % TWO;
+      const m = Math.max(8, Math.ceil(span / 0.12));
+      for(let k = 0; k < m; k++){
+        const s0 = ang + span * k / m, s1 = ang + span * (k + 1) / m, mid = norm((s0 + s1) / 2);
+        if(mid > 0 && mid < Math.PI){
+          const A = pt(s0), B = pt(s1), A2 = pt(s0, D), B2 = pt(s1, D);
+          const dk = `color-mix(in srgb, ${x.c} 66%, #000)`;
+          walls += `<path d="M${f(A[0])},${f(A[1])} L${f(B[0])},${f(B[1])} L${f(B2[0])},${f(B2[1])} L${f(A2[0])},${f(A2[1])} Z" style="fill:${dk};stroke:${dk};stroke-width:1"/>`;
+        }
+      }
+      ang = a1;
+    });
+  } else {
+    tops = `<ellipse cx="${CX}" cy="${CY}" rx="${RX}" ry="${RY}" fill="var(--border)"/>`;
+  }
+  const entrees = cat.vente + cat.apport, sorties = cat.achat + cat.charge;
+  const el = document.getElementById('dash-fromage'); if(!el) return;
+  const svg = `<svg viewBox="0 0 200 208" role="img" aria-label="Répartition des mouvements">
+    <ellipse cx="${CX}" cy="${CY + D + 10}" rx="${RX - 4}" ry="${RY - 4}" fill="#000" fill-opacity="0.28"/>
+    ${walls}${tops}
+    <ellipse cx="${CX}" cy="${CY}" rx="${RX}" ry="${RY}" fill="none" stroke="#fff" stroke-opacity="0.18" stroke-width="1"/>
+    <rect x="22" y="${CY + RY + D + 12}" width="156" height="32" rx="16" fill="${col}" fill-opacity="0.16" stroke="${col}" stroke-width="1.5"/>
+    <text x="100" y="${CY + RY + D + 25}" text-anchor="middle" font-size="8.5" font-weight="700" fill="var(--muted)" letter-spacing="1">${solde > 0 ? 'DÉBITEUR' : solde < 0 ? 'CRÉDITEUR' : 'CAISSE VIDE'}</text>
+    <text x="100" y="${CY + RY + D + 38}" text-anchor="middle" font-size="${Math.abs(solde) >= 1e7 ? 12 : 14}" font-weight="800" fill="${col}">${solde < 0 ? '−' : ''}${fmtNum(Math.abs(solde).toFixed(0))} Ar</text>
+  </svg>`;
+  const leg = parts.map(x => `<div class="dash-leg-row"><span class="dash-leg-dot" style="background:${x.c}"></span>${x.l}<b>${fmtNum(x.v.toFixed(0))}</b><small>${total > 0 ? (x.v / total * 100).toFixed(0) : 0} %</small></div>`).join('')
+    + `<div class="dash-leg-row"><span style="color:#3ddc84">▲ Entrées</span><b>${fmtNum(entrees.toFixed(0))}</b></div><div class="dash-leg-row"><span style="color:#ff6b6b">▼ Sorties</span><b>${fmtNum(sorties.toFixed(0))}</b></div>`;
+  el.innerHTML = `<div class="dash-fromage-wrap">${svg}<div class="dash-leg">${leg}</div></div>`;
+}
+function getSoldeCompte(){
+  return getLignesCompte().reduce((acc,l) => acc + l.debit - l.credit, 0);
+}
+function getLignesCompte(){
   const lignes = [];
   load('pig_animaux').forEach(a => {
-    if(a.prixTotal){ lignes.push({ date: a.entree, libelle: 'Achat Animal — ' + a.id, debit: 0, credit: parseFloat(a.prixTotal) || 0 }); }
+    if(a.prixTotal){ lignes.push({ cat: 'achats', date: a.entree, libelle: 'Achat Animal — ' + a.id, debit: 0, credit: parseFloat(a.prixTotal) || 0 }); }
+  });
+  load('pig_prophylaxie').forEach(x => {
+    if(parseFloat(x.cout) > 0){ lignes.push({ cat: 'charges', date: x.date, libelle: 'Prophylaxie — ' + x.groupe + ' (' + x.produit + ')', debit: 0, credit: parseFloat(x.cout) || 0 }); }
   });
   load('pig_matieres').forEach(m => {
-    if(m.prixTotal){ lignes.push({ date: m.date, libelle: 'Achat Matière première — ' + m.reference, debit: 0, credit: parseFloat(m.prixTotal) || 0 }); }
+    if(m.prixTotal){ lignes.push({ cat: 'achats', date: m.date, libelle: 'Achat Matière première — ' + m.reference, debit: 0, credit: parseFloat(m.prixTotal) || 0 }); }
   });
   load('pig_produits').forEach(p => {
-    if(p.prixTotal){ lignes.push({ date: p.date, libelle: 'Achat Produit fini — ' + p.reference, debit: 0, credit: parseFloat(p.prixTotal) || 0 }); }
+    if(p.prixTotal){ lignes.push({ cat: 'achats', date: p.date, libelle: 'Achat Produit fini — ' + p.reference, debit: 0, credit: parseFloat(p.prixTotal) || 0 }); }
   });
   load('pig_ventes').forEach(v => {
-    if(v.prixTotal){ lignes.push({ date: v.date, libelle: 'Vente — ' + v.reference + (v.client ? ' à ' + v.client : ''), debit: parseFloat(v.prixTotal) || 0, credit: 0 }); }
+    if(v.prixTotal){ lignes.push({ cat: 'ventes', date: v.date, libelle: 'Vente — ' + v.reference + (v.client ? ' à ' + v.client : ''), debit: parseFloat(v.prixTotal) || 0, credit: 0 }); }
+  });
+  load('pig_ventes_matieres').forEach(v => {
+    if(v.prixTotal){ lignes.push({ cat: 'ventes', date: v.date, libelle: 'Vente Matière première — ' + v.reference + (v.client ? ' à ' + v.client : ''), debit: parseFloat(v.prixTotal) || 0, credit: 0 }); }
+  });
+  load('pig_ventes_porcs').forEach(v => {
+    if(v.prixTotal){ lignes.push({ cat: 'ventes', date: v.date, libelle: 'Vente Porc — ' + v.groupe + (v.client ? ' à ' + v.client : ''), debit: parseFloat(v.prixTotal) || 0, credit: 0 }); }
   });
   load('pig_charges').forEach((c,idx) => {
-    if(c.montant){ lignes.push({ date: c.date, libelle: 'Charge — ' + c.libelle, debit: 0, credit: parseFloat(c.montant) || 0, source: 'charge', idx }); }
+    if(c.montant){ lignes.push({ cat: 'charges', date: c.date, libelle: 'Charge — ' + c.libelle, debit: 0, credit: parseFloat(c.montant) || 0, source: 'charge', idx }); }
   });
   load('pig_apports').forEach((a,idx) => {
-    if(a.montant){ lignes.push({ date: a.date, libelle: 'Apport — ' + a.libelle, debit: parseFloat(a.montant) || 0, credit: 0, source: 'apport', idx }); }
+    if(a.montant){ lignes.push({ cat: 'apports', date: a.date, libelle: 'Apport — ' + a.libelle, debit: parseFloat(a.montant) || 0, credit: 0, source: 'apport', idx }); }
   });
+  return lignes;
+}
+let compteFiltre = 'tout';
+function setCompteFiltre(f){
+  compteFiltre = f;
+  document.getElementById('fullscreenTableBody').innerHTML = buildCompteHTML();
+}
+function buildCompteFiltresHTML(){
+  const defs = [['tout','TOUT (TOUTES LES OPÉRATIONS)'],['achats','ACHATS'],['charges','CHARGES'],['ventes','VENTES'],['apports','APPORTS']];
+  return `<label>Filtrer par</label><select onchange="setCompteFiltre(this.value)" style="margin-bottom:12px;">` +
+    defs.map(([k,l]) => `<option value="${k}"${compteFiltre===k ? ' selected' : ''}>${l}</option>`).join('') + '</select>';
+}
+function buildCompteDetailHTML(cat){
+  const titres = { achats:'Achats', charges:'Charges', ventes:'Ventes', apports:'Apports' };
+  const lignes = getLignesCompte().filter(l => l.cat === cat).sort((x,y) => (x.date || '').localeCompare(y.date || ''));
+  if(!lignes.length){ return '<div class="empty">Aucune opération dans cette catégorie.</div>'; }
+  const montant = l => (l.debit || 0) + (l.credit || 0);
+  const total = lignes.reduce((t,l) => t + montant(l), 0);
+  const couleur = (cat === 'ventes' || cat === 'apports') ? '#3ddc84' : '#ff6b6b';
+  const rows = lignes.map(l => {
+    const suppr = l.source ? `<button class="del" onclick="delCompteLigne('${l.source}', ${l.idx})">Suppr.</button>` : '';
+    return `<tr><td>${fmtDate(l.date)}</td><td>${l.libelle}</td><td style="color:${couleur}; font-weight:700;">${fmtNum(montant(l).toFixed(2))}</td><td>${suppr}</td></tr>`;
+  }).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Libellé</th><th>Montant (Ar)</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>
+  <div class="meta" style="margin-top:10px; font-size:17px; font-weight:700; color:#fff;">Total ${titres[cat]} (${lignes.length}) : <span style="color:${couleur};">${fmtNum(total.toFixed(2))} Ar</span></div>`;
+}
+function buildCompteHTML(){
+  if(compteFiltre !== 'tout') return buildCompteFiltresHTML() + buildCompteDetailHTML(compteFiltre);
+  return buildCompteFiltresHTML() + buildCompteToutHTML();
+}
+function buildCompteToutHTML(){
+  const lignes = getLignesCompte();
   if(!lignes.length){ return '<div class="empty">Aucune opération enregistrée pour l\'instant.</div>'; }
   lignes.sort((a,b) => (a.date || '').localeCompare(b.date || ''));
   let solde = 0;
@@ -2262,9 +3056,91 @@ function buildCompteHTML(){
     <thead><tr><th>Date</th><th>Libellé</th><th>Débit</th><th>Crédit</th><th>Solde</th><th></th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>
-  <div class="meta" style="margin-top:10px; font-size:17px; font-weight:700; color:#fff;">Solde actuel : <span style="color:${soldeColor};">${fmtNum(solde.toFixed(2))}</span></div>`;
+  <div class="meta" style="margin-top:10px; font-size:17px; font-weight:700; color:#fff;">Solde actuel : <span style="color:${soldeColor};">${fmtNum(solde.toFixed(2))} Ar</span></div>`;
+}
+
+// ===== RÉSULTAT : bénéfice des porcs par groupe puis par tête =====
+let resultatFiltre = '';
+function setResultatFiltre(v){ resultatFiltre = v; majResultat(); }
+function majResultat(){ document.getElementById('fullscreenTableBody').innerHTML = buildResultatHTML(); }
+function getEstimationGroupe(g){
+  const e = load('pig_resultat_estimation').find(x => normRef(x.groupe) === normRef(g));
+  return e ? (parseFloat(e.prix) || 0) : 0;
+}
+function setResultatEstimation(g, val){
+  const liste = load('pig_resultat_estimation').filter(x => normRef(x.groupe) !== normRef(g));
+  const prix = parseNum(val);
+  if(prix > 0) liste.push({ groupe: g, prix });
+  save('pig_resultat_estimation', liste);
+  majResultat();
+}
+function calcResultatGroupe(g){
+  const ventes = load('pig_ventes_porcs').filter(v => normRef(v.groupe) === normRef(g))
+    .sort((a,b) => (a.date || '').localeCompare(b.date || ''));
+  const nbVendus = ventes.reduce((t,v) => t + (parseFloat(v.quantite) || 0), 0);
+  const ca = ventes.reduce((t,v) => t + (parseFloat(v.prixTotal) || 0), 0);
+  const cout = ventes.reduce((t,v) => t + (parseFloat(v.coutRetire) || 0), 0);
+  const animal = load('pig_animaux').find(a => normRef(a.id) === normRef(g));
+  const restants = animal ? (parseFloat(animal.effectif) || 0) : 0;
+  const coutTeteRestant = restants > 0 ? getCoutParTeteGroupe(animal.id, restants) : null;
+  const prixEst = getEstimationGroupe(g);
+  const estimation = (restants > 0 && prixEst > 0 && coutTeteRestant !== null) ? (prixEst - coutTeteRestant) * restants : null;
+  const morts = load('pig_mortalite').filter(m => normRef(m.groupe) === normRef(g)).reduce((t,m) => t + (parseFloat(m.morts) || 0), 0);
+  return { g, ventes, nbVendus, ca, cout, benefice: ca - cout, restants, coutTeteRestant, prixEst, estimation, morts };
+}
+function buildResultatHTML(){
+  const groupes = [...new Set([...load('pig_animaux').map(a => a.id), ...load('pig_ventes_porcs').map(v => v.groupe)].filter(Boolean))];
+  if(!groupes.length){ return '<div class="empty">Aucun groupe enregistré pour l\'instant.</div>'; }
+  if(resultatFiltre && !groupes.includes(resultatFiltre)) resultatFiltre = '';
+  const choisis = resultatFiltre ? [resultatFiltre] : groupes;
+  const res = choisis.map(calcResultatGroupe);
+  const couleur = n => n >= 0 ? '#3ddc84' : '#ff6b6b';
+  const ar = n => fmtNum(n.toFixed(2)) + ' Ar';
+  const ligne = (label, val, col) => `<div class="meta" style="color:#fff; font-weight:700;">${label} : <span style="color:${col || '#3ddc84'}; font-weight:800;">${val}</span></div>`;
+  let html = `<label>Groupe</label><select onchange="setResultatFiltre(this.value)" style="margin-bottom:12px;"><option value="">TOUS LES GROUPES</option>${groupes.map(g => `<option value="${g}"${g === resultatFiltre ? ' selected' : ''}>GROUPE ${g}</option>`).join('')}</select>`;
+  // Total général (réalisé + estimation éventuelle)
+  const T = res.reduce((t,r) => ({ nb: t.nb + r.nbVendus, ca: t.ca + r.ca, cout: t.cout + r.cout, est: t.est + (r.estimation || 0), hasEst: t.hasEst || r.estimation !== null, restants: t.restants + r.restants }), { nb:0, ca:0, cout:0, est:0, hasEst:false, restants:0 });
+  const bTot = T.ca - T.cout;
+  if(!resultatFiltre && res.length > 1) html += `<div class="card"><h2>Total général</h2>
+    ${ligne('Porcs vendus', fmtNum(T.nb), '#3ddc84')}
+    ${ligne('Total des ventes', ar(T.ca))}
+    ${ligne('Coût de revient des porcs vendus', ar(T.cout), '#ffb347')}
+    ${ligne('BÉNÉFICE RÉALISÉ', ar(bTot), couleur(bTot))}
+    ${ligne('Bénéfice par tête vendue', T.nb > 0 ? ar(bTot / T.nb) : '—', T.nb > 0 ? couleur(bTot) : '#fff')}
+    ${T.hasEst ? ligne('Estimation sur les porcs restants', ar(T.est), couleur(T.est)) + ligne('BÉNÉFICE TOTAL ESTIMÉ', ar(bTot + T.est), couleur(bTot + T.est)) : ''}
+  </div>`;
+  res.forEach(r => {
+    const rows = r.ventes.map(v => {
+      const b = (parseFloat(v.prixTotal) || 0) - (parseFloat(v.coutRetire) || 0);
+      return `<tr><td>${fmtDate(v.date)}</td><td>${v.client || '—'}</td><td>${fmtNum(v.quantite || 0)}</td><td>${fmtNum((parseFloat(v.prixTotal) || 0).toFixed(2))}</td><td>${fmtNum((parseFloat(v.coutRetire) || 0).toFixed(2))}</td><td style="color:${couleur(b)}; font-weight:800;">${fmtNum(b.toFixed(2))}</td></tr>`;
+    }).join('');
+    html += `<div class="card"><h2>Groupe ${r.g}</h2>
+      ${ligne('Porcs vendus', fmtNum(r.nbVendus))}
+      ${ligne('Total des ventes', ar(r.ca))}
+      ${ligne('Coût de revient des porcs vendus', ar(r.cout), '#ffb347')}
+      ${ligne('BÉNÉFICE DU GROUPE', ar(r.benefice), couleur(r.benefice))}
+      ${ligne('Bénéfice par tête', r.nbVendus > 0 ? ar(r.benefice / r.nbVendus) : '—', r.nbVendus > 0 ? couleur(r.benefice) : '#fff')}
+      ${r.morts > 0 ? ligne('Porcs morts (coût inclus dans le prix de revient)', fmtNum(r.morts), '#ff6b6b') : ''}
+      ${r.ventes.length ? `<div class="table-wrap" style="margin-top:8px;"><table><thead><tr><th>Date</th><th>Client</th><th>Porcs</th><th>Vente</th><th>Coût</th><th>Bénéfice</th></tr></thead><tbody>${rows}</tbody></table></div>` : '<div class="empty">Aucune vente de porcs pour ce groupe.</div>'}
+      ${r.restants > 0 ? `<div style="margin-top:12px; padding:12px; border-radius:12px; border:1px dashed var(--border);">
+        ${ligne('Porcs restants', fmtNum(r.restants))}
+        ${ligne('Coût de revient actuel par tête', r.coutTeteRestant !== null ? ar(r.coutTeteRestant) : '—', '#ffb347')}
+        <label>Prix de vente estimé par porc (Ar) — facultatif</label>
+        <input type="text" inputmode="decimal" value="${r.prixEst ? fmtNum(r.prixEst) : ''}" placeholder="0" onblur="liveFormat(this)" onchange="setResultatEstimation('${r.g}', this.value)">
+        ${r.estimation !== null ? ligne('Bénéfice estimé sur les porcs restants', ar(r.estimation), couleur(r.estimation)) + ligne('BÉNÉFICE TOTAL ESTIMÉ', ar(r.benefice + r.estimation), couleur(r.benefice + r.estimation)) : ''}
+      </div>` : ''}
+    </div>`;
+  });
+  return html;
+}
+function openResultatFullscreen(){
+  resultatFiltre = '';
+  document.getElementById('fullscreenTitle').textContent = 'Résultat';
+  majResultat();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
 }
 function openCompteFullscreen(){
+  compteFiltre = 'tout';
   document.getElementById('fullscreenTitle').textContent = 'Compte';
   document.getElementById('fullscreenTableBody').innerHTML = buildCompteHTML();
   document.getElementById('fullscreenTable').classList.remove('hidden');
@@ -2272,10 +3148,11 @@ function openCompteFullscreen(){
 
 // Vente (Produit fini)
 function renderVenteOptions(){
+  renderVenteMPOptions(); renderVentePorcOptions();
   const sel = document.getElementById('ve-reference');
   if(!sel) return;
   const current = sel.value;
-  const refs = load('pig_param_ref_produit');
+  const refs = getRefsProduitFini();
   sel.innerHTML = '<option value="">— Choisir —</option>' + refs.map(r => `<option>${r}</option>`).join('');
   if(refs.includes(current)) sel.value = current;
 }
@@ -2354,7 +3231,18 @@ function validerVenteDraft(){
   venteDrafts = [];
   renderVenteDraft();
 }
-function delVente(i){ const list = load('pig_ventes'); list.splice(i,1); save('pig_ventes', list); refreshVentesListTable(); }
+function retirerMouvementSortie(key, v){
+  const mv = load(key);
+  const k = mv.findIndex(m => m.type === 'Sortie' && m.date === v.date && normRef(m.reference) === normRef(v.reference) && (parseFloat(m.quantite) || 0) === (parseFloat(v.quantite) || 0));
+  if(k !== -1){ mv.splice(k, 1); save(key, mv); }
+}
+function delVente(i){
+  const list = load('pig_ventes');
+  const v = list[i];
+  list.splice(i,1); save('pig_ventes', list);
+  if(v){ retirerMouvementSortie('pig_mouvement_produits', v); }
+  refreshVentesListTable();
+}
 function buildVentesListHTML(filterDate, filterReference){
   let entries = load('pig_ventes').map((v, idx) => ({ ...v, _idx: idx }));
   if(filterDate){ entries = entries.filter(v => v.date === filterDate); }
@@ -2394,6 +3282,246 @@ function openVentesListFullscreen(){
   document.getElementById('fullscreenTitle').textContent = 'Liste des ventes';
   document.getElementById('fullscreenTableBody').innerHTML = buildVentesListFullscreenHTML();
   document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+// Ventes : matière première et porcs
+function calcVenteGen(pre, source){
+  const qEl = document.getElementById(pre + '-quantite');
+  const uEl = document.getElementById(pre + '-prixU');
+  const tEl = document.getElementById(pre + '-prixTotal');
+  const q = parseNum(qEl.value);
+  if(!(q > 0)) return;
+  if(source === 'unitaire'){ const u = parseNum(uEl.value); if(!isNaN(u)) tEl.value = fmtNum((u * q).toFixed(2)); }
+  else if(source === 'total'){ const t = parseNum(tEl.value); if(!isNaN(t)) uEl.value = fmtNum((t / q).toFixed(2)); }
+}
+function getRefsMatieres(){
+  const vues = {};
+  [...load('pig_param_produits'), ...load('pig_matieres').map(m => m.reference), ...load('pig_mouvement_matieres').map(m => m.reference)]
+    .forEach(r => { const n = normRef(r); if(n && !(n in vues)) vues[n] = r; });
+  return Object.values(vues);
+}
+function renderVenteMPOptions(){
+  const sel = document.getElementById('vm-reference');
+  if(!sel) return;
+  const current = sel.value;
+  const refs = getRefsMatieres();
+  sel.innerHTML = '<option value="">— Choisir —</option>' + refs.map(r => `<option>${r}</option>`).join('');
+  if(refs.includes(current)) sel.value = current;
+}
+function updateVenteMPStock(){
+  const ref = document.getElementById('vm-reference').value;
+  const el = document.getElementById('vm-stock');
+  el.value = ref ? fmtNum(getMatiereStock(ref).toFixed(2)) : '';
+}
+let venteMPDrafts = [];
+function ajouterVenteMPDraft(){
+  const reference = document.getElementById('vm-reference').value;
+  if(!reference){ showAlert("Merci de choisir une référence."); return; }
+  const quantite = parseNum(document.getElementById('vm-quantite').value);
+  if(isNaN(quantite) || quantite <= 0){ showAlert("Merci de saisir une quantité."); return; }
+  const disponible = getMatiereStock(reference);
+  const dejaEnCours = venteMPDrafts.filter(v => v.reference === reference).reduce((acc,v) => acc + v.quantite, 0);
+  if(quantite + dejaEnCours > disponible){
+    showAlert("Stock insuffisant pour " + reference + " (disponible : " + fmtNum(disponible.toFixed(1)) + ", demandé : " + fmtNum((quantite + dejaEnCours).toFixed(1)) + ").");
+    return;
+  }
+  venteMPDrafts.push({
+    date: document.getElementById('vm-date').value || new Date().toISOString().slice(0,10),
+    reference,
+    client: document.getElementById('vm-client').value.trim(),
+    quantite,
+    prixU: parseNum(document.getElementById('vm-prixU').value) || '',
+    prixTotal: parseNum(document.getElementById('vm-prixTotal').value) || ''
+  });
+  ['vm-quantite','vm-prixU','vm-prixTotal'].forEach(f => document.getElementById(f).value = '');
+  renderVenteMPDraft();
+}
+function delVenteMPDraft(i){ venteMPDrafts.splice(i,1); renderVenteMPDraft(); }
+function renderVenteMPDraft(){
+  const el = document.getElementById('venteMPDraftList');
+  if(!el) return;
+  el.innerHTML = venteMPDrafts.map((v,i) => `
+    <div class="item"><div><div class="name">${v.reference}${v.client ? ' — ' + v.client : ''}</div><div class="meta">${fmtDate(v.date)} · Qté: ${fmtNum(v.quantite)} · Total: ${fmtNum(v.prixTotal)}</div></div><button class="del" onclick="delVenteMPDraft(${i})">Suppr.</button></div>`).join('');
+}
+function validerVenteMPDraft(){
+  if(!venteMPDrafts.length){ showAlert("Aucune vente à valider."); return; }
+  const ventes = load('pig_ventes_matieres');
+  const mouvements = load('pig_mouvement_matieres');
+  venteMPDrafts.forEach(v => {
+    ventes.unshift(v);
+    mouvements.push({ date: v.date, reference: v.reference, type: 'Sortie', quantite: v.quantite });
+  });
+  save('pig_ventes_matieres', ventes);
+  save('pig_mouvement_matieres', mouvements);
+  venteMPDrafts = [];
+  renderVenteMPDraft();
+  updateVenteMPStock();
+}
+function delVenteMP(i){
+  const list = load('pig_ventes_matieres');
+  const v = list[i];
+  list.splice(i,1); save('pig_ventes_matieres', list);
+  if(v){ retirerMouvementSortie('pig_mouvement_matieres', v); }
+  updateVenteMPStock();
+  refreshVenteTypeList('mp');
+}
+
+// Vente de porcs : réduit l'effectif du groupe (comme une mortalité) et impose ensuite l'EXCEPTION avant une nouvelle pesée
+function renderVentePorcOptions(){
+  const sel = document.getElementById('vp-groupe');
+  if(!sel) return;
+  const current = sel.value;
+  const groupes = [...new Set(load('pig_animaux').map(a => a.id))];
+  sel.innerHTML = '<option value="">— Choisir —</option>' + groupes.map(g => `<option>${g}</option>`).join('');
+  if(groupes.includes(current)) sel.value = current;
+}
+function ventePorcEnCours(groupe){ return venteDrafts_porc().filter(d => d.groupe === groupe).reduce((acc,d) => acc + d.quantite, 0); }
+let ventePorcDrafts = [];
+function venteDrafts_porc(){ return ventePorcDrafts; }
+function updateVentePorcInfo(){
+  const groupe = document.getElementById('vp-groupe').value;
+  const ids = ['vp-effectif','vp-poids-actuel','vp-moyen','vp-pr'];
+  if(!groupe){ ids.forEach(id => document.getElementById(id).value = ''); return; }
+  const a = load('pig_animaux').find(x => x.id === groupe);
+  const eff = a ? parseFloat(a.effectif) || 0 : 0;
+  const poids = a ? parseFloat(a.poids) || 0 : 0;
+  document.getElementById('vp-effectif').value = fmtNum(eff - ventePorcEnCours(groupe));
+  const effDispo = eff - ventePorcEnCours(groupe);
+  document.getElementById('vp-poids-actuel').value = (eff > 0 && poids > 0) ? fmtNum((poids / eff * Math.max(effDispo, 0)).toFixed(1)) + ' kg' : '—';
+  document.getElementById('vp-moyen').value = (eff > 0 && poids > 0) ? fmtNum((poids / eff).toFixed(1)) + ' kg' : '—';
+  const pr = getCoutParTeteGroupe(groupe, eff);
+  document.getElementById('vp-pr').value = pr === null ? '—' : fmtNum(pr.toFixed(2)) + ' Ar';
+}
+// Vente de porcs : Prix total = PU / kg poids vif x poids total vendu
+function calcVentePorc(source){
+  const poids = parseNum(document.getElementById('vp-poids').value);
+  const uEl = document.getElementById('vp-prixU');
+  const tEl = document.getElementById('vp-prixTotal');
+  if(!(poids > 0)) return;
+  const u = parseNum(uEl.value), t = parseNum(tEl.value);
+  if(source === 'unitaire' || (source === 'poids' && !isNaN(u))){ if(!isNaN(u)) tEl.value = fmtNum((u * poids).toFixed(2)); }
+  else if(source === 'total' || (source === 'poids' && !isNaN(t))){ if(!isNaN(t)) uEl.value = fmtNum((t / poids).toFixed(2)); }
+}
+function majPoidsMoyenVendu(){
+  const poids = parseNum(document.getElementById('vp-poids').value);
+  const q = parseNum(document.getElementById('vp-quantite').value);
+  document.getElementById('vp-poids-moyen-vendu').value = (poids > 0 && q > 0) ? fmtNum((poids / q).toFixed(1)) + ' kg' : '';
+}
+function ajouterVentePorcDraft(){
+  const groupe = document.getElementById('vp-groupe').value;
+  if(!groupe){ showAlert("Merci de choisir un groupe."); return; }
+  const quantite = parseNum(document.getElementById('vp-quantite').value);
+  if(isNaN(quantite) || quantite <= 0){ showAlert("Merci de saisir le nombre de porcs vendus."); return; }
+  const a = load('pig_animaux').find(x => x.id === groupe);
+  const eff = a ? parseFloat(a.effectif) || 0 : 0;
+  const poidsVendu = parseNum(document.getElementById('vp-poids').value);
+  if(isNaN(poidsVendu) || poidsVendu <= 0){ showAlert("Merci de saisir le poids des porcs vendus."); return; }
+  if(quantite + ventePorcEnCours(groupe) > eff){ showAlert("Effectif insuffisant : le groupe " + groupe + " compte " + fmtNum(eff - ventePorcEnCours(groupe)) + " porc(s)."); return; }
+  ventePorcDrafts.push({
+    date: document.getElementById('vp-date').value || new Date().toISOString().slice(0,10),
+    groupe,
+    client: document.getElementById('vp-client').value.trim(),
+    quantite,
+    poidsVendu,
+    prixU: parseNum(document.getElementById('vp-prixU').value) || '',
+    prixTotal: parseNum(document.getElementById('vp-prixTotal').value) || ''
+  });
+  ['vp-quantite','vp-poids','vp-poids-moyen-vendu','vp-prixU','vp-prixTotal'].forEach(f => document.getElementById(f).value = '');
+  updateVentePorcInfo();
+  renderVentePorcDraft();
+}
+function delVentePorcDraft(i){ ventePorcDrafts.splice(i,1); updateVentePorcInfo(); renderVentePorcDraft(); }
+function renderVentePorcDraft(){
+  const el = document.getElementById('ventePorcDraftList');
+  if(!el) return;
+  el.innerHTML = ventePorcDrafts.map((v,i) => `
+    <div class="item"><div><div class="name">${v.groupe}${v.client ? ' — ' + v.client : ''}</div><div class="meta">${fmtDate(v.date)} · Porcs: ${fmtNum(v.quantite)} · Poids: ${fmtNum(v.poidsVendu)} kg · PU/kg: ${fmtNum(v.prixU)} · Total: ${fmtNum(v.prixTotal)}</div></div><button class="del" onclick="delVentePorcDraft(${i})">Suppr.</button></div>`).join('');
+}
+function validerVentePorcDraft(){
+  if(!ventePorcDrafts.length){ showAlert("Aucune vente à valider."); return; }
+  ventePorcDrafts.forEach(d => {
+    const animaux = load('pig_animaux');
+    const a = animaux.find(x => x.id === d.groupe);
+    if(!a) return;
+    const effAvant = parseFloat(a.effectif) || 0;
+    const poidsTotal = parseFloat(a.poids) || 0;
+    const moyen = (poidsTotal > 0 && effAvant > 0) ? poidsTotal / effAvant : 0;
+    const effApres = Math.max(0, effAvant - d.quantite);
+    const pr = getCoutParTeteGroupe(d.groupe, effAvant) || 0;
+    a.effectif = effApres;
+    if(d.poidsVendu > 0 && poidsTotal > 0){ a.poids = Math.max(0, Math.round((poidsTotal - d.poidsVendu) * 100) / 100); }
+    else if(moyen > 0){ a.poids = Math.round(moyen * effApres * 100) / 100; }
+    save('pig_animaux', animaux);
+    const liste = load('pig_ventes_porcs');
+    liste.unshift({ ...d, prixRevient: pr, coutRetire: pr * d.quantite, effectifAvant: effAvant, effectifApres: effApres, poidsMoyen: moyen, poidsAvant: poidsTotal, ts: Date.now() });
+    save('pig_ventes_porcs', liste);
+  });
+  ventePorcDrafts = [];
+  renderVentePorcDraft();
+  renderAnimaux();
+  renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions(); renderPeseeGroupeOptions(); renderProphylaxieGroupeOptions(); renderMortaliteGroupeOptions();
+  autofillConsommation(); autofillConsommationManuelle(); updatePeseeAnciens(); updateException(); updateVentePorcInfo();
+  showAlert("Vente enregistrée. Pour ce groupe, faites maintenant l'EXCEPTION (POIDS > EXCEPTION) avant une nouvelle pesée.");
+}
+function delVentePorc(i){
+  showConfirm("Supprimer cette vente de porcs ? L'effectif du groupe sera rétabli.", function(){
+    const liste = load('pig_ventes_porcs');
+    const v = liste[i];
+    if(!v) return;
+    const animaux = load('pig_animaux');
+    const a = animaux.find(x => x.id === v.groupe);
+    if(a){
+      a.effectif = (parseFloat(a.effectif) || 0) + v.quantite;
+      if(v.poidsVendu > 0){ a.poids = Math.round(((parseFloat(a.poids) || 0) + v.poidsVendu) * 100) / 100; }
+      else if(v.poidsMoyen > 0){ a.poids = Math.round(v.poidsMoyen * a.effectif * 100) / 100; }
+      save('pig_animaux', animaux);
+      renderAnimaux();
+    }
+    liste.splice(i,1);
+    save('pig_ventes_porcs', liste);
+    updateVentePorcInfo();
+    refreshVenteTypeList('porc');
+  });
+}
+const VENTE_TYPES = {
+  mp:   { key: 'pig_ventes_matieres', refField: 'reference', refLabel: 'Référence', qteLabel: 'Quantité', del: 'delVenteMP', title: 'Liste des ventes - Matière première' },
+  porc: { key: 'pig_ventes_porcs', refField: 'groupe', refLabel: 'Groupe', qteLabel: 'Porcs', del: 'delVentePorc', title: 'Liste des ventes - Porc' }
+};
+let venteTypeCourant = 'mp';
+function buildVenteTypeListHTML(type, filterDate, filterRef){
+  const cfg = VENTE_TYPES[type];
+  let entries = load(cfg.key).map((v, idx) => ({ ...v, _idx: idx }));
+  if(filterDate){ entries = entries.filter(v => v.date === filterDate); }
+  if(filterRef){ entries = entries.filter(v => v[cfg.refField] === filterRef); }
+  if(!entries.length){ return '<div class="empty">Aucune vente pour l\'instant.</div>'; }
+  const rows = entries.map(v => `<tr>
+    <td>${fmtDate(v.date)}</td><td>${v[cfg.refField]}</td><td>${v.client || ''}</td><td>${fmtNum(v.quantite)}</td>${type === 'porc' ? `<td>${v.poidsVendu ? fmtNum(v.poidsVendu) + ' kg' : '—'}</td>` : ''}<td>${type === 'porc' ? (v.poidsVendu > 0 ? fmtNum(((parseFloat(v.prixTotal) || 0) / v.poidsVendu).toFixed(2)) : '—') : fmtNum(v.prixU)}</td><td>${fmtNum(v.prixTotal)}</td>${type === 'porc' ? `<td>${fmtNum((v.prixRevient || 0).toFixed(2))}</td><td style="font-weight:700; color:${(parseFloat(v.prixTotal) || 0) - (v.coutRetire || 0) >= 0 ? '#3a9d5d' : 'var(--danger)'};">${fmtNum(((parseFloat(v.prixTotal) || 0) - (v.coutRetire || 0)).toFixed(2))}</td>` : ''}
+    <td><button class="del" onclick="${cfg.del}(${v._idx})">Suppr.</button></td>
+  </tr>`).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>${cfg.refLabel}</th><th>Client</th><th>${cfg.qteLabel}</th>${type === 'porc' ? '<th>Poids total</th>' : ''}<th>${type === 'porc' ? 'PU / kg vif' : 'Prix U.'}</th><th>Prix Total</th>${type === 'porc' ? '<th>PR / tête</th><th>Marge</th>' : ''}<th></th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+function openVenteTypeListFullscreen(type){
+  venteTypeCourant = type;
+  const cfg = VENTE_TYPES[type];
+  const refs = [...new Set(load(cfg.key).map(v => v[cfg.refField]))];
+  document.getElementById('fullscreenTitle').textContent = cfg.title;
+  document.getElementById('fullscreenTableBody').innerHTML = `
+    <label>Filtrer par ${cfg.refLabel.toLowerCase()}</label>
+    <select id="vt-filter-ref" onchange="refreshVenteTypeList()"><option value="">Tous</option>${refs.map(r => `<option>${r}</option>`).join('')}</select>
+    <label>Filtrer par date</label>
+    <input id="vt-filter-date" type="date" onchange="refreshVenteTypeList()">
+    <div id="venteTypeTable" style="margin-top:10px;">${buildVenteTypeListHTML(type)}</div>`;
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+function refreshVenteTypeList(type){
+  if(type) venteTypeCourant = type;
+  const f = document.getElementById('vt-filter-ref');
+  const d = document.getElementById('vt-filter-date');
+  const t = document.getElementById('venteTypeTable');
+  if(!t) return;
+  t.innerHTML = buildVenteTypeListHTML(venteTypeCourant, d ? d.value : '', f ? f.value : '');
 }
 
 // Formulation
@@ -2707,8 +3835,9 @@ function validerProductionDraft(){
   productionDrafts = [];
   renderProductionDraft();
   renderProductionList();
-  renderVenteOptions();
+  refreshRefsProduitFini();
   renderParamRefProduit();
+  updateVenteStockDisponible(); updateTransfertQuantiteInitiale();
 }
 function delProduction(i){ const list = load('pig_production'); list.splice(i,1); save('pig_production', list); renderProductionList(); }
 function renderProductionList(){
@@ -2736,8 +3865,19 @@ function openProductionFullscreen(){
 }
 
 // Transfert (Produit fini -> Bombonne)
+function getRefsProduitFini(){
+  const vues = {};
+  [...load('pig_param_ref_produit'),
+   ...load('pig_produits').map(p => p.reference || p.designation),
+   ...load('pig_mouvement_produits').map(m => m.reference)]
+    .forEach(r => { const n = normRef(r); if(n && !(n in vues)) vues[n] = r; });
+  return Object.values(vues);
+}
+function refreshRefsProduitFini(){
+  renderProduitReferenceOptions(); renderVenteOptions(); renderTransfertOptions();
+}
 function renderTransfertOptions(){
-  const refs = load('pig_param_ref_produit');
+  const refs = getRefsProduitFini();
   const selRef = document.getElementById('tr-reference');
   const currentRef = selRef.value;
   selRef.innerHTML = '<option value="">— Choisir —</option>' + refs.map(r => `<option>${r}</option>`).join('');
@@ -2805,9 +3945,11 @@ function validerTransfertDraft(){
   renderTransfertDraft();
 }
 function delTransfert(i){ const list = load('pig_transfert'); list.splice(i,1); save('pig_transfert', list); refreshTransfertListTable(); }
-function buildTransfertListHTML(filterDate){
+function buildTransfertListHTML(filterDate, filterReference, filterBombonne){
   let entries = load('pig_transfert').map((t, idx) => ({ ...t, _idx: idx }));
   if(filterDate){ entries = entries.filter(t => t.date === filterDate); }
+  if(filterReference){ entries = entries.filter(t => normRef(t.reference) === normRef(filterReference)); }
+  if(filterBombonne){ entries = entries.filter(t => normRef(t.bombonne) === normRef(filterBombonne)); }
   if(!entries.length){ return '<div class="empty">Aucun transfert pour l\'instant.</div>'; }
   const rows = entries.map((t) => `<tr>
       <td>${fmtDate(t.date)}</td>
@@ -2822,7 +3964,17 @@ function buildTransfertListHTML(filterDate){
   </table></div>`;
 }
 function buildTransfertListFullscreenHTML(){
+  const vues = {};
+  load('pig_transfert').forEach(t => { const n = normRef(t.reference); if(n && !(n in vues)) vues[n] = t.reference; });
+  const options = Object.values(vues).map(r => `<option>${r}</option>`).join('');
+  const vuesB = {};
+  load('pig_transfert').forEach(t => { const n = normRef(t.bombonne); if(n && !(n in vuesB)) vuesB[n] = t.bombonne; });
+  const optionsB = Object.values(vuesB).map(b => `<option>${b}</option>`).join('');
   return `
+    <label>Filtrer par référence</label>
+    <select id="tl-filter-reference" onchange="refreshTransfertListTable()"><option value="">Toutes les références</option>${options}</select>
+    <label>Filtrer par bombonne</label>
+    <select id="tl-filter-bombonne" onchange="refreshTransfertListTable()"><option value="">Toutes les bombonnes</option>${optionsB}</select>
     <label>Filtrer par date</label>
     <input id="tl-filter-date" type="date" onchange="refreshTransfertListTable()">
     <div id="transfertFilteredTable" style="margin-top:10px;">${buildTransfertListHTML()}</div>
@@ -2830,7 +3982,9 @@ function buildTransfertListFullscreenHTML(){
 }
 function refreshTransfertListTable(){
   const filterDate = document.getElementById('tl-filter-date').value;
-  document.getElementById('transfertFilteredTable').innerHTML = buildTransfertListHTML(filterDate);
+  const filterReference = document.getElementById('tl-filter-reference').value;
+  const filterBombonne = document.getElementById('tl-filter-bombonne').value;
+  document.getElementById('transfertFilteredTable').innerHTML = buildTransfertListHTML(filterDate, filterReference, filterBombonne);
 }
 function openTransfertListFullscreen(){
   document.getElementById('fullscreenTitle').textContent = 'Liste des transferts';
@@ -2848,10 +4002,10 @@ function buildBombonneEtatHTML(){
     const brut = items.reduce((acc,m) => acc + (m.type === 'Entrée' ? (m.quantite || 0) : 0) - (m.type === 'Sortie' ? (m.quantite || 0) : 0), 0);
     const tare = parseFloat(b.tare) || 0;
     const net = brut + tare;
-    return `<tr><td>${b.nom}</td><td>${fmtNum(brut.toFixed(2))}</td><td>${fmtNum(tare)}</td><td style="color:${stockColor(net)}; font-weight:700;">${fmtNum(net.toFixed(2))}</td></tr>`;
+    return `<tr><td>${b.nom}<div class="meta" style="font-weight:700; color:var(--accent);">${refActuelleBombonne(b.nom) || 'Aucune référence'}</div></td><td>${fmtNum(brut.toFixed(2))}</td><td>${fmtNum(tare)}</td><td style="color:${stockColor(net)}; font-weight:700;">${fmtNum(net.toFixed(2))}</td></tr>`;
   }).join('');
   return `<div class="table-wrap"><table>
-    <thead><tr><th>Bombonne</th><th>Poids brut</th><th>Tare</th><th>Poids net</th></tr></thead>
+    <thead><tr><th>Bombonne / Référence actuelle</th><th>Poids brut</th><th>Tare</th><th>Poids net</th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
 }
@@ -2906,11 +4060,43 @@ function openBombonneStockFullscreen(){
   document.getElementById('fullscreenTable').classList.remove('hidden');
 }
 
+function majAchatUnite(prefix){
+  const sac = document.getElementById(prefix + '-unite').value === 'sac';
+  document.getElementById(prefix + '-sac-bloc').classList.toggle('hidden', !sac);
+  const qEl = document.getElementById(prefix + '-quantite');
+  qEl.readOnly = sac; qEl.disabled = false;
+  qEl.style.opacity = sac ? '0.7' : '';
+  document.getElementById(prefix + '-prixU-label').textContent = sac ? 'PRIX PAR SAC' : 'PRIX UNITAIRE (par kg)';
+  ['nbsacs','quantite','prixU','prixTotal'].forEach(k => { const el = document.getElementById(prefix + '-' + k); if(el) el.value = ''; });
+}
+function prefillPoidsSac(prefix){
+  const el = document.getElementById(prefix + '-poidssac');
+  const ref = document.getElementById(prefix + '-reference').value;
+  const pd = ref ? poidsSacRef(prefix === 'f' ? 'produit' : 'matiere', ref) : 0;
+  el.value = pd > 0 ? fmtNum(pd) : '';
+}
+function majAchatSacs(prefix){
+  if(document.getElementById(prefix + '-unite').value !== 'sac') return;
+  const nb = parseNum(document.getElementById(prefix + '-nbsacs').value);
+  const pd = parseNum(document.getElementById(prefix + '-poidssac').value);
+  const qEl = document.getElementById(prefix + '-quantite');
+  qEl.value = (nb > 0 && pd > 0) ? fmtNum((nb * pd).toFixed(2)) : '';
+  calcAchat(prefix, 'quantite');
+}
+function infosAchatUnite(prefix){
+  const sac = document.getElementById(prefix + '-unite').value === 'sac';
+  const kg = parseNum(document.getElementById(prefix + '-quantite').value);
+  const tot = parseNum(document.getElementById(prefix + '-prixTotal').value);
+  if(!sac){ const pd = parseNum(document.getElementById(prefix + '-poidssac').value); return pd > 0 ? { poidsSac: pd } : {}; }
+  return { unite: 'sac', nbSacs: parseNum(document.getElementById(prefix + '-nbsacs').value) || '', poidsSac: parseNum(document.getElementById(prefix + '-poidssac').value) || '',
+    prixU: (kg > 0 && tot > 0) ? tot / kg : (parseNum(document.getElementById(prefix + '-prixU').value) || '') };
+}
 function calcAchat(prefix, source){
   const qEl = document.getElementById(prefix + '-quantite');
   const uEl = document.getElementById(prefix + '-prixU');
   const tEl = document.getElementById(prefix + '-prixTotal');
-  const q = parseNum(qEl.value);
+  const sac = (document.getElementById(prefix + '-unite') || {}).value === 'sac';
+  const q = sac ? parseNum(document.getElementById(prefix + '-nbsacs').value) : parseNum(qEl.value);
   if(!(q > 0)) return;
 
   if(source === 'unitaire'){
@@ -2948,8 +4134,9 @@ function ajouterMatiereDraft(){
     prixU: parseNum(document.getElementById('m-prixU').value) || '',
     prixTotal: parseNum(document.getElementById('m-prixTotal').value) || ''
   };
+  Object.assign(item, infosAchatUnite('m'));
   matiereDrafts.push(item);
-  ['m-date','m-reference','m-quantite','m-prixU','m-prixTotal','m-stock-actuel'].forEach(f => document.getElementById(f).value = '');
+  ['m-date','m-reference','m-quantite','m-prixU','m-prixTotal','m-stock-actuel','m-nbsacs','m-poidssac'].forEach(f => document.getElementById(f).value = '');
   renderMatiereDraft();
 }
 function delMatiereDraft(i){ matiereDrafts.splice(i,1); renderMatiereDraft(); }
@@ -2958,7 +4145,7 @@ function renderMatiereDraft(){
   if(!matiereDrafts.length){ el.innerHTML = ''; return; }
   el.innerHTML = matiereDrafts.map((m,i) => `
     <div class="item">
-      <div><div class="name">${m.reference}</div><div class="meta">${fmtDate(m.date)}${m.quantite ? ' · Qté: ' + fmtNum(m.quantite) : ''}</div></div>
+      <div><div class="name">${m.reference}</div><div class="meta">${fmtDate(m.date)}${m.unite === 'sac' ? ' · ' + fmtNum(m.nbSacs) + ' sac(s) × ' + fmtNum(m.poidsSac) + ' kg = ' + fmtNum(m.quantite) + ' kg' : (m.quantite ? ' · Qté: ' + fmtNum(m.quantite) : '')}</div></div>
       <button class="del" onclick="delMatiereDraft(${i})">Suppr.</button>
     </div>`).join('');
 }
@@ -2979,7 +4166,7 @@ function buildMatieresListHTML(filterDate, filterReference){
   const rows = entries.map(m => `<tr>
     <td>${fmtDate(m.date)}</td>
     <td>${m.reference || ''}</td>
-    <td>${fmtNum(m.quantite)}</td>
+    <td>${fmtNum(m.quantite)}${m.unite === 'sac' ? '<div class="meta">' + fmtNum(m.nbSacs) + ' sac(s) × ' + fmtNum(m.poidsSac) + ' kg</div>' : ''}</td>
     <td>${fmtNum(m.prixU)}</td>
     <td>${fmtNum(m.prixTotal)}</td>
     <td><button class="del" onclick="delMatiere(${m._idx})">Suppr.</button></td>
@@ -3024,8 +4211,9 @@ function ajouterProduitDraft(){
     prixU: parseNum(document.getElementById('f-prixU').value) || '',
     prixTotal: parseNum(document.getElementById('f-prixTotal').value) || ''
   };
+  Object.assign(item, infosAchatUnite('f'));
   produitDrafts.push(item);
-  ['f-date','f-reference','f-quantite','f-prixU','f-prixTotal'].forEach(f => document.getElementById(f).value = '');
+  ['f-date','f-reference','f-quantite','f-prixU','f-prixTotal','f-nbsacs','f-poidssac'].forEach(f => document.getElementById(f).value = '');
   renderProduitDraft();
 }
 function delProduitDraft(i){ produitDrafts.splice(i,1); renderProduitDraft(); }
@@ -3034,7 +4222,7 @@ function renderProduitDraft(){
   if(!produitDrafts.length){ el.innerHTML = ''; return; }
   el.innerHTML = produitDrafts.map((f,i) => `
     <div class="item">
-      <div><div class="name">${f.reference}</div><div class="meta">${fmtDate(f.date)}${f.quantite ? ' · Qté: ' + fmtNum(f.quantite) : ''}</div></div>
+      <div><div class="name">${f.reference}</div><div class="meta">${fmtDate(f.date)}${f.unite === 'sac' ? ' · ' + fmtNum(f.nbSacs) + ' sac(s) × ' + fmtNum(f.poidsSac) + ' kg = ' + fmtNum(f.quantite) + ' kg' : (f.quantite ? ' · Qté: ' + fmtNum(f.quantite) : '')}</div></div>
       <button class="del" onclick="delProduitDraft(${i})">Suppr.</button>
     </div>`).join('');
 }
@@ -3045,6 +4233,8 @@ function validerProduitDraft(){
   save('pig_produits', list);
   produitDrafts = [];
   renderProduitDraft();
+  refreshRefsProduitFini();
+  updateVenteStockDisponible(); updateTransfertQuantiteInitiale();
 }
 function delProduit(i){ const list = load('pig_produits'); list.splice(i,1); save('pig_produits', list); refreshProduitsAchatsListTable(); }
 function buildProduitsAchatsListHTML(filterDate, filterReference){
@@ -3055,7 +4245,7 @@ function buildProduitsAchatsListHTML(filterDate, filterReference){
   const rows = entries.map(p => `<tr>
     <td>${fmtDate(p.date)}</td>
     <td>${p.reference || p.designation || ''}</td>
-    <td>${fmtNum(p.quantite)}</td>
+    <td>${fmtNum(p.quantite)}${p.unite === 'sac' ? '<div class="meta">' + fmtNum(p.nbSacs) + ' sac(s) × ' + fmtNum(p.poidsSac) + ' kg</div>' : ''}</td>
     <td>${fmtNum(p.prixU)}</td>
     <td>${fmtNum(p.prixTotal)}</td>
     <td><button class="del" onclick="delProduit(${p._idx})">Suppr.</button></td>
@@ -3088,9 +4278,461 @@ function openProduitsAchatsListFullscreen(){
   document.getElementById('fullscreenTable').classList.remove('hidden');
 }
 
+// Mortalité (met à jour l'effectif du groupe)
+function renderMortaliteGroupeOptions(){
+  const sel = document.getElementById('mo-groupe');
+  if(!sel) return;
+  const current = sel.value;
+  const groupes = [...new Set(load('pig_animaux').map(a => a.id))];
+  sel.innerHTML = '<option value="">— Choisir —</option>' + groupes.map(g => `<option>${g}</option>`).join('');
+  if(groupes.includes(current)) sel.value = current;
+}
+let mortaliteDrafts = [];
+function mortaliteEnCours(groupe){
+  return mortaliteDrafts.filter(d => d.groupe === groupe).reduce((acc,d) => acc + d.morts, 0);
+}
+function coutProphylaxieGroupe(groupe){
+  return load('pig_prophylaxie').filter(p => normRef(p.groupe) === normRef(groupe)).reduce((acc,p) => acc + (parseFloat(p.cout) || 0), 0);
+}
+function getCoutParTeteGroupe(groupe, effectif){
+  if(!(effectif > 0)) return null;
+  const animal = load('pig_animaux').find(a => a.id === groupe);
+  if(!animal) return null;
+  let totalAliment = 0;
+  load('pig_consommation').filter(c => normRef(c.groupe) === normRef(groupe)).forEach(c => {
+    const qty = parseNum(c.total) || 0;
+    const produit = c.bombonne ? (getProduitDansBombonneADate(c.bombonne, c.date) || 'Inconnu') : 'Inconnu';
+    totalAliment += qty * getPrixRevientProduit(produit);
+  });
+  const achat = parseFloat(animal.prixTotal) || 0;
+  const vendus = load('pig_ventes_porcs').filter(v => v.groupe === groupe).reduce((acc,v) => acc + (parseFloat(v.coutRetire) || 0), 0);
+  return (totalAliment + achat + coutProphylaxieGroupe(groupe) - vendus) / effectif;
+}
+function getNouveauPrixRevient(groupe, morts){
+  const animal = load('pig_animaux').find(a => a.id === groupe);
+  if(!animal || isNaN(morts)) return null;
+  const effReel = parseFloat(animal.effectif) || 0;
+  const pr = getCoutParTeteGroupe(groupe, effReel);
+  if(pr === null) return null;
+  const nouvelEff = effReel - mortaliteEnCours(groupe) - morts;
+  if(!(nouvelEff > 0)) return null;
+  return pr * effReel / nouvelEff;
+}
+function updateMortaliteInfo(){
+  const groupe = document.getElementById('mo-groupe').value;
+  const effEl = document.getElementById('mo-effectif');
+  const nouvEl = document.getElementById('mo-nouveau');
+  const prEl = document.getElementById('mo-pr');
+  const prNouvEl = document.getElementById('mo-pr-nouveau');
+  if(!groupe){ effEl.value = ''; nouvEl.value = ''; prEl.value = ''; prNouvEl.value = ''; return; }
+  const animal = load('pig_animaux').find(a => a.id === groupe);
+  const eff = animal ? (parseFloat(animal.effectif) || 0) - mortaliteEnCours(groupe) : 0;
+  effEl.value = fmtNum(eff);
+  const pr = getCoutParTeteGroupe(groupe, parseFloat(animal && animal.effectif) || 0);
+  prEl.value = pr === null ? '—' : fmtNum(pr.toFixed(2)) + ' Ar';
+  const morts = parseNum(document.getElementById('mo-morts').value);
+  nouvEl.value = isNaN(morts) ? '' : fmtNum(eff - morts);
+  if(isNaN(morts)){ prNouvEl.value = ''; }
+  else {
+    const nv = getNouveauPrixRevient(groupe, morts);
+    prNouvEl.value = nv === null ? '—' : fmtNum(nv.toFixed(2)) + ' Ar';
+  }
+}
+function ajouterMortaliteDraft(){
+  const groupe = document.getElementById('mo-groupe').value;
+  if(!groupe){ showAlert("Merci de choisir un groupe."); return; }
+  const morts = parseNum(document.getElementById('mo-morts').value);
+  if(isNaN(morts) || morts <= 0 || Math.floor(morts) !== morts){ showAlert("Merci de saisir un nombre de morts entier (1 ou plus)."); return; }
+  const animal = load('pig_animaux').find(a => a.id === groupe);
+  const dispo = animal ? (parseFloat(animal.effectif) || 0) - mortaliteEnCours(groupe) : 0;
+  if(morts > dispo){ showAlert("Le nombre de morts (" + fmtNum(morts) + ") dépasse l'effectif actuel du groupe " + groupe + " (" + fmtNum(dispo) + ")."); return; }
+  mortaliteDrafts.push({
+    date: document.getElementById('mo-date').value || new Date().toISOString().slice(0,10),
+    groupe, morts,
+    prixRevient: getCoutParTeteGroupe(groupe, parseFloat(animal.effectif) || 0) || 0,
+    nouveauPrixRevient: getNouveauPrixRevient(groupe, morts) || 0
+  });
+  document.getElementById('mo-morts').value = '';
+  updateMortaliteInfo();
+  renderMortaliteDraft();
+}
+function delMortaliteDraft(i){ mortaliteDrafts.splice(i,1); updateMortaliteInfo(); renderMortaliteDraft(); }
+function renderMortaliteDraft(){
+  const el = document.getElementById('mortaliteDraftList');
+  if(!el) return;
+  if(!mortaliteDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = mortaliteDrafts.map((d,i) => `
+    <div class="item"><div><div class="name">${d.groupe}</div><div class="meta">${fmtDate(d.date)} · Morts: ${fmtNum(d.morts)} · Prix de revient: ${fmtNum((d.prixRevient || 0).toFixed(2))} Ar · Nouveau: ${d.nouveauPrixRevient ? fmtNum(d.nouveauPrixRevient.toFixed(2)) + ' Ar' : '—'}</div></div><button class="del" onclick="delMortaliteDraft(${i})">Suppr.</button></div>`).join('');
+}
+function validerMortaliteDraft(){
+  if(!mortaliteDrafts.length){ showAlert("Aucune mortalité à valider."); return; }
+  const animaux = load('pig_animaux');
+  const liste = load('pig_mortalite');
+  mortaliteDrafts.forEach(d => {
+    const a = animaux.find(x => x.id === d.groupe);
+    if(!a) return;
+    const effAvant = parseFloat(a.effectif) || 0;
+    const poidsTotal = parseFloat(a.poids) || 0;
+    const moyen = (poidsTotal > 0 && effAvant > 0) ? poidsTotal / effAvant : 0;
+    const effApres = Math.max(0, effAvant - d.morts);
+    a.effectif = effApres;
+    if(moyen > 0){ a.poids = Math.round(moyen * effApres * 100) / 100; }
+    liste.unshift({ date: d.date, groupe: d.groupe, morts: d.morts, prixRevient: d.prixRevient || 0, nouveauPrixRevient: d.nouveauPrixRevient || 0, ts: Date.now(), effectifAvant: effAvant, effectifApres: effApres, poidsMoyen: moyen });
+  });
+  save('pig_animaux', animaux);
+  save('pig_mortalite', liste);
+  mortaliteDrafts = [];
+  renderMortaliteDraft();
+  renderAnimaux();
+  renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions(); renderPeseeGroupeOptions(); renderProphylaxieGroupeOptions(); renderMortaliteGroupeOptions();
+  updateMortaliteInfo();
+  autofillConsommation(); autofillConsommationManuelle(); updatePeseeAnciens(); updateException();
+}
+function delMortalite(i){
+  showConfirm("Supprimer cette mortalité ? L'effectif du groupe sera rétabli.", function(){
+    const liste = load('pig_mortalite');
+    const m = liste[i];
+    if(!m) return;
+    const animaux = load('pig_animaux');
+    const a = animaux.find(x => x.id === m.groupe);
+    if(a){
+      a.effectif = (parseFloat(a.effectif) || 0) + m.morts;
+      if(m.poidsMoyen > 0){ a.poids = Math.round(m.poidsMoyen * a.effectif * 100) / 100; }
+      save('pig_animaux', animaux);
+      renderAnimaux();
+    }
+    liste.splice(i,1);
+    save('pig_mortalite', liste);
+    updateMortaliteInfo();
+    refreshMortaliteListTable();
+  });
+}
+function buildMortaliteListHTML(filterGroupe, filterDate){
+  let entries = load('pig_mortalite').map((m, idx) => ({ ...m, _idx: idx }));
+  if(filterGroupe){ entries = entries.filter(m => m.groupe === filterGroupe); }
+  if(filterDate){ entries = entries.filter(m => m.date === filterDate); }
+  if(!entries.length){ return '<div class="empty">Aucune mortalité enregistrée.</div>'; }
+  const rows = entries.map(m => `<tr>
+    <td>${fmtDate(m.date)}</td><td>${m.groupe}</td><td>${fmtNum(m.morts)}</td><td>${fmtNum(m.effectifAvant)}</td><td>${fmtNum(m.effectifApres)}</td><td>${m.prixRevient ? fmtNum(m.prixRevient.toFixed(2)) + ' Ar' : '—'}</td><td>${m.nouveauPrixRevient ? fmtNum(m.nouveauPrixRevient.toFixed(2)) + ' Ar' : '—'}</td>
+    <td><button class="del" onclick="delMortalite(${m._idx})">Suppr.</button></td>
+  </tr>`).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Groupe</th><th>Morts</th><th>Effectif avant</th><th>Effectif après</th><th>Prix de revient</th><th>Nouveau prix de revient</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildMortaliteTotauxHTML(){
+  const list = load('pig_mortalite');
+  if(!list.length) return '';
+  const animaux = load('pig_animaux');
+  const totaux = {};
+  list.forEach(m => { totaux[m.groupe] = (totaux[m.groupe] || 0) + (m.morts || 0); });
+  const rows = Object.keys(totaux).map(g => {
+    const a = animaux.find(x => x.id === g);
+    const eff = a ? parseFloat(a.effectif) || 0 : 0;
+    const initial = eff + totaux[g];
+    const taux = initial > 0 ? (totaux[g] / initial * 100) : null;
+    return `<tr><td>${g}</td><td>${fmtNum(totaux[g])}</td><td>${fmtNum(eff)}</td><td>${taux !== null ? fmtNum(taux.toFixed(1)) + ' %' : '—'}</td></tr>`;
+  }).join('');
+  return `<div class="card"><h2>Mortalité par groupe</h2><div class="table-wrap"><table>
+    <thead><tr><th>Groupe</th><th>Total morts</th><th>Effectif actuel</th><th>Taux</th></tr></thead>
+    <tbody>${rows}</tbody></table></div></div>`;
+}
+function buildMortaliteListFullscreenHTML(){
+  const groupes = [...new Set(load('pig_mortalite').map(m => m.groupe))];
+  const options = groupes.map(g => `<option>${g}</option>`).join('');
+  return `
+    ${buildMortaliteTotauxHTML()}
+    <label>Filtrer par groupe</label>
+    <select id="ml-filter-groupe" onchange="refreshMortaliteListTable()"><option value="">Tous les groupes</option>${options}</select>
+    <label>Filtrer par date</label>
+    <input id="ml-filter-date" type="date" onchange="refreshMortaliteListTable()">
+    <div id="mortaliteFilteredTable" style="margin-top:10px;">${buildMortaliteListHTML()}</div>
+  `;
+}
+function refreshMortaliteListTable(){
+  const g = document.getElementById('ml-filter-groupe');
+  const d = document.getElementById('ml-filter-date');
+  if(!g || !d) return;
+  document.getElementById('mortaliteFilteredTable').innerHTML = buildMortaliteListHTML(g.value, d.value);
+}
+function openMortaliteListFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Liste des mortalités';
+  document.getElementById('fullscreenTableBody').innerHTML = buildMortaliteListFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+// Statistique : courbe de croissance (norme de GMQ + pesées des groupes)
+// Norme de croissance : poids (kg) à chaque âge (semaines), de la naissance (0 kg) à 38 semaines. Au-delà de 30 semaines : GMQ de 648 g/jour.
+// Tranches de la norme : [âge de, âge à, poids de (kg), poids à (kg), GMQ g/j imposé (facultatif)] -> la courbe et le tableau en dérivent (GMH = kg gagnés par semaine)
+const TRANCHES = [[2,4,4,12,120],[4,6,12,13,140],[6,8,13,15,180],[8,10,15,24,286],[10,12,24,31,393],[12,14,31,38,536],[14,16,38,46],[16,18,46,54],[18,20,54,63],[20,22,63,73],[22,24,73,83],[24,26,83,93],[26,28,93,103],[28,30,103,112],[30,38,112,112 + 8 * 7 * 0.648]];
+const NORME_POINTS = [[0,0],[2,4]].concat(TRANCHES.map(t => [t[1], t[3]]));
+const COULEURS_STAT = ['#c8553d','#3a9d5d','#8e5bd1','#d9a62e','#d6439a','#7a7067'];
+function normePoids(w){
+  if(w < 0 || w > 38) return null;
+  for(let i = 0; i < NORME_POINTS.length - 1; i++){
+    const [x1, y1] = NORME_POINTS[i], [x2, y2] = NORME_POINTS[i + 1];
+    if(w >= x1 && w <= x2){ return y1 + (y2 - y1) * (w - x1) / (x2 - x1); }
+  }
+  return null;
+}
+function normeGMQ(w){
+  for(let i = 0; i < NORME_POINTS.length - 1; i++){
+    const [x1, y1] = NORME_POINTS[i], [x2, y2] = NORME_POINTS[i + 1];
+    if(w >= x1 && w < x2){ return Math.round((y2 - y1) / ((x2 - x1) * 7) * 1000); }
+  }
+  return null;
+}
+function normeAge(p){
+  if(!(p > 0)) return 0;
+  for(let i = 0; i < NORME_POINTS.length - 1; i++){
+    const [x1, y1] = NORME_POINTS[i], [x2, y2] = NORME_POINTS[i + 1];
+    if(p <= y2){ return Math.max(0, x1 + (p - y1) / (y2 - y1) * (x2 - x1)); }
+  }
+  return null;
+}
+function dernierException(a){
+  const ex = load('pig_pesees').filter(p => p.groupe === a.id && p.exception && p.date);
+  if(!ex.length) return null;
+  return ex.reduce((m, p) => (p.ts || 0) >= (m.ts || 0) ? p : m, ex[0]);
+}
+function ageBaseGroupe(a){
+  const ex = dernierException(a);
+  if(ex){
+    const n = normeAge(parseFloat(ex.poidsMoyen));
+    if(n !== null) return { age0: n, date0: ex.date, estime: true, exception: true };
+  }
+  const age = parseFloat(a.age);
+  if(age >= 0 && a.entree) return { age0: age, date0: a.entree, estime: false };
+  const pesees = load('pig_pesees').filter(p => p.groupe === a.id && p.date && parseFloat(p.poidsMoyen) > 0).sort((x, y) => x.date.localeCompare(y.date));
+  if(!pesees.length) return null;
+  const n = normeAge(parseFloat(pesees[0].poidsMoyen));
+  if(n === null) return null;
+  return { age0: n, date0: pesees[0].date, estime: true };
+}
+function ageSemainesPesee(a, date){
+  const b = ageBaseGroupe(a);
+  if(!b || !date) return null;
+  return Math.round(b.age0 + (new Date(date) - new Date(b.date0)) / (7 * 86400000));
+}
+function pointsCroissanceGroupe(a){
+  const ex = dernierException(a);
+  const pesees = load('pig_pesees').filter(p => p.groupe === a.id && p.date && (!ex || (p.ts || 0) >= (ex.ts || 0))).sort((x, y) => x.date.localeCompare(y.date) || (x.ts || 0) - (y.ts || 0));
+  if(!pesees.length){
+    // groupe sans pesée : on trace son poids moyen d'inscription à son âge
+    const eff0 = parseFloat(a.effectif) || 0, poids0 = parseFloat(a.poids) || 0;
+    if(!(eff0 > 0 && poids0 > 0)) return { vide: true, points: [] };
+    const moyen0 = poids0 / eff0;
+    let age0 = parseFloat(a.age), estime0 = false;
+    if(!(age0 >= 0)){ const n0 = normeAge(moyen0); if(n0 === null) return { vide: true, points: [] }; age0 = n0; estime0 = true; }
+    return { points: [{ date: a.entree || '', age: Math.round(age0), poids: moyen0, initial: true }], estime: estime0, age0, date0: a.entree || '' };
+  }
+  const base = ageBaseGroupe(a);
+  if(!base) return { manque: true, points: [] };
+  const pts = [];
+  const premier = pesees[0];
+  const x0 = ageSemainesPesee(a, a.entree);
+  if(!ex && x0 !== null && parseFloat(premier.ancienPoidsMoyen) > 0){
+    pts.push({ date: a.entree, age: x0, poids: parseFloat(premier.ancienPoidsMoyen), initial: true });
+  }
+  for(const p of pesees){
+    const x = ageSemainesPesee(a, p.date);
+    const m = parseFloat(p.poidsMoyen);
+    if(x === null){ return { manque: true, points: [] }; }
+    if(m > 0){ pts.push({ date: p.date, age: x, poids: m, initial: false, exception: !!p.exception }); }
+  }
+  return { points: pts, estime: base.estime, age0: base.age0, date0: base.date0, exception: !!base.exception };
+}
+function setAgeGroupe(idx){
+  const animaux = load('pig_animaux');
+  const a = animaux[idx];
+  const input = document.getElementById('st-age-' + idx);
+  if(!a || !input) return;
+  const v = parseNum(input.value);
+  if(isNaN(v) || v < 0 || v > 60){ showAlert("Merci de saisir un âge en semaines (entre 0 et 60)."); return; }
+  a.age = fmtNum(v) + ' semaines';
+  save('pig_animaux', animaux);
+  renderAnimaux();
+  renderStatistique();
+}
+let statHTML = {}, statMode = null;
+function buildStatHTML(mode){
+  const sel = document.getElementById('st-groupe');
+  const opts = Array.from(sel.options).map(o => `<option value="${o.value}"${o.value === sel.value ? ' selected' : ''}>${o.textContent}</option>`).join('');
+  const filtre = `<div class="card"><label>Filtrer par groupe</label><select id="st-groupe-fs" onchange="document.getElementById('st-groupe').value=this.value; renderStatistique();">${opts}</select>`
+    + `<div class="meta" style="margin-top:8px;">${document.getElementById('stat-info').textContent}</div></div>`;
+  if(mode === 'tableau'){
+    return `<div class="card"><h2>Norme de croissance</h2>${statHTML.norme || ''}</div>`;
+  }
+  return filtre + `<div class="card"><div class="table-wrap"><div style="min-width:560px;">${statHTML.svg || ''}</div></div>`
+    + `<div class="meta" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px 16px;">${statHTML.legend || ''}</div>`
+    + `<div class="meta" style="margin-top:6px;">${statHTML.notes || ''}</div></div>`;
+}
+function openStatFullscreen(mode){
+  statMode = mode;
+  document.getElementById('fullscreenTitle').textContent = mode === 'tableau' ? 'Statistique - Tableau' : 'Statistique - Courbe';
+  document.getElementById('fullscreenTableBody').innerHTML = buildStatHTML(mode);
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+function majStatFullscreen(){
+  if(!statMode || document.getElementById('fullscreenTable').classList.contains('hidden')) return;
+  document.getElementById('fullscreenTableBody').innerHTML = buildStatHTML(statMode);
+}
+function renderStatistique(){
+  if(!document.getElementById('st-groupe')) return;
+  const sel = document.getElementById('st-groupe');
+  const animaux = load('pig_animaux');
+  const groupes = [...new Set(animaux.map(a => a.id))];
+  const courant = sel.value;
+  sel.innerHTML = '<option value="">Choisir un groupe</option>' + groupes.map(g => `<option>${g}</option>`).join('');
+  if(groupes.includes(courant)) sel.value = courant;
+  const info = document.getElementById('stat-info');
+  const ag = animaux.find(x => x.id === sel.value);
+  if(!ag){ info.textContent = 'Choisissez un groupe pour afficher ses pesées sur la courbe.'; }
+  else {
+    const eff = parseFloat(ag.effectif) || 0, poids = parseFloat(ag.poids) || 0;
+    info.textContent = [
+      ag.classe ? 'Classe : ' + ag.classe : '',
+      ag.box ? 'Box : ' + ag.box : '',
+      eff ? 'Effectif : ' + fmtNum(eff) : '',
+      ag.age ? "Âge à l'entrée : " + ag.age : '',
+      (eff && poids) ? 'Poids moyen : ' + fmtNum((poids / eff).toFixed(1)) + ' kg' : ''
+    ].filter(Boolean).join(' · ');
+  }
+
+  const W = 700, H = 660, L = 56, R = 20, T = 20, B = 52;
+  const px = v => L + (v - 1) / (35 - 1) * (W - L - R);
+  const py = v => T + (150 - v) / 150 * (H - T - B);
+  let g = '';
+  for(let k = 0; k <= 150; k += 5){
+    const y = py(k);
+    g += `<line x1="${L}" y1="${y}" x2="${W - R}" y2="${y}" stroke="var(--border)" stroke-width="${k % 25 === 0 ? 1.2 : 0.6}"/>`;
+    g += `<text x="${L - 8}" y="${y + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${k}</text>`;
+  }
+  for(let w = 1; w <= 35; w++){
+    const x = px(w);
+    g += `<line x1="${x}" y1="${T}" x2="${x}" y2="${H - B}" stroke="var(--border)" stroke-width="${w % 5 === 0 ? 1.2 : 0.6}"/>`;
+    g += `<text x="${x}" y="${H - B + 16}" text-anchor="middle" font-size="10" fill="var(--muted)">${w}</text>`;
+  }
+  g += `<line x1="${L}" y1="${T}" x2="${L}" y2="${H - B}" stroke="var(--ink)" stroke-width="1.5"/>`;
+  g += `<line x1="${L}" y1="${H - B}" x2="${W - R}" y2="${H - B}" stroke="var(--ink)" stroke-width="1.5"/>`;
+  g += `<text x="${(L + W - R) / 2}" y="${H - 10}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Âge (semaines)</text>`;
+  g += `<text transform="rotate(-90)" x="${-(T + (H - T - B) / 2)}" y="14" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Poids (kg)</text>`;
+
+  // courbe de la norme
+  let d = '';
+  d += 'M' + px(1).toFixed(1) + ' ' + py(normePoids(1)).toFixed(1) + ' ';
+  NORME_POINTS.forEach(([x, y]) => { if(x > 1 && x < 35){ d += 'L' + px(x).toFixed(1) + ' ' + py(y).toFixed(1) + ' '; } });
+  d += 'L' + px(35).toFixed(1) + ' ' + py(normePoids(35)).toFixed(1) + ' ';
+  let courbes = `<path d="${d}" fill="none" stroke="var(--norme)" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+  // pesées des groupes
+  const aTracer = ag ? [ag] : [];
+  let reperesAxe = '';
+  const notes = [], infos = [];
+  const lignesPesees = [];
+  const VERT = '#3a9d5d', ROUGE = 'var(--danger)';
+  const ecartPt = p => { const n = normePoids(p.age); return n === null ? null : p.poids - n; };
+  const couleurEcart = e => e === null ? 'var(--muted)' : (e >= 0 ? VERT : ROUGE);
+  const seg = (x1, y1, x2, y2, col) => `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${col}" stroke-width="3" stroke-linecap="round"/>`;
+  const point = {}; 
+  let legende = `<span><span style="display:inline-block;width:18px;height:4px;background:var(--norme);vertical-align:middle;border-radius:2px;"></span> Norme</span>`
+    + `<span><span style="display:inline-block;width:10px;height:10px;background:${VERT};vertical-align:middle;border-radius:50%;"></span> Au-dessus de la norme</span>`
+    + `<span><span style="display:inline-block;width:10px;height:10px;background:var(--danger);vertical-align:middle;border-radius:50%;"></span> En dessous de la norme</span>`;
+  aTracer.forEach(a => {
+    const res = pointsCroissanceGroupe(a);
+    if(res.vide){ return; }
+    if(res.manque){
+      const idx = animaux.indexOf(a);
+      notes.push(a.entree
+        ? `<span style="font-weight:700;">Groupe ${a.id}</span> : âge à l'entrée (en semaines) ? <input id="st-age-${idx}" type="text" inputmode="decimal" placeholder="Ex: 8" style="width:90px; display:inline-block; padding:6px 8px;"> <button onclick="setAgeGroupe(${idx})" style="width:auto; margin:0 0 0 6px; padding:7px 12px;">Enregistrer</button>`
+        : `<span style="font-weight:700;">Groupe ${a.id}</span> : renseignez la date d'entrée (Modif dans MOUVEMENT > ANIMAUX n'a pas ce champ : recréez le groupe avec une date d'entrée).`);
+      return;
+    }
+    if(!res.points.length) return;
+    const pts = res.points;
+    if(res.exception){ infos.push(`<span style="font-weight:700;">Groupe ${a.id}</span> : la courbe repart de l'exception du ${fmtDate(res.date0)} (${fmtNum(Math.round(res.age0))} semaines selon le poids moyen).`); }
+    else if(res.estime){ infos.push(`<span style="font-weight:700;">Groupe ${a.id}</span> : âge estimé automatiquement d'après le poids de la première pesée (${fmtNum(Math.round(res.age0))} semaines au ${fmtDate(res.date0)}).`); }
+    for(let k = 0; k < pts.length - 1; k++){
+      const p1 = pts[k], p2 = pts[k + 1];
+      const x1 = px(p1.age), y1 = py(p1.poids), x2 = px(p2.age), y2 = py(p2.poids);
+      const e1 = ecartPt(p1), e2 = ecartPt(p2);
+      if(e1 === null || e2 === null){ courbes += seg(x1, y1, x2, y2, 'var(--muted)'); }
+      else if(e1 * e2 >= 0){ courbes += seg(x1, y1, x2, y2, (e1 > 0 || e2 > 0) ? VERT : ((e1 < 0 || e2 < 0) ? ROUGE : VERT)); }
+      else {
+        const t = e1 / (e1 - e2);
+        const xm = x1 + (x2 - x1) * t, ym = y1 + (y2 - y1) * t;
+        courbes += seg(x1, y1, xm, ym, couleurEcart(e1)) + seg(xm, ym, x2, y2, couleurEcart(e2));
+      }
+    }
+    // lignes de repère uniquement pour le point d'inscription ou d'exception (pas pour une pesée normale)
+    if(pts[0].initial || pts[0].exception){
+      const pt = pts[0], c = couleurEcart(ecartPt(pt)), x = px(pt.age), y = py(pt.poids), yAxe = H - B;
+      courbes += `<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${x.toFixed(1)}" y2="${yAxe}" stroke="${c}" stroke-width="2" stroke-dasharray="5 4"/>`;
+      courbes += `<line x1="${L}" y1="${y.toFixed(1)}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${c}" stroke-width="2" stroke-dasharray="5 4"/>`;
+      reperesAxe += `<rect x="${(x - 13).toFixed(1)}" y="${yAxe + 3}" width="26" height="17" rx="8" fill="${c}"/><text x="${x.toFixed(1)}" y="${yAxe + 15.5}" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">${pt.age}</text>`;
+      const lab = fmtNum(Math.abs(pt.poids - Math.round(pt.poids)) < 0.05 ? Math.round(pt.poids) : pt.poids.toFixed(1));
+      reperesAxe += `<rect x="${L - 36}" y="${(y - 8.5).toFixed(1)}" width="32" height="17" rx="8" fill="${c}"/><text x="${L - 20}" y="${(y + 4).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">${lab}</text>`;
+    }
+    pts.forEach(p => { courbes += `<circle cx="${px(p.age).toFixed(1)}" cy="${py(p.poids).toFixed(1)}" r="5" fill="${couleurEcart(ecartPt(p))}" stroke="var(--card)" stroke-width="1.5"/>`; });
+    const dern = pts[pts.length - 1];
+    courbes += `<text x="${(px(dern.age) + 8).toFixed(1)}" y="${(py(dern.poids) - 8).toFixed(1)}" font-size="12" font-weight="700" fill="var(--ink)" stroke="var(--card)" stroke-width="3" paint-order="stroke">${a.id}</text>`;
+    pts.filter(p => !p.initial).forEach(p => {
+      const n = normePoids(p.age);
+      lignesPesees.push({ date: p.date, groupe: a.id, age: p.age, poids: p.poids, norme: n, ecart: n === null ? null : p.poids - n });
+    });
+  });
+  g += `<clipPath id="stclip"><rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}"/></clipPath><g clip-path="url(#stclip)">${courbes}</g>${reperesAxe}`;
+  statHTML.svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Courbe de croissance : norme de poids selon l'âge en semaines, avec les pesées des groupes" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+  statHTML.legend = legende;
+  statHTML.notes = notes.map(n => `<div style="margin-top:6px;">⚠ ${n}</div>`).join('') + infos.map(n => `<div style="margin-top:6px;">ℹ ${n}</div>`).join('');
+
+  // tableau pesées vs norme
+  const pEl = {};
+  if(!lignesPesees.length){
+    pEl.innerHTML = '<div class="empty">Aucune pesée à comparer. Les pesées apparaissent ici avec l\'écart par rapport à la norme (âge à l\'entrée en semaines et date d\'entrée requis).</div>';
+  } else {
+    lignesPesees.sort((x, y) => (x.groupe + x.date).localeCompare(y.groupe + y.date));
+    pEl.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Groupe</th><th>Âge (sem.)</th><th>Poids moyen</th><th>Norme</th><th>Écart</th></tr></thead>
+      <tbody>${lignesPesees.map(l => `<tr>
+        <td>${fmtDate(l.date)}</td><td>${l.groupe}</td><td>${fmtNum(l.age)}</td><td>${fmtNum(l.poids.toFixed(1))} kg</td>
+        <td>${l.norme === null ? '—' : fmtNum(l.norme.toFixed(1)) + ' kg'}</td>
+        <td style="color:${l.ecart === null ? 'inherit' : (l.ecart >= 0 ? '#3a9d5d' : 'var(--danger)')}; font-weight:700;">${l.ecart === null ? '—' : (l.ecart > 0 ? '+' : '') + fmtNum(l.ecart.toFixed(1)) + ' kg'}</td>
+      </tr>`).join('')}</tbody></table></div>`;
+  }
+
+  // tableau de la norme : Âge | Poids | GMQ | GMH (GMH = GMQ x 7)
+  // tableau dérivé des mêmes tranches que la courbe : GMH = (poids fin - poids début) / nb de semaines ; GMQ = GMH / 7
+  const fp = v => fmtNum(Math.abs(v - Math.round(v)) < 0.05 ? Math.round(v) : v.toFixed(1));
+  let rows = '';
+  TRANCHES.forEach(t => {
+    const gmq = t[4] !== undefined ? t[4] : Math.round((t[3] - t[2]) / (t[1] - t[0]) * 1000 / 7);
+    const gmh = t[4] !== undefined ? t[4] * 7 / 1000 : (t[3] - t[2]) / (t[1] - t[0]);
+    rows += `<tr><td class="nt-age">${t[0]} à ${t[1]}</td><td class="nt-num">${fp(t[2])} à ${fp(t[3])}</td><td class="nt-num">${fmtNum(gmq)}</td><td class="nt-num nt-gmh">${fmtNum(gmh.toFixed(2))}</td></tr>`;
+  });
+  statHTML.norme = `<style>
+    .nt{width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums;}
+    .nt th{position:sticky; top:0; background:var(--accent); color:var(--accent-ink); padding:10px 8px; font-size:13px; text-align:center; line-height:1.25;}
+    .nt th small{display:block; font-weight:400; opacity:.85; font-size:11px;}
+    .nt td{padding:8px; border-bottom:1px solid var(--border); text-align:center;}
+    .nt tbody tr:nth-child(even){background:color-mix(in srgb, var(--border) 35%, transparent);}
+    .nt .nt-age{font-weight:700;}
+    .nt .nt-num{text-align:center;}
+    .nt .nt-gmh{font-weight:600; color:var(--norme);}
+  </style>
+  <table class="nt">
+    <thead><tr><th>Âge<small>semaines</small></th><th>Poids<small>kg</small></th><th>GMQ<small>g / jour</small></th><th>GMH<small>kg / semaine</small></th></tr></thead>
+    <tbody>${rows}</tbody></table>
+  <div class="meta" style="margin-top:10px;">GMQ = Gain Moyen Quotidien · GMH = Gain Moyen Hebdomadaire (GMQ × 7, en kg)</div>`;
+  statHTML.pesees = pEl.innerHTML;
+  majStatFullscreen();
+}
+
 function renderAll(){
+  synchroniserPoidsPesees();
   renderAnimaux(); updateMoyen(); renderParamProduits(); renderMatiereReferenceOptions(); renderParamRefProduit(); renderProduitReferenceOptions(); renderNormeForm(); renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions();
-  renderVenteOptions(); renderPeseeGroupeOptions(); renderProphylaxieGroupeOptions();
+  renderVenteOptions(); renderPeseeGroupeOptions(); renderProphylaxieGroupeOptions(); renderMortaliteGroupeOptions();
   renderTransfertOptions(); renderConsommationBombonneOptions(); renderConsommationManuelleBombonneOptions(); renderFormulationOptions();
   if(!document.getElementById('c-date').value){ document.getElementById('c-date').value = new Date().toISOString().slice(0,10); }
   renderDashboard();
@@ -3183,12 +4825,11 @@ async function initCloudSync(){
 renderAll();
 initCloudSync();
 
-if('serviceWorker' in navigator){
-  window.addEventListener('load', function(){
-    navigator.serviceWorker.register('service-worker.js').catch(function(e){ console.log('SW registration failed', e); });
-  });
-}
 
+</script>
+
+<script>
+if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('service-worker.js').catch(function(){}); }); }
 </script>
 </body>
 </html>
