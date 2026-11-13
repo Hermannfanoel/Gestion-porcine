@@ -156,7 +156,7 @@ section.drawer-focus > .drawer-open { position: relative; z-index: 2; }
 .drawer-body .drawer-head .dh-txt b { font-size: 13.5px; }
 .modal {
   position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-  display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px;
+  display: flex; align-items: center; justify-content: center; z-index: 500; padding: 20px;
 }
 .modal.hidden { display: none; }
 .modal-box {
@@ -225,6 +225,8 @@ main { padding-left: 0; padding-right: 0; }
     <div id="dash-alertes"></div>
     <div class="dash-sub" style="margin-top:12px;">Prophylaxie</div>
     <div id="dash-alertes-prophylaxie"></div>
+    <div class="dash-sub" style="margin-top:12px;">Reproduction</div>
+    <div id="dash-alertes-repro"></div>
   </div>
   <div class="card">
     <h2><span class="dash-h-ico">🛢️</span>Bombonnes — État de stock</h2>
@@ -890,6 +892,127 @@ main { padding-left: 0; padding-right: 0; }
     </div>
   </div>
 
+  <div class="drawer" id="top-tirage">
+    <div class="drawer-head" onclick="toggleDrawer('d-tirage')"><span class="dh-ico">🐖</span><span class="dh-txt"><b>REPRODUCTION</b><small>Saillie, naissance, sevrage, tirage</small></span><span class="chevron">▾</span></div>
+    <div id="d-tirage" class="drawer-body hidden">
+      <div class="card" id="repro-alertes-card">
+        <h2>ALERTES REPRODUCTION</h2>
+        <div id="repro-alertes"></div>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openVenteFullscreen('d-naissance-form', 'Naissance')"><span class="dh-ico">🐷</span><span class="dh-txt"><b>NAISSANCE</b><small>Inscrire la portée</small></span><span class="chevron">⤢</span></div>
+        <div id="d-naissance-form" class="drawer-body hidden">
+          <div class="card">
+            <p style="font-size:13px; color: var(--muted); margin: 0 0 10px;">La portée devient un groupe de porcelets, lié à sa mère. Son coût de départ est l'aliment et les soins de la truie pendant les 114 jours de gestation avant la mise bas. Le sevrage (45 jours) complétera le coût de l'allaitement.</p>
+            <label>Date de mise bas</label>
+            <input id="na-date" type="date">
+            <label>Truie (mère)</label>
+            <select id="na-truie" onchange="document.getElementById('na-groupe').dataset.auto='1'; document.getElementById('na-groupe').value=''; updateNaissanceInfo(); choisirTruieNaissance()"><option value="">— Choisir —</option></select>
+            <label>Verrat (père)</label>
+            <select id="na-verrat"><option value="">— Non précisé —</option></select>
+            <label>Nés vivants</label>
+            <input id="na-vivants" type="text" inputmode="numeric" placeholder="Ex: 10">
+            <label>Mort-nés</label>
+            <input id="na-mortnes" type="text" inputmode="numeric" placeholder="0">
+            <label>Momifiés</label>
+            <input id="na-momifies" type="text" inputmode="numeric" placeholder="0">
+            <label>Numéro du groupe de porcelets</label>
+            <input id="na-groupe" placeholder="Ex: T-001-01" oninput="this.dataset.auto=''">
+            <label>CLASSE (emplacement)</label>
+            <input id="na-classe" placeholder="Automatique : celle de la truie" oninput="updateNaissanceBox()">
+            <label>BOX</label>
+            <input id="na-box" placeholder="Automatique">
+            <button onclick="ajouterNaissanceDraft()">Ajouter</button>
+            <div id="naissanceDraftList" style="margin-top:10px;"></div>
+            <button onclick="validerNaissanceDraft()" style="margin-top:12px;">VALIDER</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openVenteFullscreen('d-sevrage-form', 'Sevrage - Ré-inscription')"><span class="dh-ico">🍼</span><span class="dh-txt"><b>SEVRAGE ET RÉ-INSCRIPTION</b><small>À 45 jours</small></span><span class="chevron">⤢</span></div>
+        <div id="d-sevrage-form" class="drawer-body hidden">
+          <div class="card">
+            <p style="font-size:13px; color: var(--muted); margin: 0 0 10px;">Si l'effectif sevré est plus petit que l'effectif actuel, la différence est comptée en mortalité d'allaitement. Vous pouvez aussi donner à la portée une part de la valeur de la truie et du verrat : elle est retirée du parent et ajoutée à la portée. Le groupe devient ensuite un groupe normal (pesées, consommation, prix de revient).</p>
+            <label>Portée</label>
+            <select id="se-portee" onchange="updateSevrageInfo()"><option value="">— Choisir —</option></select>
+            <label>Informations</label>
+            <input id="se-info" readonly disabled>
+            <label>Date de sevrage</label>
+            <input id="se-date" type="date" onchange="majPartsSevrage()">
+            <label>Effectif sevré</label>
+            <input id="se-eff" type="text" inputmode="numeric" placeholder="Ex: 9" oninput="majPartsSevrage()">
+            <label>Poids total (kg)</label>
+            <input id="se-poids" type="text" inputmode="decimal" onblur="liveFormat(this)">
+            <div id="se-bloc-truie">
+              <label>Valeur de la truie (disponible)</label>
+              <input id="se-val-truie" readonly disabled>
+              <label>Part de la truie donnée à la portée (Ar)</label>
+              <input id="se-part-truie" type="text" inputmode="decimal" oninput="majPartsSevrage()" onblur="liveFormat(this)">
+              <label>Valeur de la truie après</label>
+              <input id="se-apres-truie" readonly disabled>
+            </div>
+            <div id="se-bloc-verrat" class="hidden">
+              <label>Valeur du verrat (disponible)</label>
+              <input id="se-val-verrat" readonly disabled>
+              <label>Part du verrat donnée à la portée (Ar)</label>
+              <input id="se-part-verrat" type="text" inputmode="decimal" oninput="majPartsSevrage()" onblur="liveFormat(this)">
+              <label>Valeur du verrat après</label>
+              <input id="se-apres-verrat" readonly disabled>
+            </div>
+            <label>Valeur de la portée (aliment + parts)</label>
+            <input id="se-total-portee" readonly disabled>
+            <label>Valeur par porcelet sevré</label>
+            <input id="se-pr-portee" readonly disabled>
+            <label>CLASSE (emplacement)</label>
+            <input id="se-classe" placeholder="Nom de l'emplacement" oninput="updateSevrageBox()">
+            <label>BOX</label>
+            <input id="se-box" placeholder="Automatique">
+            <label>BOMBONNE (consommation)</label>
+            <select id="se-bombonne"><option value="">— Choisir —</option></select>
+            <button onclick="ajouterSevrageDraft()">Ajouter</button>
+            <div id="sevrageDraftList" style="margin-top:10px;"></div>
+            <button onclick="validerSevrageDraft()" style="margin-top:12px;">VALIDER</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openReproListFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE REPRODUCTION</b><small>Historique</small></span><span class="chevron">⤢</span></div>
+      </div>
+
+      <div class="drawer">
+        <div class="drawer-head" onclick="openVenteFullscreen('d-tirage-form', 'Tirage et inscription')"><span class="dh-ico">🐖</span><span class="dh-txt"><b>TIRAGE ET INSCRIPTION</b><small>Tirer des porcs d'un groupe : truie ou verrat</small></span><span class="chevron">⤢</span></div>
+        <div id="d-tirage-form" class="drawer-body hidden">
+      <div class="card">
+        <p style="font-size:13px; color: var(--muted); margin: 0 0 10px;">Choisissez le groupe d'origine, le type et le numéro du porc tiré. Il devient un animal à part (1 tête) et l'effectif du groupe diminue. Comme pour une mortalité, il faudra ensuite faire l'EXCEPTION du groupe avant sa prochaine pesée.</p>
+        <label>Date</label>
+        <input id="ti-date" type="date">
+        <label>Groupe d'origine</label>
+        <select id="ti-groupe" onchange="updateTirageInfo()"><option value="">— Choisir —</option></select>
+        <label>Effectif actuel</label>
+        <input id="ti-effectif" readonly disabled>
+        <label>Type</label>
+        <select id="ti-type"><option>Truie</option><option>Verrat</option></select>
+        <label>Numéro du porc tiré</label>
+        <input id="ti-id" placeholder="Ex: T-012">
+        <label>CLASSE (emplacement)</label>
+        <input id="ti-classe" placeholder="Nom de l'emplacement" oninput="updateTirageBox()">
+        <label>BOX</label>
+        <input id="ti-box" placeholder="Automatique">
+        <button onclick="ajouterTirageDraft()">Ajouter</button>
+        <div id="tirageDraftList" style="margin-top:10px;"></div>
+        <button onclick="validerTirageDraft()" style="margin-top:12px;">VALIDER</button>
+      </div>
+        </div>
+      </div>
+      <div class="drawer">
+        <div class="drawer-head" onclick="openTirageListFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES TIRAGES</b><small>Historique</small></span><span class="chevron">⤢</span></div>
+      </div>
+    </div>
+  </div>
+
   <div class="drawer" id="top-mortalite">
     <div class="drawer-head" onclick="toggleDrawer('d-mortalite')"><span class="dh-ico">☠️</span><span class="dh-txt"><b>MORTALITÉ</b><small>Porcs morts</small></span><span class="chevron">▾</span></div>
     <div id="d-mortalite" class="drawer-body hidden">
@@ -1006,7 +1129,7 @@ const CLES_SAUVEGARDE = [
   'pig_animaux','pig_matieres','pig_produits','pig_param_produits',
   'pig_param_ref_produit','pig_param_bombonne','pig_norme_consommation','pig_consommation',
   'pig_mouvement_matieres','pig_mouvement_produits','pig_mouvement_bombonne','pig_transfert',
-  'pig_formulation','pig_production','pig_ventes','pig_pesees','pig_prophylaxie','pig_charges','pig_apports','pig_mortalite','pig_stat_param','pig_ventes_matieres','pig_ventes_porcs','pig_resultat_estimation'
+  'pig_formulation','pig_production','pig_ventes','pig_pesees','pig_prophylaxie','pig_charges','pig_apports','pig_mortalite','pig_tirages','pig_saillies','pig_naissances','pig_stat_param','pig_ventes_matieres','pig_ventes_porcs','pig_resultat_estimation'
 ];
 function reinitialiserDonnees(){
   showConfirm("⚠️ Ceci va EFFACER DÉFINITIVEMENT toutes les données de l'application (animaux, achats, stock, formules, consommations, finances...). Voulez-vous continuer ?", function(){
@@ -1180,7 +1303,11 @@ function renderDashboard(){
   document.getElementById('dash-alertes-prophylaxie').innerHTML = alertesProphylaxie.length
     ? alertesProphylaxie.map(a => `<div class="dash-chip warn">💉 <span>${a.texte}</span></div>`).join('')
     : '<div class="dash-ok">✓ Prophylaxie à jour.</div>';
-  const nbAl = alertes.length + alertesProphylaxie.length;
+  const alertesRepro = alertesReproduction();
+  document.getElementById('dash-alertes-repro').innerHTML = alertesRepro.length
+    ? alertesRepro.map(a => `<div class="dash-chip warn">🐖 <span>${a.texte}</span></div>`).join('')
+    : '<div class="dash-ok">✓ Aucune alerte de reproduction.</div>';
+  const nbAl = alertes.length + alertesProphylaxie.length + alertesRepro.length;
   const badge = document.getElementById('dash-alert-count');
   badge.textContent = nbAl || ''; badge.classList.toggle('ok', false);
 
@@ -1545,12 +1672,13 @@ function renderAnimaux(){
   const list = load('pig_animaux');
   const el = document.getElementById('animauxList');
   if(!list.length){ el.innerHTML = '<div class="empty">Aucun animal enregistré pour le moment.</div>'; return; }
-  const morts = load('pig_mortalite'), ventes = load('pig_ventes_porcs');
+  const morts = load('pig_mortalite'), ventes = load('pig_ventes_porcs'), tirages = load('pig_tirages');
   const stat = a => {
     const cur = parseFloat(a.effectif) || 0;
     const m = morts.filter(x => normRef(x.groupe) === normRef(a.id)).reduce((acc,x) => acc + (parseFloat(x.morts) || 0), 0);
     const v = ventes.filter(x => normRef(x.groupe) === normRef(a.id)).reduce((acc,x) => acc + (parseFloat(x.quantite) || 0), 0);
-    return { cur, m, v, init: cur + m + v };
+    const t = tirages.filter(x => normRef(x.groupe) === normRef(a.id)).length;
+    return { cur, m, v, init: cur + m + v + t };
   };
   const totalActuel = list.reduce((acc,a) => acc + stat(a).cur, 0);
   const entete = `<div style="display:flex; align-items:center; gap:12px; padding:12px 14px; margin-bottom:10px; border-radius:14px; background:color-mix(in srgb, var(--accent) 14%, var(--card)); border:1px solid color-mix(in srgb, var(--accent) 40%, transparent);">
@@ -1800,9 +1928,36 @@ function renderConsommationBombonneOptions(){
   sel.innerHTML = '<option value="">— Choisir —</option>' + list.map(b => `<option value="${b.nom}">${labelBombonne(b)}</option>`).join('');
   if(list.some(b => b.nom === current)) sel.value = current;
 }
+function arrondi3(x){ return Math.round((x + Number.EPSILON) * 1000) / 1000; }
 function getBombonneBrutStock(nom){
   const mouvements = load('pig_mouvement_bombonne').filter(m => m.bombonne === nom);
-  return mouvements.reduce((acc,m) => acc + (m.type === 'Entrée' ? (m.quantite || 0) : 0) - (m.type === 'Sortie' ? (m.quantite || 0) : 0), 0);
+  return arrondi3(mouvements.reduce((acc,m) => acc + (m.type === 'Entrée' ? (parseFloat(m.quantite) || 0) : 0) - (m.type === 'Sortie' ? (parseFloat(m.quantite) || 0) : 0), 0));
+}
+// Sortie de bombonne : acceptée si la quantité demandée est inférieure ou égale au stock brut (98 sur 98 = stock brut 0, stock net = tare)
+function demandeEnCoursBombonne(nom){
+  return consommationDrafts.concat(consommationManuelleDrafts).filter(d => d.bombonne === nom).reduce((acc,d) => acc + (parseNum(d.total) || 0), 0);
+}
+function verifierStockBombonne(nom, quantite){
+  const disponible = getBombonneBrutStock(nom);
+  const demande = quantite + demandeEnCoursBombonne(nom);
+  if(arrondi3(demande) > arrondi3(disponible)){
+    showAlert("Stock insuffisant dans " + nom + " (stock brut disponible : " + fmtNum(disponible.toFixed(2)) + ", demandé : " + fmtNum(arrondi3(demande).toFixed(2)) + "). Merci de faire un approvisionnement de bombonne.");
+    return false;
+  }
+  return true;
+}
+// Contrôle final au moment de VALIDER (stock brut réel au moment de la validation)
+function verifierBrouillonsBombonne(drafts){
+  const parBombonne = {};
+  drafts.forEach(d => { parBombonne[d.bombonne] = (parBombonne[d.bombonne] || 0) + (parseNum(d.total) || 0); });
+  for(const nom of Object.keys(parBombonne)){
+    const disponible = getBombonneBrutStock(nom);
+    if(arrondi3(parBombonne[nom]) > arrondi3(disponible)){
+      showAlert("Stock insuffisant dans " + nom + " (stock brut disponible : " + fmtNum(disponible.toFixed(2)) + ", demandé : " + fmtNum(arrondi3(parBombonne[nom]).toFixed(2)) + "). Merci de faire un approvisionnement de bombonne.");
+      return false;
+    }
+  }
+  return true;
 }
 function updateConsommationBombonneStock(){
   const nom = document.getElementById('c-bombonne').value;
@@ -1817,6 +1972,7 @@ function ajouterConsommationDraft(){
   if(!total || total === '—' || total.indexOf('Norme non définie') === 0){ showAlert("Aucune consommation calculable pour ce groupe."); return; }
   const bombonne = document.getElementById('c-bombonne').value;
   if(!bombonne){ showAlert("Merci de choisir une bombonne."); return; }
+  if(!verifierStockBombonne(bombonne, parseNum(total) || 0)) return;
   consommationDrafts.push({
     date: document.getElementById('c-date').value || new Date().toISOString().slice(0,10),
     groupe,
@@ -1845,6 +2001,7 @@ function renderConsommationDraft(){
 }
 function validerConsommationDraft(){
   if(!consommationDrafts.length){ showAlert("Aucune consommation à valider."); return; }
+  if(!verifierBrouillonsBombonne(consommationDrafts)) return;
   const list = load('pig_consommation');
   const mouvementsBombonne = load('pig_mouvement_bombonne');
   consommationDrafts.forEach(item => {
@@ -1899,13 +2056,7 @@ function ajouterConsommationManuelleDraft(){
   if(!total || parseNum(total) <= 0){ showAlert("Merci de saisir la consommation totale."); return; }
   const bombonne = document.getElementById('cm-bombonne').value;
   if(!bombonne){ showAlert("Merci de choisir une bombonne."); return; }
-  const quantiteTotal = parseNum(total) || 0;
-  const disponible = getBombonneBrutStock(bombonne);
-  const dejaEnCours = consommationManuelleDrafts.filter(d => d.bombonne === bombonne).reduce((acc,d) => acc + (parseNum(d.total) || 0), 0);
-  if(quantiteTotal + dejaEnCours > disponible){
-    showAlert("Stock insuffisant dans " + bombonne + " (disponible : " + fmtNum(disponible.toFixed(1)) + ", demandé : " + fmtNum((quantiteTotal + dejaEnCours).toFixed(1)) + "). Merci de faire un approvisionnement de bombonne.");
-    return;
-  }
+  if(!verifierStockBombonne(bombonne, parseNum(total) || 0)) return;
   consommationManuelleDrafts.push({
     date: document.getElementById('cm-date').value || new Date().toISOString().slice(0,10),
     groupe,
@@ -1937,6 +2088,7 @@ function renderConsommationManuelleDraft(){
 }
 function validerConsommationManuelleDraft(){
   if(!consommationManuelleDrafts.length){ showAlert("Aucune consommation à valider."); return; }
+  if(!verifierBrouillonsBombonne(consommationManuelleDrafts)) return;
   const list = load('pig_consommation');
   const mouvementsBombonne = load('pig_mouvement_bombonne');
   consommationManuelleDrafts.forEach(item => {
@@ -2209,6 +2361,8 @@ function openVenteFullscreen(bodyId, titre){
   if(bodyId === 'd-vente-mp') updateVenteMPStock();
   if(bodyId === 'd-vente-porc') updateVentePorcInfo();
   if(bodyId === 'd-pesage') updatePeseeAnciens();
+  if(bodyId === 'd-tirage-form') updateTirageInfo();
+  if(bodyId === 'd-saillie-form' || bodyId === 'd-naissance-form' || bodyId === 'd-sevrage-form') renderRepro();
 }
 function restaurerFsDeplace(){
   if(!fsDeplace) return;
@@ -2322,7 +2476,7 @@ function renderPeseeGroupeOptions(){
   }
 }
 function groupeNeedsReference(groupe){
-  const lastMort = Math.max(0, ...load('pig_mortalite').filter(m => m.groupe === groupe).map(m => m.ts || 0), ...load('pig_ventes_porcs').filter(m => m.groupe === groupe).map(m => m.ts || 0));
+  const lastMort = Math.max(0, ...load('pig_mortalite').filter(m => m.groupe === groupe).map(m => m.ts || 0), ...load('pig_ventes_porcs').filter(m => m.groupe === groupe).map(m => m.ts || 0), ...load('pig_tirages').filter(m => m.groupe === groupe).map(m => m.ts || 0));
   if(!lastMort) return false;
   const lastPes = Math.max(0, ...load('pig_pesees').filter(p => p.groupe === groupe).map(p => p.ts || 0));
   return lastMort > lastPes;
@@ -2331,7 +2485,7 @@ function updatePeseeRefMsg(groupe){
   const el = document.getElementById('pd-ref-msg');
   if(!el) return;
   el.textContent = (groupe && groupeNeedsReference(groupe))
-    ? "⚠ Mortalité ou vente enregistrée : faites d'abord l'EXCEPTION de ce groupe (POIDS > EXCEPTION) avant une nouvelle pesée."
+    ? "⚠ Mortalité, vente ou tirage enregistré : faites d'abord l'EXCEPTION de ce groupe (POIDS > EXCEPTION) avant une nouvelle pesée."
     : '';
 }
 function getDernierePesee(groupe){
@@ -2414,7 +2568,7 @@ let peseeDrafts = [];
 function ajouterPeseeDraft(){
   const groupe = document.getElementById('pd-groupe').value;
   if(!groupe){ showAlert("Merci de choisir un groupe."); return; }
-  if(groupeNeedsReference(groupe)){ showAlert("Une mortalité ou une vente de porcs a été enregistrée pour " + groupe + ". Faites d'abord l'EXCEPTION (POIDS > EXCEPTION) avant une nouvelle pesée."); return; }
+  if(groupeNeedsReference(groupe)){ showAlert("Une mortalité, une vente ou un tirage de porcs a été enregistré pour " + groupe + ". Faites d'abord l'EXCEPTION (POIDS > EXCEPTION) avant une nouvelle pesée."); return; }
   const poidsTotal = parseNum(document.getElementById('pd-poids-total').value);
   if(isNaN(poidsTotal)){ showAlert("Merci de saisir le nouveau poids total."); return; }
   const animal = load('pig_animaux').find(a => a.id === groupe);
@@ -2464,7 +2618,7 @@ function updateException(){
   document.getElementById('ex-eff').value = animal && animal.effectif ? fmtNum(animal.effectif) : '—';
   document.getElementById('ex-moyen').value = '';
   document.getElementById('ex-age').value = '';
-  if(groupeNeedsReference(groupe)){ document.getElementById('ex-msg').textContent = "⚠ Mortalité ou vente enregistrée : l'exception est obligatoire avant une nouvelle pesée."; }
+  if(groupeNeedsReference(groupe)){ document.getElementById('ex-msg').textContent = "⚠ Mortalité, vente ou tirage enregistré : l'exception est obligatoire avant une nouvelle pesée."; }
 }
 function updateExceptionNouveau(){
   const groupe = document.getElementById('ex-groupe').value;
@@ -2509,7 +2663,7 @@ function renderPeseeDraft(){
 function validerPeseeDraft(){
   if(!peseeDrafts.length){ showAlert("Aucune pesée à valider."); return; }
   const bloque = peseeDrafts.find(d => groupeNeedsReference(d.groupe));
-  if(bloque){ showAlert("Une mortalité ou une vente de porcs a été enregistrée pour " + bloque.groupe + ". Faites d'abord l'EXCEPTION (POIDS > EXCEPTION), puis supprimez cette pesée en attente."); return; }
+  if(bloque){ showAlert("Une mortalité, une vente ou un tirage de porcs a été enregistré pour " + bloque.groupe + ". Faites d'abord l'EXCEPTION (POIDS > EXCEPTION), puis supprimez cette pesée en attente."); return; }
   const list = load('pig_pesees');
   const animaux = load('pig_animaux');
   [...peseeDrafts].sort((a,b) => (a.date || '').localeCompare(b.date || '')).forEach(p => {
@@ -2783,7 +2937,10 @@ function buildPRPorcHTML(filterGroupe){
     const effectif = animal ? parseFloat(animal.effectif) || 0 : 0;
     const achatAnimaux = animal ? parseFloat(animal.prixTotal) || 0 : 0;
     const nbVendusGroupe = load('pig_ventes_porcs').filter(v => normRef(v.groupe) === normRef(g)).reduce((acc,v) => acc + (parseFloat(v.quantite) || 0), 0);
-    const prixAchatParTete = (effectif + nbVendusGroupe) > 0 ? achatAnimaux / (effectif + nbVendusGroupe) : 0;
+    const tiresGroupe = load('pig_tirages').filter(t => normRef(t.groupe) === normRef(g));
+    const nbTires = tiresGroupe.length;
+    const coutTires = tiresGroupe.reduce((acc,t) => acc + (parseFloat(t.coutRetire) || 0), 0);
+    const prixAchatParTete = (effectif + nbVendusGroupe + nbTires) > 0 ? achatAnimaux / (effectif + nbVendusGroupe + nbTires) : 0;
     let totalAliment = 0;
     const rows = Object.keys(parProduit).map(produit => {
       const qty = parProduit[produit];
@@ -2794,7 +2951,8 @@ function buildPRPorcHTML(filterGroupe){
     }).join('');
     const coutVendus = load('pig_ventes_porcs').filter(v => normRef(v.groupe) === normRef(g)).reduce((acc,v) => acc + (parseFloat(v.coutRetire) || 0), 0);
     const coutProphylaxie = coutProphylaxieGroupe(g);
-    const totalCout = totalAliment + achatAnimaux + coutProphylaxie - coutVendus;
+    const coutNaiss = coutTransfereTruie(g);
+    const totalCout = totalAliment + achatAnimaux + coutProphylaxie - coutVendus - coutTires - coutNaiss;
     const coutParTete = effectif > 0 ? totalCout / effectif : 0;
     const consommationTotale = Object.values(parProduit).reduce((acc,q) => acc + q, 0);
     html += `<div class="card pr-porc">
@@ -2811,6 +2969,8 @@ function buildPRPorcHTML(filterGroupe){
       <div class="meta" style="color:#fff; font-weight:700;">Coût Total des animaux (par tête) : <span class="pr-val">${fmtNum(prixAchatParTete.toFixed(2))} Ar</span></div>
       ${coutProphylaxie > 0 ? `<div class="meta" style="color:#fff; font-weight:700;">Coût prophylaxie (soins/vaccins) : <span class="pr-val">${fmtNum(coutProphylaxie.toFixed(2))} Ar</span></div>` : ''}
       ${coutVendus > 0 ? `<div class="meta" style="color:#fff; font-weight:700;">Coût des porcs vendus (déduit) : <span class="pr-val">${fmtNum(coutVendus.toFixed(2))} Ar</span></div>` : ''}
+      ${coutNaiss > 0 ? `<div class="meta" style="color:#fff; font-weight:700;">Coût transmis aux porcelets (déduit) : <span class="pr-val">${fmtNum(coutNaiss.toFixed(2))} Ar</span></div>` : ''}
+      ${coutTires > 0 ? `<div class="meta" style="color:#fff; font-weight:700;">Coût des porcs tirés (déduit) : <span class="pr-val">${fmtNum(coutTires.toFixed(2))} Ar</span></div>` : ''}
       <div class="meta" style="color:#fff; font-weight:700;">Coût total (animaux + aliment + prophylaxie) : <span class="pr-val">${fmtNum(totalCout.toFixed(2))} Ar</span></div>
       <div class="meta" style="color:#fff; font-weight:700;">Coût par tête : <span class="pr-val">${fmtNum(coutParTete.toFixed(2))} Ar</span></div>
     </div>`;
@@ -2975,7 +3135,7 @@ function getSoldeCompte(){
 function getLignesCompte(){
   const lignes = [];
   load('pig_animaux').forEach(a => {
-    if(a.prixTotal){ lignes.push({ cat: 'achats', date: a.entree, libelle: 'Achat Animal — ' + a.id, debit: 0, credit: parseFloat(a.prixTotal) || 0 }); }
+    if(a.prixTotal && !a.tire && !a.portee){ lignes.push({ cat: 'achats', date: a.entree, libelle: 'Achat Animal — ' + a.id, debit: 0, credit: parseFloat(a.prixTotal) || 0 }); }
   });
   load('pig_prophylaxie').forEach(x => {
     if(parseFloat(x.cout) > 0){ lignes.push({ cat: 'charges', date: x.date, libelle: 'Prophylaxie — ' + x.groupe + ' (' + x.produit + ')', debit: 0, credit: parseFloat(x.cout) || 0 }); }
@@ -4286,6 +4446,482 @@ function renderMortaliteGroupeOptions(){
   const groupes = [...new Set(load('pig_animaux').map(a => a.id))];
   sel.innerHTML = '<option value="">— Choisir —</option>' + groupes.map(g => `<option>${g}</option>`).join('');
   if(groupes.includes(current)) sel.value = current;
+  renderTirageGroupeOptions();
+}
+// ===== Reproduction : saillie, naissance, sevrage (ré-inscription) =====
+const JOURS_GESTATION = 114, JOURS_SEVRAGE = 45, JOURS_RETOUR_CHALEUR = 5;
+function aujourdhui(){ return new Date().toISOString().slice(0,10); }
+function addJours(d, n){ const [y,m,j] = d.split('-').map(Number); const t = new Date(y, m - 1, j + n); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0'); }
+function ecartJours(a, b){ const A = a.split('-').map(Number), B = b.split('-').map(Number); return Math.round((new Date(B[0], B[1]-1, B[2]) - new Date(A[0], A[1]-1, A[2])) / 86400000); }
+// Coût de la mère (aliment + soins) entre deux dates (incluses)
+function coutTruiePeriode(truie, d1, d2){
+  let tot = 0;
+  load('pig_consommation').filter(c => normRef(c.groupe) === normRef(truie) && c.date && (!d1 || c.date >= d1) && (!d2 || c.date <= d2)).forEach(c => {
+    const qty = parseNum(c.total) || 0;
+    const produit = c.bombonne ? (getProduitDansBombonneADate(c.bombonne, c.date) || 'Inconnu') : 'Inconnu';
+    tot += qty * getPrixRevientProduit(produit);
+  });
+  load('pig_prophylaxie').filter(p => normRef(p.groupe) === normRef(truie) && p.date && (!d1 || p.date >= d1) && (!d2 || p.date <= d2)).forEach(p => { tot += parseFloat(p.cout) || 0; });
+  return tot;
+}
+function coutTransfereTruie(id){
+  return load('pig_naissances').reduce((acc,n) => {
+    if(normRef(n.truie) === normRef(id)){ acc += (parseFloat(n.coutGestation) || 0) + (parseFloat(n.coutAllaitement) || 0) + (parseFloat(n.partTruie) || 0); }
+    if(n.pere && normRef(n.pere) === normRef(id)){ acc += (parseFloat(n.partVerrat) || 0); }
+    return acc;
+  }, 0);
+}
+// Valeur disponible d'un parent (truie : après le transfert de l'aliment d'allaitement de ce sevrage)
+function valeurParent(id, n, dateSevrage, estTruie){
+  const a = load('pig_animaux').find(x => x.id === id);
+  if(!a) return null;
+  let v = getCoutParTeteGroupe(id, parseFloat(a.effectif) || 1) || 0;
+  if(estTruie && n && dateSevrage){ v -= coutTruiePeriode(id, addJours(n.date, 1), dateSevrage); }
+  return Math.max(0, v);
+}
+function saillieOuverte(truie){ return load('pig_saillies').filter(s => s.truie === truie && s.statut === 'gestante').sort((a,b) => (b.date || '').localeCompare(a.date || ''))[0] || null; }
+function porteeEnCours(truie){ return load('pig_naissances').find(n => n.truie === truie && !n.sevre) || null; }
+function optionsHTML(liste, vide){ return '<option value="">' + vide + '</option>' + liste.map(x => `<option>${x}</option>`).join(''); }
+function remplirSelect(id, liste, vide){
+  const el = document.getElementById(id); if(!el) return;
+  const cur = el.value;
+  el.innerHTML = optionsHTML(liste, vide);
+  if(liste.includes(cur)) el.value = cur;
+}
+function alertesReproduction(){
+  const al = [], auj = aujourdhui();
+  const quand = j => j < 0 ? 'EN RETARD DE ' + (-j) + ' J' : (j === 0 ? 'AUJOURD\'HUI' : 'DANS ' + j + ' J');
+  load('pig_saillies').filter(s => s.statut === 'gestante').forEach(s => {
+    const j = ecartJours(auj, s.prevue);
+    if(j <= 5) al.push({ texte: 'MISE BAS ' + quand(j) + ' : TRUIE ' + s.truie, detail: 'Saillie du ' + fmtDate(s.date) + ' · prévue le ' + fmtDate(s.prevue) });
+  });
+  const naiss = load('pig_naissances');
+  naiss.filter(n => !n.sevre).forEach(n => {
+    const sev = addJours(n.date, JOURS_SEVRAGE), j = ecartJours(auj, sev);
+    if(j <= 5) al.push({ texte: 'SEVRAGE ' + quand(j) + ' : PORTÉE ' + n.groupe, detail: 'Truie ' + n.truie + ' · née le ' + fmtDate(n.date) + ' · sevrage prévu le ' + fmtDate(sev) });
+  });
+  const derniers = {};
+  naiss.filter(n => n.sevre && n.dateSevrage).forEach(n => { if(!derniers[n.truie] || n.dateSevrage > derniers[n.truie]) derniers[n.truie] = n.dateSevrage; });
+  Object.keys(derniers).forEach(t => {
+    const apres = load('pig_saillies').some(s => s.truie === t && s.date >= derniers[t]);
+    const utiliseSaillie = load('pig_saillies').some(s => s.truie === t);
+    if(utiliseSaillie && !apres && !porteeEnCours(t) && ecartJours(addJours(derniers[t], JOURS_RETOUR_CHALEUR), auj) >= 0){
+      al.push({ texte: 'RETOUR EN CHALEUR : TRUIE ' + t + ' À RESAILLIR', detail: 'Sevrée le ' + fmtDate(derniers[t]) });
+    }
+  });
+  return al;
+}
+function renderRepro(){
+  const animaux = load('pig_animaux');
+  remplirSelect('sa-truie', animaux.filter(a => a.type === 'Truie').map(a => a.id), '— Choisir —');
+  remplirSelect('sa-verrat', animaux.filter(a => a.type === 'Verrat').map(a => a.id), '— Non précisé —');
+  remplirSelect('na-truie', animaux.filter(a => a.type === 'Truie').map(a => a.id), '— Choisir —');
+  remplirSelect('na-verrat', animaux.filter(a => a.type === 'Verrat').map(a => a.id), '— Non précisé —');
+  remplirSelect('se-portee', load('pig_naissances').filter(n => !n.sevre).map(n => n.groupe), '— Choisir —');
+  remplirSelect('se-bombonne', load('pig_param_bombonne').map(b => b.nom), '— Choisir —');
+  const al = alertesReproduction();
+  const el = document.getElementById('repro-alertes');
+  if(el) el.innerHTML = al.length ? al.map(a => `<div class="meta" style="color:#d9a62e; font-weight:700; margin-bottom:6px; padding:10px; border:1px dashed #d9a62e; border-radius:10px;">🐖 ${a.texte}<div style="font-size:12px; font-weight:500; color:var(--muted);">${a.detail}</div></div>`).join('') : '<div class="empty">Aucune alerte de reproduction.</div>';
+  const sm = document.querySelector('#top-tirage > .drawer-head small');
+  if(sm){ sm.textContent = al.length ? '⚠ ' + al.length + ' alerte' + (al.length > 1 ? 's' : '') : 'Naissance, sevrage, tirage'; sm.classList.toggle('px-battement', al.length > 0); }
+  updateSailleInfo(); updateNaissanceInfo(); updateSevrageInfo();
+  return al;
+}
+function renderDrafts(elId, drafts, texteFn, delFn){
+  const el = document.getElementById(elId); if(!el) return;
+  el.innerHTML = drafts.map((d,i) => `<div class="item"><div>${texteFn(d)}</div><button class="del" onclick="${delFn}(${i})">Suppr.</button></div>`).join('');
+}
+
+// --- Saillie ---
+let sailleDrafts = [];
+function updateSailleInfo(){
+  const d = document.getElementById('sa-date'), pv = document.getElementById('sa-prevue');
+  if(!d || !pv) return;
+  if(!d.value) d.value = aujourdhui();
+  pv.value = fmtDate(addJours(d.value, JOURS_GESTATION));
+}
+function ajouterSailleDraft(){
+  const date = document.getElementById('sa-date').value || aujourdhui();
+  const truie = document.getElementById('sa-truie').value;
+  if(!truie){ showAlert("Merci de choisir la truie."); return; }
+  const verrat = document.getElementById('sa-verrat').value;
+  const pousser = function(){
+    sailleDrafts.push({ date, truie, verrat });
+    document.getElementById('sa-truie').value = ''; document.getElementById('sa-verrat').value = '';
+    renderSailleDraft();
+  };
+  const ouverte = saillieOuverte(truie);
+  if(ouverte || sailleDrafts.some(d => d.truie === truie)){
+    showConfirm("La truie " + truie + " est déjà gestante" + (ouverte ? " (saillie du " + fmtDate(ouverte.date) + ")" : "") + ". Enregistrer une nouvelle saillie quand même ?", pousser);
+  } else { pousser(); }
+}
+function delSailleDraft(i){ sailleDrafts.splice(i,1); renderSailleDraft(); }
+function renderSailleDraft(){ renderDrafts('sailleDraftList', sailleDrafts, d => `<div class="name">${d.truie} <span class="pill">Saillie</span></div><div class="meta">${fmtDate(d.date)}${d.verrat ? ' · verrat ' + d.verrat : ''} · mise bas prévue le ${fmtDate(addJours(d.date, JOURS_GESTATION))}</div>`, 'delSailleDraft'); }
+function validerSailleDraft(){
+  if(!sailleDrafts.length){ showAlert("Aucune saillie à valider."); return; }
+  const liste = load('pig_saillies');
+  sailleDrafts.forEach((d,i) => {
+    liste.forEach(s => { if(s.truie === d.truie && s.statut === 'gestante'){ s.statut = 'refaite'; } });
+    liste.unshift({ id: 'S' + Date.now() + '-' + i, date: d.date, truie: d.truie, verrat: d.verrat, prevue: addJours(d.date, JOURS_GESTATION), statut: 'gestante', ts: Date.now() });
+  });
+  save('pig_saillies', liste);
+  sailleDrafts = []; renderSailleDraft(); renderRepro();
+}
+
+// --- Naissance (petite inscription de la portée) ---
+let naissanceDrafts = [];
+function updateNaissanceBox(){
+  const m = document.getElementById('na-classe').value.trim().match(/[A-Za-z]/);
+  document.getElementById('na-box').value = m ? m[0].toUpperCase() : '';
+}
+function updateNaissanceInfo(){
+  const d = document.getElementById('na-date'), g = document.getElementById('na-groupe');
+  if(!d || !g) return;
+  if(!d.value) d.value = aujourdhui();
+  const truie = document.getElementById('na-truie').value;
+  if(!truie) return;
+  if(!g.value || g.dataset.auto === '1'){
+    const rang = load('pig_naissances').filter(n => n.truie === truie).length + naissanceDrafts.filter(x => x.truie === truie).length + 1;
+    g.value = truie + '-' + String(rang).padStart(2,'0'); g.dataset.auto = '1';
+  }
+}
+function choisirTruieNaissance(){
+  const t = document.getElementById('na-truie').value;
+  const a = load('pig_animaux').find(x => x.id === t);
+  document.getElementById('na-classe').value = a ? (a.classe || '') : '';
+  document.getElementById('na-box').value = a ? (a.box || '') : '';
+}
+function ajouterNaissanceDraft(){
+  const truie = document.getElementById('na-truie').value;
+  if(!truie){ showAlert("Merci de choisir la truie (la mère)."); return; }
+  const date = document.getElementById('na-date').value || aujourdhui();
+  const nb = id => { const v = parseNum(document.getElementById(id).value); return isNaN(v) ? 0 : v; };
+  const vivants = nb('na-vivants'), mortnes = nb('na-mortnes'), momifies = nb('na-momifies');
+  if(!(vivants >= 1) || [vivants, mortnes, momifies].some(v => v < 0 || Math.floor(v) !== v)){ showAlert("Merci de saisir des nombres entiers (au moins 1 né vivant)."); return; }
+  const groupe = document.getElementById('na-groupe').value.trim();
+  if(!groupe){ showAlert("Merci d'indiquer le numéro du groupe de porcelets."); return; }
+  if(load('pig_animaux').some(a => a.id === groupe) || naissanceDrafts.some(d => d.groupe === groupe)){ showAlert("Ce numéro (" + groupe + ") existe déjà. Choisissez-en un autre."); return; }
+  const enCours = porteeEnCours(truie);
+  if(enCours){ showAlert("La truie " + truie + " allaite encore la portée " + enCours.groupe + ". Faites d'abord son sevrage."); return; }
+  if(naissanceDrafts.some(d => d.truie === truie)){ showAlert("Une naissance est déjà en attente pour la truie " + truie + "."); return; }
+  naissanceDrafts.push({ date, truie, verrat: document.getElementById('na-verrat').value, vivants, mortnes, momifies, groupe, classe: document.getElementById('na-classe').value.trim(), box: document.getElementById('na-box').value.trim() });
+  ['na-truie','na-verrat','na-vivants','na-mortnes','na-momifies','na-groupe','na-classe','na-box'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('na-groupe').dataset.auto = '1';
+  renderNaissanceDraft(); updateNaissanceInfo();
+}
+function delNaissanceDraft(i){ naissanceDrafts.splice(i,1); renderNaissanceDraft(); }
+function renderNaissanceDraft(){ renderDrafts('naissanceDraftList', naissanceDrafts, d => `<div class="name">${d.groupe} <span class="pill">Naissance</span></div><div class="meta">${fmtDate(d.date)} · truie ${d.truie}${d.verrat ? ' · verrat ' + d.verrat : ''} · vivants ${fmtNum(d.vivants)} · mort-nés ${fmtNum(d.mortnes)} · momifiés ${fmtNum(d.momifies)}</div>`, 'delNaissanceDraft'); }
+function validerNaissanceDraft(){
+  if(!naissanceDrafts.length){ showAlert("Aucune naissance à valider."); return; }
+  const animaux = load('pig_animaux'), naiss = load('pig_naissances'), saillies = load('pig_saillies');
+  naissanceDrafts.forEach((d,i) => {
+    const mere = animaux.find(a => a.id === d.truie) || {};
+    const s = saillies.find(x => x.truie === d.truie && x.statut === 'gestante');
+    const debutGest = s ? s.date : addJours(d.date, -JOURS_GESTATION);
+    const coutGest = coutTruiePeriode(d.truie, debutGest, d.date);
+    const pere = d.verrat || (s ? s.verrat : '') || '';
+    const classe = d.classe || mere.classe || '', box = d.box || (d.classe ? '' : mere.box) || '';
+    animaux.unshift({ id: d.groupe, type: 'Porcelet', classe, box, bombonne: '', entree: d.date, age: '0', poids: '', effectif: d.vivants, prixU: coutGest / d.vivants || '', prixTotal: coutGest || '', origine: d.truie, mere: d.truie, pere, portee: true });
+    naiss.unshift({ id: 'N' + Date.now() + '-' + i, date: d.date, truie: d.truie, pere, saillieId: s ? s.id : '', groupe: d.groupe, vivants: d.vivants, mortnes: d.mortnes, momifies: d.momifies, coutGestation: coutGest, coutAllaitement: 0, sevre: false, ts: Date.now() });
+    if(s){ s.statut = 'mise_bas'; s.dateMiseBas = d.date; }
+  });
+  save('pig_animaux', animaux); save('pig_naissances', naiss); save('pig_saillies', saillies);
+  naissanceDrafts = []; renderNaissanceDraft(); renderAnimaux();
+  renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions(); renderPeseeGroupeOptions(); renderProphylaxieGroupeOptions(); renderMortaliteGroupeOptions();
+  renderRepro();
+}
+
+// --- Sevrage = ré-inscription à 45 jours ---
+let sevrageDrafts = [];
+function updateSevrageBox(){
+  const m = document.getElementById('se-classe').value.trim().match(/[A-Za-z]/);
+  document.getElementById('se-box').value = m ? m[0].toUpperCase() : '';
+}
+function updateSevrageInfo(){
+  const sel = document.getElementById('se-portee'), info = document.getElementById('se-info');
+  if(!sel || !info) return;
+  const n = load('pig_naissances').find(x => x.groupe === sel.value && !x.sevre);
+  if(!n){ info.value = ''; majPartsSevrage(); return; }
+  const a = load('pig_animaux').find(x => x.id === n.groupe);
+  info.dataset.x = '1';
+  info.value = 'Truie ' + n.truie + ' · née le ' + fmtDate(n.date) + ' · effectif ' + fmtNum(a ? a.effectif : n.vivants) + ' · sevrage prévu le ' + fmtDate(addJours(n.date, JOURS_SEVRAGE));
+  const d = document.getElementById('se-date');
+  if(sel.dataset.derniere !== sel.value){ sel.dataset.derniere = sel.value; d.value = addJours(n.date, JOURS_SEVRAGE); document.getElementById('se-eff').value = a ? fmtNum(a.effectif) : ''; document.getElementById('se-part-truie').value = ''; document.getElementById('se-part-verrat').value = ''; }
+  majPartsSevrage();
+}
+function majPartsSevrage(){
+  const g = document.getElementById('se-portee'); if(!g) return;
+  const n = load('pig_naissances').find(x => x.groupe === g.value && !x.sevre);
+  const a = n ? load('pig_animaux').find(x => x.id === n.groupe) : null;
+  const f = v => fmtNum(Math.round(v * 100) / 100) + ' Ar';
+  const date = document.getElementById('se-date').value || aujourdhui();
+  const vide = ['se-val-truie','se-apres-truie','se-val-verrat','se-apres-verrat','se-total-portee','se-pr-portee'];
+  if(!n || !a){ vide.forEach(id => { document.getElementById(id).value = ''; }); document.getElementById('se-bloc-verrat').classList.add('hidden'); return; }
+  const pT = parseNum(document.getElementById('se-part-truie').value) || 0, pV = parseNum(document.getElementById('se-part-verrat').value) || 0;
+  const vT = valeurParent(n.truie, n, date, true), vV = n.pere ? valeurParent(n.pere, n, date, false) : null;
+  document.getElementById('se-val-truie').value = vT === null ? '—' : f(vT);
+  document.getElementById('se-apres-truie').value = vT === null ? '—' : f(vT - pT);
+  const bv = document.getElementById('se-bloc-verrat');
+  bv.classList.toggle('hidden', vV === null);
+  if(vV !== null){ document.getElementById('se-val-verrat').value = f(vV); document.getElementById('se-apres-verrat').value = f(vV - pV); }
+  const cAll = coutTruiePeriode(n.truie, addJours(n.date, 1), date);
+  const total = (parseFloat(a.prixTotal) || 0) + cAll + pT + (vV !== null ? pV : 0);
+  const eff = parseNum(document.getElementById('se-eff').value) || parseFloat(a.effectif) || 0;
+  document.getElementById('se-total-portee').value = f(total);
+  document.getElementById('se-pr-portee').value = eff > 0 ? f(total / eff) : '—';
+}
+function ajouterSevrageDraft(){
+  const g = document.getElementById('se-portee').value;
+  if(!g){ showAlert("Merci de choisir la portée."); return; }
+  const n = load('pig_naissances').find(x => x.groupe === g && !x.sevre);
+  const a = load('pig_animaux').find(x => x.id === g);
+  if(!n || !a){ showAlert("Portée introuvable."); return; }
+  if(sevrageDrafts.some(d => d.groupe === g)){ showAlert("Cette portée est déjà dans la liste en attente."); return; }
+  const date = document.getElementById('se-date').value || aujourdhui();
+  if(date < n.date){ showAlert("La date de sevrage ne peut pas être avant la naissance (" + fmtDate(n.date) + ")."); return; }
+  const eff = parseNum(document.getElementById('se-eff').value), poids = parseNum(document.getElementById('se-poids').value);
+  const actuel = parseFloat(a.effectif) || 0;
+  if(isNaN(eff) || eff < 1 || Math.floor(eff) !== eff){ showAlert("Merci d'indiquer l'effectif sevré (entier, 1 ou plus)."); return; }
+  if(eff > actuel){ showAlert("L'effectif sevré (" + fmtNum(eff) + ") dépasse l'effectif actuel de la portée (" + fmtNum(actuel) + ")."); return; }
+  if(isNaN(poids) || poids <= 0){ showAlert("Merci d'indiquer le poids total des porcelets sevrés."); return; }
+  const pT = parseNum(document.getElementById('se-part-truie').value) || 0;
+  const vis = !document.getElementById('se-bloc-verrat').classList.contains('hidden');
+  const pV = vis ? (parseNum(document.getElementById('se-part-verrat').value) || 0) : 0;
+  if(pT < 0 || pV < 0){ showAlert("Les parts ne peuvent pas être négatives."); return; }
+  const vT = valeurParent(n.truie, n, date, true), vV = n.pere ? valeurParent(n.pere, n, date, false) : null;
+  if(pT > 0 && (vT === null || pT > vT + 0.005)){ showAlert("La part de la truie (" + fmtNum(pT) + " Ar) dépasse sa valeur disponible (" + fmtNum(Math.round(vT || 0)) + " Ar)."); return; }
+  if(pV > 0 && (vV === null || pV > vV + 0.005)){ showAlert("La part du verrat (" + fmtNum(pV) + " Ar) dépasse sa valeur disponible (" + fmtNum(Math.round(vV || 0)) + " Ar)."); return; }
+  sevrageDrafts.push({ groupe: g, date, eff, poids, partTruie: pT, partVerrat: pV, classe: document.getElementById('se-classe').value.trim(), box: document.getElementById('se-box').value.trim(), bombonne: document.getElementById('se-bombonne').value });
+  ['se-portee','se-info','se-eff','se-poids','se-part-truie','se-part-verrat','se-classe','se-box','se-bombonne'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('se-portee').dataset.derniere = '';
+  majPartsSevrage();
+  renderSevrageDraft();
+}
+function delSevrageDraft(i){ sevrageDrafts.splice(i,1); renderSevrageDraft(); }
+function renderSevrageDraft(){ renderDrafts('sevrageDraftList', sevrageDrafts, d => `<div class="name">${d.groupe} <span class="pill">Sevrage</span></div><div class="meta">${fmtDate(d.date)} · sevrés ${fmtNum(d.eff)} · poids total ${fmtNum(d.poids)} kg${(d.partTruie || d.partVerrat) ? ' · parts : truie ' + fmtNum(d.partTruie || 0) + ' Ar, verrat ' + fmtNum(d.partVerrat || 0) + ' Ar' : ''}</div>`, 'delSevrageDraft'); }
+function validerSevrageDraft(){
+  if(!sevrageDrafts.length){ showAlert("Aucun sevrage à valider."); return; }
+  sevrageDrafts.forEach((d,i) => {
+    const animaux = load('pig_animaux'), naiss = load('pig_naissances');
+    const n = naiss.find(x => x.groupe === d.groupe && !x.sevre), a = animaux.find(x => x.id === d.groupe);
+    if(!n || !a) return;
+    const effAvant = parseFloat(a.effectif) || 0;
+    const cAll = coutTruiePeriode(n.truie, addJours(n.date, 1), d.date);
+    const pT = parseFloat(d.partTruie) || 0, pV = parseFloat(d.partVerrat) || 0;
+    a.prixTotal = (parseFloat(a.prixTotal) || 0) + cAll + pT + pV;
+    a.prixU = a.prixTotal / (effAvant || 1);
+    n.coutAllaitement = cAll; n.partTruie = pT; n.partVerrat = pV; n.sevre = true; n.dateSevrage = d.date; n.sevres = d.eff; n.poidsSevrage = d.poids;
+    if(d.classe){ a.classe = d.classe; a.box = d.box; }
+    if(d.bombonne){ a.bombonne = d.bombonne; }
+    save('pig_animaux', animaux); save('pig_naissances', naiss);
+    const morts = effAvant - d.eff;
+    if(morts > 0){
+      const pr = getCoutParTeteGroupe(d.groupe, effAvant) || 0;
+      a.effectif = d.eff;
+      save('pig_animaux', animaux);
+      const nv = getCoutParTeteGroupe(d.groupe, d.eff) || 0;
+      const mort = load('pig_mortalite');
+      mort.unshift({ date: d.date, groupe: d.groupe, morts, prixRevient: pr, nouveauPrixRevient: nv, ts: Date.now(), effectifAvant: effAvant, effectifApres: d.eff, poidsMoyen: 0, cause: 'Allaitement' });
+      save('pig_mortalite', mort);
+    }
+    a.poids = d.poids; a.age = '';
+    save('pig_animaux', animaux);
+    const pes = load('pig_pesees');
+    pes.unshift({ date: d.date, groupe: d.groupe, poidsTotal: d.poids, effectif: d.eff, poidsMoyen: d.poids / d.eff, gmh: '', reference: true, exception: true, ancienPoidsMoyen: '', ts: Date.now() + 2 });
+    save('pig_pesees', pes);
+  });
+  sevrageDrafts = []; renderSevrageDraft(); renderAnimaux();
+  renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions(); renderPeseeGroupeOptions(); renderProphylaxieGroupeOptions(); renderMortaliteGroupeOptions();
+  updateMortaliteInfo(); autofillConsommation(); autofillConsommationManuelle(); updatePeseeAnciens(); updateException();
+  renderRepro();
+}
+
+// --- Liste reproduction ---
+function libelleStatutSaillie(s){ return { gestante: 'Gestante', mise_bas: 'Mise bas le ' + fmtDate(s.dateMiseBas), refaite: 'Refaite' }[s.statut] || s.statut; }
+function buildReproListHTML(){
+  const sa = load('pig_saillies'), na = load('pig_naissances');
+  const rowsS = sa.map((s,i) => `<tr><td>${fmtDate(s.date)}</td><td>${s.truie}</td><td>${s.verrat || '—'}</td><td>${fmtDate(s.prevue)}</td><td>${libelleStatutSaillie(s)}</td><td><button class="del" onclick="delSaillie(${i})">Suppr.</button></td></tr>`).join('');
+  const rowsN = na.map((n,i) => {
+    const a = load('pig_animaux').find(x => x.id === n.groupe);
+    const pr = a && parseFloat(a.effectif) > 0 ? getCoutParTeteGroupe(n.groupe, parseFloat(a.effectif)) : null;
+    return `<tr><td>${fmtDate(n.date)}</td><td>${n.truie}</td><td>${n.pere || '—'}</td><td>${n.groupe}</td><td>${fmtNum(n.vivants)}</td><td>${fmtNum(n.mortnes)}</td><td>${fmtNum(n.momifies)}</td><td>${n.sevre ? 'Sevrée le ' + fmtDate(n.dateSevrage) + ' (' + fmtNum(n.sevres) + ')' : 'Sevrage le ' + fmtDate(addJours(n.date, JOURS_SEVRAGE))}</td><td>${pr === null ? '—' : fmtNum(pr.toFixed(2)) + ' Ar'}</td><td><button class="del" onclick="delNaissance(${i})">Suppr.</button></td></tr>`;
+  }).join('');
+  return `${sa.length ? `<div class="card"><h2>Saillies</h2>${sa.length ? `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Truie</th><th>Verrat</th><th>Mise bas prévue</th><th>Statut</th><th></th></tr></thead><tbody>${rowsS}</tbody></table></div>` : '<div class="empty">Aucune saillie enregistrée.</div>'}</div>` : ''}
+  <div class="card"><h2>Naissances</h2>${na.length ? `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Truie</th><th>Verrat</th><th>Portée</th><th>Vivants</th><th>Mort-nés</th><th>Momifiés</th><th>Sevrage</th><th>Coût par tête</th><th></th></tr></thead><tbody>${rowsN}</tbody></table></div>` : '<div class="empty">Aucune naissance enregistrée.</div>'}</div>`;
+}
+function openReproListFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Liste reproduction';
+  document.getElementById('fullscreenTableBody').innerHTML = buildReproListHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+function refreshReproList(){
+  const t = document.getElementById('fullscreenTitle'), b = document.getElementById('fullscreenTableBody'), f = document.getElementById('fullscreenTable');
+  if(t && b && f && !f.classList.contains('hidden') && t.textContent === 'Liste reproduction'){ b.innerHTML = buildReproListHTML(); }
+}
+function delSaillie(i){
+  const s = load('pig_saillies')[i]; if(!s) return;
+  if(s.statut === 'mise_bas'){ showAlert("Cette saillie a donné une naissance. Supprimez d'abord la naissance."); return; }
+  showConfirm("Supprimer cette saillie de la truie " + s.truie + " ?", function(){
+    const l = load('pig_saillies'); l.splice(i,1); save('pig_saillies', l); renderRepro(); refreshReproList();
+  });
+}
+function delNaissance(i){
+  const n = load('pig_naissances')[i]; if(!n) return;
+  if(n.sevre){ showAlert("Cette portée est déjà sevrée : elle est devenue un groupe normal. Supprimez le groupe " + n.groupe + " depuis la liste des animaux si besoin."); return; }
+  showConfirm("Supprimer la naissance de la portée " + n.groupe + " ? Le groupe de porcelets sera retiré et la saillie redeviendra gestante.", function(){
+    const l = load('pig_naissances'); const nn = l[i]; if(!nn) return;
+    const an = load('pig_animaux'); const k = an.findIndex(x => x.id === nn.groupe); if(k >= 0) an.splice(k,1);
+    save('pig_animaux', an);
+    const sa = load('pig_saillies'); const s = sa.find(x => x.id === nn.saillieId); if(s){ s.statut = 'gestante'; delete s.dateMiseBas; save('pig_saillies', sa); }
+    l.splice(i,1); save('pig_naissances', l);
+    renderAnimaux();
+    renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions(); renderPeseeGroupeOptions(); renderProphylaxieGroupeOptions(); renderMortaliteGroupeOptions();
+    renderRepro(); refreshReproList();
+  });
+}
+
+// Tirage de reproducteurs (truie / verrat) depuis un groupe
+let tirageDrafts = [];
+function renderTirageGroupeOptions(){
+  const sel = document.getElementById('ti-groupe');
+  if(!sel) return;
+  const current = sel.value;
+  const groupes = [...new Set(load('pig_animaux').filter(a => !a.tire).map(a => a.id))];
+  sel.innerHTML = '<option value="">— Choisir —</option>' + groupes.map(g => `<option>${g}</option>`).join('');
+  if(groupes.includes(current)) sel.value = current;
+  updateTirageInfo();
+  renderTirageListe();
+  renderRepro();
+}
+function updateTirageBox(){
+  const m = document.getElementById('ti-classe').value.trim().match(/[A-Za-z]/);
+  document.getElementById('ti-box').value = m ? m[0].toUpperCase() : '';
+}
+function tirageEnCours(groupe){ return tirageDrafts.filter(d => d.groupe === groupe).length; }
+function updateTirageInfo(){
+  const groupe = document.getElementById('ti-groupe').value;
+  const el = document.getElementById('ti-effectif');
+  if(!el) return;
+  if(!groupe){ el.value = ''; return; }
+  const a = load('pig_animaux').find(x => x.id === groupe);
+  el.value = fmtNum((a ? parseFloat(a.effectif) || 0 : 0) - mortaliteEnCours(groupe) - tirageEnCours(groupe));
+  if(!document.getElementById('ti-date').value){ document.getElementById('ti-date').value = new Date().toISOString().slice(0,10); }
+}
+function ajouterTirageDraft(){
+  const groupe = document.getElementById('ti-groupe').value;
+  if(!groupe){ showAlert("Merci de choisir le groupe d'origine."); return; }
+  const id = document.getElementById('ti-id').value.trim();
+  if(!id){ showAlert("Merci d'indiquer le numéro du porc tiré."); return; }
+  if(!document.getElementById('ti-classe').value.trim()){ showAlert("Merci d'indiquer la CLASSE (emplacement) du porc tiré. Le BOX se remplit automatiquement."); return; }
+  if(load('pig_animaux').some(a => a.id === id) || tirageDrafts.some(d => d.id === id)){ showAlert("Ce numéro (" + id + ") existe déjà. Choisissez un autre numéro."); return; }
+  const a = load('pig_animaux').find(x => x.id === groupe);
+  const dispo = (a ? parseFloat(a.effectif) || 0 : 0) - mortaliteEnCours(groupe) - tirageEnCours(groupe);
+  if(dispo < 1){ showAlert("Le groupe " + groupe + " n'a plus de porc disponible."); return; }
+  tirageDrafts.push({ date: document.getElementById('ti-date').value || new Date().toISOString().slice(0,10), groupe, id, type: document.getElementById('ti-type').value, classe: document.getElementById('ti-classe').value.trim(), box: document.getElementById('ti-box').value.trim() });
+  document.getElementById('ti-id').value = ''; document.getElementById('ti-classe').value = ''; document.getElementById('ti-box').value = '';
+  updateTirageInfo();
+  renderTirageDraft();
+}
+function delTirageDraft(i){ tirageDrafts.splice(i,1); updateTirageInfo(); renderTirageDraft(); }
+function renderTirageDraft(){
+  const el = document.getElementById('tirageDraftList');
+  if(!el) return;
+  el.innerHTML = tirageDrafts.map((d,i) => `
+    <div class="item"><div><div class="name">${d.id} <span class="pill">${d.type}</span></div><div class="meta">${fmtDate(d.date)} · tiré du groupe ${d.groupe}${d.classe ? ' · ' + d.classe + (d.box ? ' / BOX ' + d.box : '') : ''}</div></div>
+    <button class="del" onclick="delTirageDraft(${i})">Suppr.</button></div>`).join('');
+}
+function validerTirageDraft(){
+  if(!tirageDrafts.length){ showAlert("Aucun porc tiré à valider."); return; }
+  const animaux = load('pig_animaux');
+  tirageDrafts.forEach(d => {
+    const g = animaux.find(x => x.id === d.groupe);
+    if(!g || animaux.some(x => x.id === d.id)) return;
+    const effAvant = parseFloat(g.effectif) || 0;
+    if(effAvant < 1) return;
+    const cout = getCoutParTeteGroupe(d.groupe, effAvant) || 0;
+    g.effectif = effAvant - 1;
+    const clsN = d.classe || g.classe || '', boxN = d.box || (d.classe ? '' : g.box) || '';
+    animaux.unshift({ id: d.id, type: d.type, classe: clsN, box: boxN, bombonne: g.bombonne || '', entree: d.date, age: g.age || '', poids: '', effectif: 1, prixU: cout || '', prixTotal: cout || '', origine: d.groupe, tire: true });
+    const liste = load('pig_tirages');
+    liste.unshift({ date: d.date, groupe: d.groupe, id: d.id, type: d.type, classe: clsN, box: boxN, coutRetire: cout, effectifAvant: effAvant, effectifApres: effAvant - 1, ts: Date.now() });
+    save('pig_tirages', liste);
+  });
+  save('pig_animaux', animaux);
+  tirageDrafts = [];
+  renderTirageDraft();
+  renderAnimaux();
+  renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions(); renderPeseeGroupeOptions(); renderProphylaxieGroupeOptions(); renderMortaliteGroupeOptions();
+  updateMortaliteInfo();
+  autofillConsommation(); autofillConsommationManuelle(); updatePeseeAnciens(); updateException();
+}
+function renderTirageListe(){ refreshTirageListTable(); }
+function buildTirageListHTML(filterNumero, filterType, filterDate){
+  let entries = load('pig_tirages').map((t, idx) => ({ ...t, _idx: idx }));
+  if(filterNumero){ entries = entries.filter(t => t.id === filterNumero); }
+  if(filterType){ entries = entries.filter(t => t.type === filterType); }
+  if(filterDate){ entries = entries.filter(t => t.date === filterDate); }
+  if(!entries.length){ return '<div class="empty">Aucun tirage enregistré.</div>'; }
+  const rows = entries.map(t => `<tr>
+    <td>${fmtDate(t.date)}</td><td>${t.groupe}</td><td>${t.id}</td><td>${t.type}</td><td>${t.classe || '—'}</td><td>${t.box || '—'}</td><td>${fmtNum(t.effectifAvant)}</td><td>${fmtNum(t.effectifApres)}</td><td>${t.coutRetire ? fmtNum(t.coutRetire.toFixed(2)) + ' Ar' : '—'}</td>
+    <td><button class="del" onclick="delTirage(${t._idx})">Suppr.</button></td>
+  </tr>`).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Groupe d'origine</th><th>Numéro</th><th>Type</th><th>Classe</th><th>Box</th><th>Effectif avant</th><th>Effectif après</th><th>Coût retiré</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildTirageTotauxHTML(){
+  const list = load('pig_tirages');
+  if(!list.length) return '';
+  const nb = t => list.filter(x => x.type === t).length;
+  const par = {};
+  list.forEach(t => { par[t.groupe] = (par[t.groupe] || 0) + 1; });
+  const rows = Object.keys(par).map(g => `<tr><td>${g}</td><td>${fmtNum(par[g])}</td></tr>`).join('');
+  return `<div class="card"><h2>Total tiré : ${fmtNum(list.length)} (${fmtNum(nb('Truie'))} truie${nb('Truie') > 1 ? 's' : ''}, ${fmtNum(nb('Verrat'))} verrat${nb('Verrat') > 1 ? 's' : ''})</h2><div class="table-wrap"><table>
+    <thead><tr><th>Groupe d'origine</th><th>Porcs tirés</th></tr></thead>
+    <tbody>${rows}</tbody></table></div></div>`;
+}
+function buildTirageListFullscreenHTML(){
+  const numeros = [...new Set(load('pig_tirages').map(t => t.id))];
+  return `
+    ${buildTirageTotauxHTML()}
+    <label>Filtrer par numéro</label>
+    <select id="tl-filter-numero" onchange="refreshTirageListTable()"><option value="">Tous les numéros</option>${numeros.map(n => `<option>${n}</option>`).join('')}</select>
+    <label>Filtrer par type</label>
+    <select id="tl-filter-type" onchange="refreshTirageListTable()"><option value="">Truies et verrats</option><option>Truie</option><option>Verrat</option></select>
+    <label>Filtrer par date</label>
+    <input id="tl-filter-date" type="date" onchange="refreshTirageListTable()">
+    <div id="tirageFilteredTable" style="margin-top:10px;">${buildTirageListHTML()}</div>
+  `;
+}
+function refreshTirageListTable(){
+  const g = document.getElementById('tl-filter-numero'), ty = document.getElementById('tl-filter-type'), d = document.getElementById('tl-filter-date');
+  if(!g || !ty || !d) return;
+  document.getElementById('tirageFilteredTable').innerHTML = buildTirageListHTML(g.value, ty.value, d.value);
+}
+function openTirageListFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Liste des tirages';
+  document.getElementById('fullscreenTableBody').innerHTML = buildTirageListFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+function delTirage(i){
+  showConfirm("Supprimer ce tirage ? Le porc " + (load('pig_tirages')[i] || {}).id + " sera retiré de la liste des animaux et l'effectif du groupe sera rétabli.", function(){
+    const liste = load('pig_tirages');
+    const t = liste[i];
+    if(!t) return;
+    const animaux = load('pig_animaux');
+    const k = animaux.findIndex(x => x.id === t.id && x.tire);
+    if(k >= 0) animaux.splice(k,1);
+    const g = animaux.find(x => x.id === t.groupe);
+    if(g){ g.effectif = (parseFloat(g.effectif) || 0) + 1; }
+    save('pig_animaux', animaux);
+    liste.splice(i,1);
+    save('pig_tirages', liste);
+    renderAnimaux();
+    renderConsommationGroupeOptions(); renderConsommationManuelleGroupeOptions(); renderPeseeGroupeOptions(); renderProphylaxieGroupeOptions(); renderMortaliteGroupeOptions();
+    updateMortaliteInfo(); updateException();
+    refreshTirageListTable();
+  });
 }
 let mortaliteDrafts = [];
 function mortaliteEnCours(groupe){
@@ -4306,7 +4942,8 @@ function getCoutParTeteGroupe(groupe, effectif){
   });
   const achat = parseFloat(animal.prixTotal) || 0;
   const vendus = load('pig_ventes_porcs').filter(v => v.groupe === groupe).reduce((acc,v) => acc + (parseFloat(v.coutRetire) || 0), 0);
-  return (totalAliment + achat + coutProphylaxieGroupe(groupe) - vendus) / effectif;
+  const tires = load('pig_tirages').filter(t => t.groupe === groupe).reduce((acc,t) => acc + (parseFloat(t.coutRetire) || 0), 0);
+  return (totalAliment + achat + coutProphylaxieGroupe(groupe) - vendus - tires - coutTransfereTruie(groupe)) / effectif;
 }
 function getNouveauPrixRevient(groupe, morts){
   const animal = load('pig_animaux').find(a => a.id === groupe);
@@ -4822,6 +5459,38 @@ async function initCloudSync(){
     console.log('Synchronisation indisponible', e);
   }
 }
+
+/* ENTRÉE = CHAMP SUIVANT (comme la touche Tab) */
+document.addEventListener('keydown', function(e){
+  if (e.key !== 'Enter' || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey || e.isComposing) return;
+  var el = e.target;
+  if (!el || !el.tagName) return;
+  var tag = el.tagName;
+  if (tag === 'TEXTAREA' || tag === 'BUTTON') return;
+  if (tag === 'INPUT' && ['hidden','file','checkbox','radio','button','submit'].indexOf((el.type || '').toLowerCase()) >= 0) return;
+  if (tag !== 'INPUT' && tag !== 'SELECT') return;
+  var zone = el.closest('.modal-box, .card, form, section') || document;
+  var champs = Array.prototype.filter.call(zone.querySelectorAll('input, select, textarea'), function(c){
+    var t = (c.type || '').toLowerCase();
+    if (c.disabled || c.readOnly || ['hidden','file','checkbox','radio','button','submit'].indexOf(t) >= 0) return false;
+    return c.offsetParent !== null;
+  });
+  var i = champs.indexOf(el);
+  if (i < 0) return;
+  e.preventDefault();
+  var suivant = champs[i + 1];
+  if (suivant){
+    suivant.focus();
+    if (suivant.select && suivant.tagName === 'INPUT' && ['text','number','tel','search'].indexOf((suivant.type || 'text').toLowerCase()) >= 0){ try { suivant.select(); } catch(_){} }
+  } else {
+    /* DERNIER CHAMP : ENTRÉE = BOUTON « AJOUTER » SEULEMENT (VALIDER RESTE MANUEL) */
+    var bt = Array.prototype.filter.call(zone.querySelectorAll('button'), function(x){
+      return (el.compareDocumentPosition(x) & 4) && !x.disabled && x.offsetParent !== null && /^\s*ajouter/i.test(x.textContent);
+    })[0];
+    if (bt) bt.click(); else if (el.blur) el.blur();
+  }
+});
+
 renderAll();
 initCloudSync();
 
