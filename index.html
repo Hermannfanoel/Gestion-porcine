@@ -1928,6 +1928,16 @@ function renderConsommationBombonneOptions(){
   sel.innerHTML = '<option value="">— Choisir —</option>' + list.map(b => `<option value="${b.nom}">${labelBombonne(b)}</option>`).join('');
   if(list.some(b => b.nom === current)) sel.value = current;
 }
+// Rafraîchit tout ce qui dépend du contenu / du stock des bombonnes (après transfert, consommation...)
+function refreshBombonnes(){
+  try {
+    renderTransfertOptions(); renderConsommationBombonneOptions(); renderConsommationManuelleBombonneOptions();
+    if(document.getElementById('c-bombonne').value) updateConsommationBombonneStock();
+    if(document.getElementById('cm-bombonne').value) updateConsommationManuelleBombonneStock();
+    if(document.getElementById('tr-reference').value) updateTransfertQuantiteInitiale();
+    renderDashboard();
+  } catch(e){ console.log('Rafraîchissement bombonnes', e); }
+}
 function arrondi3(x){ return Math.round((x + Number.EPSILON) * 1000) / 1000; }
 function getBombonneBrutStock(nom){
   const mouvements = load('pig_mouvement_bombonne').filter(m => m.bombonne === nom);
@@ -2012,6 +2022,7 @@ function validerConsommationDraft(){
   save('pig_mouvement_bombonne', mouvementsBombonne);
   consommationDrafts = [];
   renderConsommationDraft();
+  refreshBombonnes();
 }
 function renderConsommationManuelleGroupeOptions(){
   const animaux = load('pig_animaux');
@@ -2099,6 +2110,7 @@ function validerConsommationManuelleDraft(){
   save('pig_mouvement_bombonne', mouvementsBombonne);
   consommationManuelleDrafts = [];
   renderConsommationManuelleDraft();
+  refreshBombonnes();
 }
 function buildConsommationListHTML(filterGroupe, filterDate){
   let list = load('pig_consommation');
@@ -2896,8 +2908,29 @@ function openPRProduitsFullscreen(){
   document.getElementById('fullscreenTableBody').innerHTML = buildPRProduitsHTML();
   document.getElementById('fullscreenTable').classList.remove('hidden');
 }
+// Produit qui « porte le nom » de la bombonne : le dernier entré, tant qu'il en reste ne serait-ce que 1 kg.
+// Les sorties (consommation) retirent d'abord le dernier produit entré ; quand il est épuisé, le nom revient au produit précédent.
+function produitDessusBombonne(nom){
+  const mv = load('pig_mouvement_bombonne').map((m,i) => ({ ...m, _i: i })).filter(m => normRef(m.bombonne) === normRef(nom))
+    .sort((a,b) => (a.date || '').localeCompare(b.date || '') || a._i - b._i);
+  const pile = []; let dernier = null;
+  mv.forEach(m => {
+    const q = parseFloat(m.quantite) || 0;
+    if(m.type === 'Entrée'){ pile.push({ p: m.produit, q }); dernier = m.produit; }
+    else if(m.type === 'Sortie'){
+      let reste = q;
+      while(reste > 0.0005 && pile.length){
+        const top = pile[pile.length - 1];
+        if(top.q > reste + 0.0005){ top.q -= reste; reste = 0; } else { reste -= top.q; pile.pop(); }
+      }
+    }
+  });
+  while(pile.length && pile[pile.length - 1].q <= 0.0005){ pile.pop(); }
+  return pile.length ? pile[pile.length - 1].p : dernier;
+}
 function refActuelleBombonne(nom){
-  const brut = getProduitDansBombonneADate(nom);
+  const pb = load('pig_param_bombonne').find(b => b.nom === nom);
+  const brut = produitDessusBombonne(nom) || (pb && pb.derniereRef) || null;
   if(!brut) return '';
   const connues = [...load('pig_param_ref_produit'), ...load('pig_param_produits')];
   const hit = connues.find(r => normRef(r) === normRef(brut));
@@ -4103,8 +4136,38 @@ function validerTransfertDraft(){
   save('pig_mouvement_produits', mouvementsProduits);
   transfertDrafts = [];
   renderTransfertDraft();
+  refreshBombonnes();
 }
-function delTransfert(i){ const list = load('pig_transfert'); list.splice(i,1); save('pig_transfert', list); refreshTransfertListTable(); }
+function delTransfert(i){
+  const list = load('pig_transfert'); const t = list[i]; if(!t) return;
+  const q = parseFloat(t.quantite) || 0;
+  const mvB = load('pig_mouvement_bombonne');
+  const kB = mvB.findIndex(m => m.type === 'Entrée' && m.date === t.date && normRef(m.bombonne) === normRef(t.bombonne) && normRef(m.produit) === normRef(t.reference) && Math.abs((parseFloat(m.quantite) || 0) - q) < 0.0005);
+  if(kB >= 0 && arrondi3(getBombonneBrutStock(t.bombonne) - q) < 0){
+    showAlert("Impossible de supprimer ce transfert : l'aliment de " + t.reference + " a déjà été consommé dans " + t.bombonne + " (stock brut actuel : " + fmtNum(getBombonneBrutStock(t.bombonne).toFixed(2)) + ", à retirer : " + fmtNum(q) + ").");
+    return;
+  }
+  showConfirm("Supprimer ce transfert de " + fmtNum(q) + " kg de " + t.reference + " ? Ces " + fmtNum(q) + " kg seront retirés de " + t.bombonne + " et remis dans le stock du produit fini.", function(){
+    const l2 = load('pig_transfert'); const k = l2.findIndex(x => x === undefined ? false : (x.date === t.date && x.reference === t.reference && x.bombonne === t.bombonne && (parseFloat(x.quantite) || 0) === q));
+    if(k >= 0) l2.splice(k,1);
+    save('pig_transfert', l2);
+    const mb = load('pig_mouvement_bombonne');
+    const kb = mb.findIndex(m => m.type === 'Entrée' && m.date === t.date && normRef(m.bombonne) === normRef(t.bombonne) && normRef(m.produit) === normRef(t.reference) && Math.abs((parseFloat(m.quantite) || 0) - q) < 0.0005);
+    if(kb >= 0){
+      mb.splice(kb,1); save('pig_mouvement_bombonne', mb);
+      // plus aucun produit dans l'historique de la bombonne : elle garde le dernier nom connu
+      if(!mb.some(m => m.type === 'Entrée' && normRef(m.bombonne) === normRef(t.bombonne))){
+        const pbs = load('pig_param_bombonne'); const pb = pbs.find(b => b.nom === t.bombonne);
+        if(pb){ pb.derniereRef = t.reference; save('pig_param_bombonne', pbs); }
+      }
+    }
+    const mp = load('pig_mouvement_produits');
+    const kp = mp.findIndex(m => m.type === 'Sortie' && m.date === t.date && normRef(m.reference) === normRef(t.reference) && Math.abs((parseFloat(m.quantite) || 0) - q) < 0.0005);
+    if(kp >= 0){ mp.splice(kp,1); save('pig_mouvement_produits', mp); }
+    try { refreshTransfertListTable(); } catch(e){}
+    refreshBombonnes();
+  });
+}
 function buildTransfertListHTML(filterDate, filterReference, filterBombonne){
   let entries = load('pig_transfert').map((t, idx) => ({ ...t, _idx: idx }));
   if(filterDate){ entries = entries.filter(t => t.date === filterDate); }
