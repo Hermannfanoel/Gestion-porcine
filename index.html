@@ -2113,7 +2113,7 @@ function validerConsommationManuelleDraft(){
   refreshBombonnes();
 }
 function buildConsommationListHTML(filterGroupe, filterDate){
-  let list = load('pig_consommation');
+  let list = load('pig_consommation').map((c, idx) => ({ ...c, _idx: idx }));
   if(filterGroupe){ list = list.filter(c => c.groupe === filterGroupe); }
   if(filterDate){ list = list.filter(c => c.date === filterDate); }
   if(!list.length){ return '<div class="empty">Aucune consommation pour l\'instant.</div>'; }
@@ -2127,11 +2127,29 @@ function buildConsommationListHTML(filterGroupe, filterDate){
     <td>${c.soir || ''}</td>
     <td>${c.total || ''}</td>
     <td>${c.bombonne || ''}</td>
+    <td><button class="del" onclick="delConsommation(${c._idx})">Suppr.</button></td>
   </tr>`).join('');
   return `<div class="table-wrap"><table>
-    <thead><tr><th>Date</th><th>Groupe</th><th>Classe</th><th>Box</th><th>Effectif</th><th>Matin</th><th>Soir</th><th>Total</th><th>Bombonne</th></tr></thead>
+    <thead><tr><th>Date</th><th>Groupe</th><th>Classe</th><th>Box</th><th>Effectif</th><th>Matin</th><th>Soir</th><th>Total</th><th>Bombonne</th><th></th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
+}
+function delConsommation(i){
+  const list = load('pig_consommation'); const c = list[i]; if(!c) return;
+  showConfirm("Supprimer cette consommation de " + c.groupe + " (" + (c.total || 0) + " kg) dans " + c.bombonne + " ? Les " + (c.total || 0) + " kg seront remis dans le stock de la bombonne.", function(){
+    const l2 = load('pig_consommation');
+    const k = l2.findIndex(x => x.date === c.date && x.groupe === c.groupe && x.bombonne === c.bombonne && x.total === c.total && x.matin === c.matin && x.soir === c.soir);
+    if(k < 0) return;
+    l2.splice(k,1); save('pig_consommation', l2);
+    const q = parseNum(c.total) || 0;
+    const mb = load('pig_mouvement_bombonne');
+    const kb = mb.findIndex(m => m.type === 'Sortie' && m.date === c.date && m.bombonne === c.bombonne && m.produit === 'Consommation ' + c.groupe && Math.abs((parseFloat(m.quantite) || 0) - q) < 0.0005);
+    if(kb >= 0){ mb.splice(kb,1); save('pig_mouvement_bombonne', mb); }
+    try { refreshConsommationListTable(); } catch(e){}
+    try { document.getElementById('fullscreenTableBody').innerHTML = buildConsommationListFullscreenHTML(); } catch(e){}
+    try { renderAll(); } catch(e){}
+    refreshBombonnes();
+  });
 }
 function buildConsommationTotauxHTML(){
   const list = load('pig_consommation');
@@ -5559,6 +5577,7 @@ initCloudSync();
 
 
 </script>
+
 
 <script>
 if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('service-worker.js').catch(function(){}); }); }

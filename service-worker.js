@@ -1,5 +1,5 @@
 // Gestion Porcine — service worker : toujours la dernière version si en ligne, copie en cache si hors ligne
-const CACHE = 'gestion-porcine-v129';
+const CACHE = 'gestion-porcine-v130';
 const FICHIERS = ['./', 'index.html', 'manifest.json'];
 
 self.addEventListener('install', e => {
