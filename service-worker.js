@@ -1,30 +1,37 @@
-// Gestion Porcine — service worker : toujours la dernière version si en ligne, copie en cache si hors ligne
-const CACHE = 'gestion-porcine-v130';
-const FICHIERS = ['./', 'index.html', 'manifest.json'];
+// Service worker - Ferme Porcine (Gestion Porcine)
+// Stratégie : réseau d'abord (toujours la dernière version), cache en secours hors connexion.
+// Pour forcer une mise à jour sur toutes les tablettes, changez simplement le numéro de version.
+const VERSION = 'gestion-porcine-v2-2026-11-17';
 
-self.addEventListener('install', e => {
+self.addEventListener('install', (event) => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FICHIERS)).catch(() => {}));
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
     caches.keys()
-      .then(cles => Promise.all(cles.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then((noms) => Promise.all(noms.filter((n) => n !== VERSION).map((n) => caches.delete(n))))
       .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-  const url = new URL(e.request.url);
-  if (url.origin !== location.origin) return;
-  e.respondWith(
-    fetch(e.request)
-      .then(rep => {
-        if (rep && rep.ok) { const copie = rep.clone(); caches.open(CACHE).then(c => c.put(e.request, copie)); }
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return; // ne touche pas aux autres sites
+
+  event.respondWith(
+    fetch(req)
+      .then((rep) => {
+        if (rep && rep.status === 200) {
+          const copie = rep.clone();
+          caches.open(VERSION).then((c) => c.put(req, copie));
+        }
         return rep;
       })
-      .catch(() => caches.match(e.request).then(m => m || caches.match('index.html')))
+      .catch(() =>
+        caches.match(req).then((enCache) => enCache || (req.mode === 'navigate' ? caches.match('./') : undefined))
+      )
   );
 });
