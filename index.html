@@ -1,10 +1,6 @@
-<!doctype html>
-<html lang="fr">
-<head>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#163663">
-<link rel="manifest" href="manifest.json">
+<meta name="claude:viewport-fit-sides" content="cover">
 <title>Gestion Porcine</title>
 <style>
 :root {
@@ -193,9 +189,6 @@ body { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: m
 header { margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px))); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 main { padding-left: 0; padding-right: 0; }
 </style>
-</head>
-<body>
-
 
 <header>🐖 Gestion Porcine <span id="syncStatus" style="float:right; font-size:12px; font-weight:400; margin-top:5px;"></span></header>
 <div class="tabs">
@@ -590,6 +583,32 @@ main { padding-left: 0; padding-right: 0; }
         <div class="drawer-head" onclick="openTransfertListFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES TRANSFERT</b><small>Historique</small></span><span class="chevron">⤢</span></div>
       </div>
 
+      <div class="drawer">
+        <div class="drawer-head" onclick="toggleDrawer('d-transfert-bb')"><span class="dh-ico">⇄</span><span class="dh-txt"><b>TRANSFERT ENTRE BOMBONNE</b><small>D'une bombonne à une autre</small></span><span class="chevron">▾</span></div>
+        <div id="d-transfert-bb" class="drawer-body hidden">
+          <div class="card">
+            <label>Date</label>
+            <input id="tb-date" type="date">
+            <label>Bombonne source (départ)</label>
+            <select id="tb-source" onchange="updateTransfertBBInfo()"><option value="">— Choisir —</option></select>
+            <label>Référence dans la source</label>
+            <input id="tb-ref" readonly disabled>
+            <label>Stock brut disponible dans la source</label>
+            <input id="tb-stock" readonly disabled>
+            <label>Bombonne destination (arrivée)</label>
+            <select id="tb-dest"><option value="">— Choisir —</option></select>
+            <label>Quantité à transférer</label>
+            <input id="tb-quantite" type="text" inputmode="decimal" onblur="liveFormat(this)">
+            <button onclick="ajouterTransfertBBDraft()">Ajouter</button>
+            <div id="transfertBBDraftList" style="margin-top:10px;"></div>
+            <button onclick="validerTransfertBBDraft()" style="margin-top:12px;">VALIDER</button>
+          </div>
+          <div class="drawer">
+            <div class="drawer-head" onclick="openTransfertBBListFullscreen()"><span class="dh-ico">📋</span><span class="dh-txt"><b>LISTE DES TRANSFERTS ENTRE BOMBONNE</b><small>Historique</small></span><span class="chevron">⤢</span></div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -901,6 +920,39 @@ main { padding-left: 0; padding-right: 0; }
       </div>
 
       <div class="drawer">
+        <div class="drawer-head" onclick="openVenteFullscreen('d-saillie-form', 'Saillie')"><span class="dh-ico">💞</span><span class="dh-txt"><b>SAILLIE</b><small>Inscrire une saillie</small></span><span class="chevron">⤢</span></div>
+        <div id="d-saillie-form" class="drawer-body hidden">
+          <div class="card">
+            <label>Date de saillie</label>
+            <input id="sa-date" type="date" onchange="updateSailleInfo()">
+            <label>Truie</label>
+            <select id="sa-truie"><option value="">— Choisir —</option></select>
+            <label>Verrat</label>
+            <select id="sa-verrat"><option value="">— Non précisé —</option></select>
+            <label>Mise bas prévue (114 jours)</label>
+            <input id="sa-prevue" readonly disabled>
+            <button onclick="ajouterSailleDraft()">Ajouter</button>
+            <div id="sailleDraftList" style="margin-top:10px;"></div>
+            <button onclick="validerSailleDraft()" style="margin-top:12px;">VALIDER</button>
+          </div>
+          <div class="drawer">
+            <div class="drawer-head" onclick="toggleDrawer('d-saillie-histo'); renderSailleHistoTiroir();"><span class="dh-ico">📋</span><span class="dh-txt"><b>HISTORIQUE DES SAILLIES</b><small>Toutes les saillies</small></span><span class="chevron">▾</span></div>
+            <div id="d-saillie-histo" class="drawer-body hidden">
+              <div class="card">
+                <label>Filtrer par truie</label>
+                <select id="sh-filter-truie" onchange="refreshSailleHisto()"><option value="">Toutes les truies</option></select>
+                <label>Filtrer par statut</label>
+                <select id="sh-filter-statut" onchange="refreshSailleHisto()"><option value="">Tous</option><option value="gestante">Gestante</option><option value="mise_bas">Mise bas</option><option value="refaite">Refaite</option></select>
+                <label>Filtrer par date</label>
+                <input id="sh-filter-date" type="date" onchange="refreshSailleHisto()">
+                <div id="sailleHistoTable" style="margin-top:10px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer">
         <div class="drawer-head" onclick="openVenteFullscreen('d-naissance-form', 'Naissance')"><span class="dh-ico">🐷</span><span class="dh-txt"><b>NAISSANCE</b><small>Inscrire la portée</small></span><span class="chevron">⤢</span></div>
         <div id="d-naissance-form" class="drawer-body hidden">
           <div class="card">
@@ -1128,7 +1180,7 @@ function load(key){
 const CLES_SAUVEGARDE = [
   'pig_animaux','pig_matieres','pig_produits','pig_param_produits',
   'pig_param_ref_produit','pig_param_bombonne','pig_norme_consommation','pig_consommation',
-  'pig_mouvement_matieres','pig_mouvement_produits','pig_mouvement_bombonne','pig_transfert',
+  'pig_mouvement_matieres','pig_mouvement_produits','pig_mouvement_bombonne','pig_transfert','pig_transfert_bombonne',
   'pig_formulation','pig_production','pig_ventes','pig_pesees','pig_prophylaxie','pig_charges','pig_apports','pig_mortalite','pig_tirages','pig_saillies','pig_naissances','pig_stat_param','pig_ventes_matieres','pig_ventes_porcs','pig_resultat_estimation'
 ];
 function reinitialiserDonnees(){
@@ -4099,6 +4151,7 @@ function renderTransfertOptions(){
   const currentBomb = selBomb.value;
   selBomb.innerHTML = '<option value="">— Choisir —</option>' + bombonnes.map(b => `<option>${b.nom}</option>`).join('');
   if(bombonnes.some(b => b.nom === currentBomb)) selBomb.value = currentBomb;
+  try { renderTransfertBBOptions(); } catch(e){}
 }
 function getProduitStockByReference(ref){
   const refN = normRef(ref);
@@ -4230,6 +4283,184 @@ function refreshTransfertListTable(){
 function openTransfertListFullscreen(){
   document.getElementById('fullscreenTitle').textContent = 'Liste des transferts';
   document.getElementById('fullscreenTableBody').innerHTML = buildTransfertListFullscreenHTML();
+  document.getElementById('fullscreenTable').classList.remove('hidden');
+}
+
+// Transfert entre bombonnes (source -> destination)
+// Pile des produits d'une bombonne (le dernier entré est au-dessus ; les sorties retirent d'abord le dernier entré)
+function pileBombonne(nom){
+  const mv = load('pig_mouvement_bombonne').map((m,i) => ({ ...m, _i: i })).filter(m => normRef(m.bombonne) === normRef(nom))
+    .sort((a,b) => (a.date || '').localeCompare(b.date || '') || a._i - b._i);
+  const pile = [];
+  mv.forEach(m => {
+    const q = parseFloat(m.quantite) || 0;
+    if(m.type === 'Entrée'){ pile.push({ p: m.produit, q }); }
+    else if(m.type === 'Sortie'){
+      let reste = q;
+      while(reste > 0.0005 && pile.length){
+        const top = pile[pile.length - 1];
+        if(top.q > reste + 0.0005){ top.q -= reste; reste = 0; } else { reste -= top.q; pile.pop(); }
+      }
+    }
+  });
+  return pile.filter(x => x.q > 0.0005);
+}
+// Répartit une quantité sur les produits de la source, du dessus vers le dessous
+function repartitionTransfertBB(nom, quantite){
+  const pile = pileBombonne(nom).slice();
+  const res = []; let reste = quantite;
+  while(reste > 0.0005 && pile.length){
+    const top = pile.pop();
+    const prise = Math.min(top.q, reste);
+    res.push({ produit: top.p, quantite: arrondi3(prise) });
+    reste = arrondi3(reste - prise);
+  }
+  if(reste > 0.0005){
+    const pb = load('pig_param_bombonne').find(b => b.nom === nom);
+    res.push({ produit: (pb && pb.derniereRef) || refActuelleBombonne(nom) || 'Produit inconnu', quantite: arrondi3(reste) });
+  }
+  return res;
+}
+function renderTransfertBBOptions(){
+  const sSrc = document.getElementById('tb-source'), sDst = document.getElementById('tb-dest');
+  if(!sSrc || !sDst) return;
+  const list = load('pig_param_bombonne');
+  const cs = sSrc.value, cd = sDst.value;
+  sSrc.innerHTML = '<option value="">— Choisir —</option>' + list.map(b => `<option value="${b.nom}">${labelBombonne(b)}</option>`).join('');
+  sDst.innerHTML = '<option value="">— Choisir —</option>' + list.map(b => `<option value="${b.nom}">${labelBombonne(b)}</option>`).join('');
+  if(list.some(b => b.nom === cs)) sSrc.value = cs;
+  if(list.some(b => b.nom === cd)) sDst.value = cd;
+  updateTransfertBBInfo();
+}
+function transfertBBEnCours(nom){
+  return transfertBBDrafts.filter(d => d.source === nom).reduce((acc,d) => acc + d.quantite, 0);
+}
+function updateTransfertBBInfo(){
+  const nom = document.getElementById('tb-source').value;
+  const eRef = document.getElementById('tb-ref'), eStock = document.getElementById('tb-stock');
+  if(!nom){ eRef.value = ''; eStock.value = ''; return; }
+  eRef.value = refActuelleBombonne(nom) || 'Aucune référence';
+  eStock.value = fmtNum(getBombonneBrutStock(nom).toFixed(2));
+}
+let transfertBBDrafts = [];
+function ajouterTransfertBBDraft(){
+  const source = document.getElementById('tb-source').value;
+  if(!source){ showAlert("Merci de choisir la bombonne source."); return; }
+  const dest = document.getElementById('tb-dest').value;
+  if(!dest){ showAlert("Merci de choisir la bombonne destination."); return; }
+  if(normRef(source) === normRef(dest)){ showAlert("La bombonne source et la bombonne destination doivent être différentes."); return; }
+  const quantite = parseNum(document.getElementById('tb-quantite').value);
+  if(isNaN(quantite) || quantite <= 0){ showAlert("Merci de saisir une quantité supérieure à 0."); return; }
+  const disponible = getBombonneBrutStock(source);
+  const demande = arrondi3(quantite + transfertBBEnCours(source) + demandeEnCoursBombonne(source));
+  if(demande > arrondi3(disponible)){
+    showAlert("Stock insuffisant dans " + source + " (stock brut disponible : " + fmtNum(disponible.toFixed(2)) + ", demandé : " + fmtNum(demande.toFixed(2)) + ").");
+    return;
+  }
+  transfertBBDrafts.push({ date: document.getElementById('tb-date').value || new Date().toISOString().slice(0,10), source, dest, quantite });
+  document.getElementById('tb-quantite').value = '';
+  renderTransfertBBDraft();
+}
+function delTransfertBBDraft(i){ transfertBBDrafts.splice(i,1); renderTransfertBBDraft(); }
+function renderTransfertBBDraft(){
+  const el = document.getElementById('transfertBBDraftList');
+  if(!transfertBBDrafts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = transfertBBDrafts.map((t,i) => `
+    <div class="item">
+      <div><div class="name">${t.source} → ${t.dest}</div><div class="meta">${fmtDate(t.date)} · Qté: ${fmtNum(t.quantite)}</div></div>
+      <button class="del" onclick="delTransfertBBDraft(${i})">Suppr.</button>
+    </div>`).join('');
+}
+function validerTransfertBBDraft(){
+  if(!transfertBBDrafts.length){ showAlert("Aucun transfert à valider."); return; }
+  // contrôle final du stock réel de chaque source
+  const parSource = {};
+  transfertBBDrafts.forEach(d => { parSource[d.source] = (parSource[d.source] || 0) + d.quantite; });
+  for(const nom of Object.keys(parSource)){
+    const dispo = getBombonneBrutStock(nom);
+    if(arrondi3(parSource[nom] + demandeEnCoursBombonne(nom)) > arrondi3(dispo)){
+      showAlert("Stock insuffisant dans " + nom + " (stock brut disponible : " + fmtNum(dispo.toFixed(2)) + ", demandé : " + fmtNum(arrondi3(parSource[nom]).toFixed(2)) + ").");
+      return;
+    }
+  }
+  const liste = load('pig_transfert_bombonne');
+  const mouvements = load('pig_mouvement_bombonne');
+  transfertBBDrafts.forEach(t => {
+    const id = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+    const parts = repartitionTransfertBB(t.source, t.quantite); // calculé avant d'enregistrer la sortie
+    mouvements.push({ date: t.date, bombonne: t.source, produit: 'Transfert vers ' + t.dest, type: 'Sortie', quantite: t.quantite, tb: id });
+    parts.slice().reverse().forEach(x => {
+      mouvements.push({ date: t.date, bombonne: t.dest, produit: x.produit, type: 'Entrée', quantite: x.quantite, tb: id });
+    });
+    liste.unshift({ id, date: t.date, source: t.source, dest: t.dest, quantite: t.quantite, produits: parts.map(x => x.produit).join(' + ') });
+    // la pile de la source doit être lue avant la sortie du transfert suivant : on sauvegarde au fil de l'eau
+    save('pig_mouvement_bombonne', mouvements);
+  });
+  save('pig_transfert_bombonne', liste);
+  transfertBBDrafts = [];
+  renderTransfertBBDraft();
+  refreshBombonnes();
+  showAlert("Transfert enregistré.");
+}
+function delTransfertBB(i){
+  const list = load('pig_transfert_bombonne'); const t = list[i]; if(!t) return;
+  const q = parseFloat(t.quantite) || 0;
+  // on ne peut annuler que si l'aliment reçu n'a pas été consommé dans la destination
+  if(arrondi3(getBombonneBrutStock(t.dest) - q) < 0){
+    showAlert("Impossible de supprimer ce transfert : l'aliment reçu a déjà été consommé dans " + t.dest + " (stock brut actuel : " + fmtNum(getBombonneBrutStock(t.dest).toFixed(2)) + ", à retirer : " + fmtNum(q) + ").");
+    return;
+  }
+  showConfirm("Supprimer ce transfert de " + fmtNum(q) + " kg de " + t.source + " vers " + t.dest + " ? Ces kg seront retirés de " + t.dest + " et remis dans " + t.source + ".", function(){
+    const l2 = load('pig_transfert_bombonne'); const k = l2.findIndex(x => x.id === t.id);
+    if(k >= 0) l2.splice(k,1);
+    save('pig_transfert_bombonne', l2);
+    const mb = load('pig_mouvement_bombonne').filter(m => !(t.id && m.tb === t.id));
+    save('pig_mouvement_bombonne', mb);
+    try { refreshTransfertBBListTable(); } catch(e){}
+    refreshBombonnes();
+  });
+}
+function buildTransfertBBListHTML(filterDate, filterSource, filterDest){
+  let entries = load('pig_transfert_bombonne').map((t, idx) => ({ ...t, _idx: idx }));
+  if(filterDate){ entries = entries.filter(t => t.date === filterDate); }
+  if(filterSource){ entries = entries.filter(t => normRef(t.source) === normRef(filterSource)); }
+  if(filterDest){ entries = entries.filter(t => normRef(t.dest) === normRef(filterDest)); }
+  if(!entries.length){ return '<div class="empty">Aucun transfert entre bombonnes pour l\'instant.</div>'; }
+  const rows = entries.map(t => `<tr>
+      <td>${fmtDate(t.date)}</td>
+      <td>${t.source}</td>
+      <td>${t.dest}</td>
+      <td>${t.produits || ''}</td>
+      <td>${fmtNum(t.quantite)}</td>
+      <td><button class="del" onclick="delTransfertBB(${t._idx})">Suppr.</button></td>
+    </tr>`).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Source</th><th>Destination</th><th>Référence</th><th>Quantité</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function buildTransfertBBListFullscreenHTML(){
+  const noms = load('pig_param_bombonne').map(b => b.nom);
+  const opts = noms.map(n => `<option>${n}</option>`).join('');
+  return `
+    <label>Filtrer par bombonne source</label>
+    <select id="tbl-filter-source" onchange="refreshTransfertBBListTable()"><option value="">Toutes</option>${opts}</select>
+    <label>Filtrer par bombonne destination</label>
+    <select id="tbl-filter-dest" onchange="refreshTransfertBBListTable()"><option value="">Toutes</option>${opts}</select>
+    <label>Filtrer par date</label>
+    <input id="tbl-filter-date" type="date" onchange="refreshTransfertBBListTable()">
+    <div id="transfertBBFilteredTable" style="margin-top:10px;">${buildTransfertBBListHTML()}</div>
+  `;
+}
+function refreshTransfertBBListTable(){
+  document.getElementById('transfertBBFilteredTable').innerHTML = buildTransfertBBListHTML(
+    document.getElementById('tbl-filter-date').value,
+    document.getElementById('tbl-filter-source').value,
+    document.getElementById('tbl-filter-dest').value);
+}
+function openTransfertBBListFullscreen(){
+  document.getElementById('fullscreenTitle').textContent = 'Transferts entre bombonnes';
+  document.getElementById('fullscreenTableBody').innerHTML = buildTransfertBBListFullscreenHTML();
   document.getElementById('fullscreenTable').classList.remove('hidden');
 }
 
@@ -4647,6 +4878,63 @@ function validerSailleDraft(){
   });
   save('pig_saillies', liste);
   sailleDrafts = []; renderSailleDraft(); renderRepro();
+  try { renderSailleHistoTiroir(); } catch(e){}
+}
+
+// --- Historique des saillies ---
+function libelleStatutSaillie(s){
+  if(s.statut === 'mise_bas') return 'Mise bas' + (s.dateMiseBas ? ' le ' + fmtDate(s.dateMiseBas) : '');
+  if(s.statut === 'refaite') return 'Refaite';
+  if(s.statut === 'gestante'){
+    const j = ecartJours(aujourdhui(), s.prevue || addJours(s.date, JOURS_GESTATION));
+    return 'Gestante' + (j >= 0 ? ' (mise bas dans ' + j + ' j)' : ' (retard de ' + (-j) + ' j)');
+  }
+  return s.statut || '';
+}
+function buildSailleHistoHTML(fDate, fTruie, fStatut){
+  let entries = load('pig_saillies').map((s, idx) => ({ ...s, _idx: idx }));
+  if(fDate){ entries = entries.filter(s => s.date === fDate); }
+  if(fTruie){ entries = entries.filter(s => normRef(s.truie) === normRef(fTruie)); }
+  if(fStatut){ entries = entries.filter(s => s.statut === fStatut); }
+  entries.sort((a,b) => (b.date || '').localeCompare(a.date || '') || (b.ts || 0) - (a.ts || 0));
+  if(!entries.length){ return '<div class="empty">Aucune saillie pour l\'instant.</div>'; }
+  const rows = entries.map(s => `<tr>
+      <td>${fmtDate(s.date)}</td>
+      <td>${s.truie}</td>
+      <td>${s.verrat || '—'}</td>
+      <td>${fmtDate(s.prevue || addJours(s.date, JOURS_GESTATION))}</td>
+      <td>${libelleStatutSaillie(s)}</td>
+      <td><button class="del" onclick="delSaillie(${s._idx})">Suppr.</button></td>
+    </tr>`).join('');
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Date saillie</th><th>Truie</th><th>Verrat</th><th>Mise bas prévue</th><th>Statut</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function renderSailleHistoTiroir(){
+  const sel = document.getElementById('sh-filter-truie'); if(!sel) return;
+  const cur = sel.value;
+  const truies = [...new Set(load('pig_saillies').map(x => x.truie))];
+  sel.innerHTML = '<option value="">Toutes les truies</option>' + truies.map(t => `<option>${t}</option>`).join('');
+  if(truies.includes(cur)) sel.value = cur;
+  refreshSailleHisto();
+}
+function refreshSailleHisto(){
+  const el = document.getElementById('sailleHistoTable'); if(!el) return;
+  el.innerHTML = buildSailleHistoHTML(
+    document.getElementById('sh-filter-date').value,
+    document.getElementById('sh-filter-truie').value,
+    document.getElementById('sh-filter-statut').value);
+}
+function delSaillie(i){
+  const list = load('pig_saillies'); const s = list[i]; if(!s) return;
+  if(s.statut === 'mise_bas'){ showAlert("Cette saillie a donné une naissance. Supprimez d'abord la naissance."); return; }
+  showConfirm("Supprimer la saillie de la truie " + s.truie + " du " + fmtDate(s.date) + " ?", function(){
+    const l2 = load('pig_saillies'); const k = l2.findIndex(x => x.id === s.id);
+    if(k >= 0){ l2.splice(k,1); save('pig_saillies', l2); }
+    try { renderSailleHistoTiroir(); } catch(e){}
+    try { renderRepro(); } catch(e){}
+  });
 }
 
 // --- Naissance (petite inscription de la portée) ---
@@ -5579,8 +5867,5 @@ initCloudSync();
 </script>
 
 
-<script>
-if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('service-worker.js').catch(function(){}); }); }
-</script>
-</body>
-</html>
+<script>try{ if('serviceWorker' in navigator && location.protocol.startsWith('http')){ navigator.serviceWorker.register('./service-worker.js'); } }catch(e){}</script>
+</body></html>
